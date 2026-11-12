@@ -12,6 +12,7 @@ run_poses.py). Limb-direction points are set too, so elbows and knees never flip
 """
 import json
 import math
+import sys
 
 # Her rest pose in the Cascadeur rig (characters.controllers, frame 0 after import).
 HIP_X, HIP_Y, HIP_Z = 9.1, 82.0, 10.9
@@ -157,7 +158,39 @@ FRAMES[CONTACT + 4] = pose(56.0, "squash")
 FRAMES[CONTACT + 9] = pose(74.0, "ready")
 FRAMES[CONTACT + 14] = pose(80.0, "ready")
 
-if __name__ == "__main__":
+## The owner's hand-built rig (.wip/nim/cascadeur/nim_ap.casc, AutoPosing on) has real pelvis, chest and head
+## points. Keys there set only these; AutoPosing fills the spine, neck, shoulders and limb directions.
+AP_KEYS = [0, 5, 9, 13, 18, 24, 30, 36, 42, 47, 50, 54, 59, 64]
+AP_REST = {"pelvis": (81.1, 12.3), "chest": (114.8, 10.4), "head": (139.6, 20.3)}
+
+
+def ap_pose(p, lean):
+    """Map a pose to the AutoPosing rig's controllers."""
+    pel = p["spine_MainPoint"]
+    out = {"hips_MainPoint": [pel[0], pel[1], pel[2] + 1.4]}
+    out["chest_MainPoint"] = [0.0, pel[1] + 33.7, pel[2] - 0.5 + lean * 0.7]
+    out["head_MainPoint"] = [0.0, pel[1] + 58.5, pel[2] + 9.4 + lean * 1.1]
+    for s in ("L", "R"):
+        for n in ("shin", "foot", "toe", "forearm", "hand"):
+            out["%s.%s_MainPoint" % (n, s)] = p["%s.%s_MainPoint" % (n, s)]
+    return out
+
+
+def ap_frames():
+    out = {}
+    for f in AP_KEYS:
+        p = FRAMES[f] if f in FRAMES else air_shape(f)
+        chest = p["spine_DirectionPoint"]
+        lean = chest[2] - p["spine_MainPoint"][2] - 4.8
+        out[f] = ap_pose(p, lean)
+    return out
+
+
+if __name__ == "__main__" and "--ap" in sys.argv:
+    print(json.dumps({"apex": APEX, "contact": CONTACT, "end": CONTACT + 14,
+                      "frames": {f: {k: [round(x, 2) for x in v] for k, v in p.items()}
+                                 for f, p in sorted(ap_frames().items())}}))
+elif __name__ == "__main__":
     print(json.dumps({"apex": APEX, "contact": CONTACT, "end": CONTACT + 14,
                       "frames": {f: {k: [round(x, 2) for x in v] for k, v in p.items()}
                                  for f, p in sorted(FRAMES.items())}}))

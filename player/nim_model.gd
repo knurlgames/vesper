@@ -18,6 +18,8 @@ const GLB := {
 const CLIP_SPEED := {&"walk": 1.6, &"strut": 1.4, &"prowl": 1.5, &"run": 5.5, &"balance": 0.9, &"climb_up": 1.2,
 	&"climb_side": 1.0, &"ceiling": 1.0, &"descend": 2.0}
 const BLEND := 0.12
+## Clips that play once and hold their last frame while she's still in that state.
+const HOLD := [&"jump", &"fall"]
 const RUN_FROM := 3.6       # m/s: faster than this is a run
 const MOVE_FROM := 0.3      # m/s: slower than this is standing
 ## The frame (at 24 fps) where the muzzle's catch clicks: it appears or disappears then.
@@ -63,7 +65,7 @@ func _ready() -> void:
 		for ap: AnimationPlayer in [_players[o]]:
 			if ap:
 				ap.animation_finished.connect(_on_finished)
-				for loop_clip in [&"idle_garb", &"idle_suit", &"walk", &"prowl", &"strut", &"run", &"jump", &"fall",
+				for loop_clip in [&"idle_garb", &"idle_suit", &"walk", &"prowl", &"strut", &"run",
 						&"climb_up", &"climb_side", &"hang", &"balance", &"ceiling", &"descend", &"swing", &"bind",
 						&"trance"]:
 					if ap.has_animation(loop_clip):
@@ -131,7 +133,9 @@ func _physics_process(delta: float) -> void:
 		return
 	var want := _pick()
 	var ap: AnimationPlayer = _players[outfit]
-	if want != _clip or not ap.is_playing():
+	# Jump and fall (the Cascadeur pilot) play once and hold their last frame: replaying a finished one would restart
+	# the push-off mid-air (Nine Lives' one-shot gotcha).
+	if want != _clip or (not ap.is_playing() and not want in HOLD):
 		_clip = want
 		ap.play(want, BLEND)
 	ap.speed_scale = _speed_for(want)

@@ -56,9 +56,11 @@ def export(outfit):
 ##   whole corkscrews the arms and legs: its roll comes from box controllers nobody keys);
 ## - hands and toes follow their parents; fingers, tail and ears come from nim_poses' own clip specs;
 ## - quaternions stay on one hemisphere frame to frame.
+## The spine chain too: its Cascadeur boxes are unkeyed, and their roll flipped spine, chest and head 180 degrees.
 SWING = {"shoulder.L", "upper_arm.L", "forearm.L", "shoulder.R", "upper_arm.R", "forearm.R",
-         "thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R"}
-FOLLOW = {"hand.L", "hand.R", "toe.L", "toe.R"}
+         "thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R", "spine", "chest", "neck", "head"}
+## Head and neck follow the chest: the take's head (a fallback pose on several frames) snapped up to 170 degrees.
+FOLLOW = {"hand.L", "hand.R", "toe.L", "toe.R", "neck", "head"}
 BODY = {"root", "hips", "spine", "chest", "neck", "head"} | SWING | FOLLOW
 SRC_FPS = 30.0
 GAME_FPS = 24.0
@@ -66,8 +68,10 @@ GAME_FPS = 24.0
 ## game's arc runs TIME_SCALE faster than real gravity; on the ground time is real.
 SLICES = {
     # The game launches on the press, so the crouch can't play before it: the jump starts at the push.
-    "jump": dict(start=9, end=30, speed=1.0 / TIME_SCALE, air=True),
-    "fall": dict(start=30, end=50, speed=1.0 / TIME_SCALE, air=True),
+    # From just after takeoff: the forearms flip between 9 and 11 (unkeyed elbows in the air).
+    "jump": dict(start=11, end=30, speed=1.0 / TIME_SCALE, air=True),
+    # Ends on the reach (47), not the contact: the game holds the fall's last frame for a long drop.
+    "fall": dict(start=30, end=47, speed=1.0 / TIME_SCALE, air=True),
     "land": dict(start=50, end=64, speed=1.0, air=False),
 }
 SUFFIX = "_c"     # garb_jump_c etc.: the Cascadeur versions sit beside the scripted ones until the owner picks
@@ -105,18 +109,16 @@ def bake(outfit, fbx=None):
     def src_head(n):
         return to_rig @ src.pose.bones[n].head
 
-    def src_q(n):
-        return to_rig3.to_quaternion() @ src.pose.bones[n].matrix.to_quaternion()
+    R = to_rig3.to_quaternion()
+    src_rest = {b.name: R @ b.matrix_local.to_quaternion() for b in src.data.bones}
 
-    sc.frame_set(0)
-    # Which joint carries the pelvis: Quick Rigging templates have put it on `spine` (Nine Lives); measure it.
-    moves = {}
-    for n in ("hips", "spine"):
-        sc.frame_set(0)
-        a = src_head(n).copy()
-        sc.frame_set(30)
-        moves[n] = (src_head(n) - a).length
-    pelvis = max(moves, key=moves.get)
+    def src_delta(n):
+        """The bone's rotation away from its own rest, in rig space. Cascadeur's FBX gives the bones other axes
+        than Nim's, so only this delta carries over (copying the rotation whole flipped the spine 180 degrees)."""
+        return (R @ src.pose.bones[n].matrix.to_quaternion()) @ src_rest[n].inverted()
+
+    # The owner's hand-built rig (nim_ap.casc) puts the pelvis where it belongs, on `hips`.
+    pelvis = "hips"
     sc.frame_set(0)
     pelvis0 = src_head(pelvis).copy()
     rest_pelvis = rest["hips"].translation.copy()
@@ -168,10 +170,10 @@ def bake(outfit, fbx=None):
                     q = follow.to_quaternion()
                 elif n in SWING:
                     y0 = follow.to_quaternion() @ Vector((0, 1, 0))
-                    y1 = src_q(n) @ Vector((0, 1, 0))
+                    y1 = src_delta(n) @ (rest[n].to_quaternion() @ Vector((0, 1, 0)))
                     q = y0.rotation_difference(y1) @ follow.to_quaternion()
                 else:
-                    q = src_q(n)
+                    q = src_delta(n) @ rest[n].to_quaternion()
                 M[n] = Matrix.Translation(head) @ q.to_matrix().to_4x4()
                 basis = (rest[b.parent.name].inverted() @ rest[n]).inverted() @ M[b.parent.name].inverted() @ M[n]
                 loc, rot, _ = basis.decompose()
@@ -262,11 +264,32 @@ def compare(outfit):
     return out
 
 
+def use(outfit, which="c"):
+    """Make the shipping clips (<outfit>_jump etc., what nim_poses.set_nla exports) the Cascadeur ones ("c") or
+    the scripted ones ("k"). Both stay in the file: <outfit>_<clip>_k and <outfit>_<clip>_c."""
+    bpy.ops.wm.open_mainfile(filepath=os.path.join(NIM, "nim_%s.blend" % outfit))
+    acts = bpy.data.actions
+    done = {}
+    for clip in SLICES:
+        ship, k, c = "%s_%s" % (outfit, clip), "%s_%s_k" % (outfit, clip), "%s_%s%s" % (outfit, clip, SUFFIX)
+        if k not in acts:          # first swap: the scripted clip becomes _k
+            acts[ship].name = k
+        elif ship in acts:
+            acts.remove(acts[ship])
+        src = acts[c if which == "c" else k]
+        new = src.copy()
+        new.name = ship
+        new.use_fake_user = True
+        done[clip] = src.name
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(NIM, "nim_%s.blend" % outfit))
+    return done
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     stage = argv[0] if argv else "export"
     outfit = argv[1] if len(argv) > 1 else "garb"
-    print("NIMC", stage, outfit, {"export": export, "bake": bake, "compare": compare}[stage](outfit), flush=True)
+    print("NIMC", stage, outfit, {"export": export, "bake": bake, "compare": compare, "use": use}[stage](outfit), flush=True)
 
 
 if __name__ == "__main__":

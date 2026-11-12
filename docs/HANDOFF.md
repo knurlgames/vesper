@@ -23,6 +23,82 @@ print "0 failures".
   `get_node_or_null(^"/root/Game")`.
 - `PROBE_TRACE=1` makes `combat_probe` print the fight frame by frame.
 
+## Where things stand (end of 2026-11-11)
+- **On the Deck now:** the full build, with the Cascadeur jump, fall and land on Nim.
+  - **Waiting on the owner's verdict:** keep these clips, or roll back with `nim_cascadeur.py -- use <outfit> k`.
+- **The cast:** all 17 bodies and 7 masks are in the game through CastModel. Only Vesper and Dash are placed, on
+  the test course.
+- **Open threads:**
+  - the cast's paint step: Vesper's sleeves, Bastion's rosettes, the cloud markings;
+  - Bastion's garb has no tail;
+  - cast face keys (blink and brows);
+  - one generic talk gesture for everyone;
+  - Deck frame rate with several cast models on screen;
+  - build size: about 332 MB, now that the cast GLBs ship.
+- **Meshy balance:** 6,012 credits.
+- **Nothing is committed** (the owner commits).
+
+## 2026-11-11: Cascadeur pilot: Nim's jump, fall and land
+- **Owner: "Start the pilot on Nim and those 3 clips."**
+- **Output so far:** `garb_jump_c`, `garb_fall_c` and `garb_land_c` in `.wip/nim/nim_garb.blend`. They sit beside
+  the scripted clips and **are not exported yet**: the owner picks first.
+  - The pre-pilot file is `nim_garb_precascadeur.blend`.
+  - Comparison sheets (top row scripted, bottom row Cascadeur): `.wip/nim/cascadeur/compare_{jump,fall,land}.png`.
+- **The pipeline:**
+  - `tools/nim_cascadeur.py`:
+    - `-- export` writes Nim's rig and body to FBX;
+    - `-- bake` brings a Cascadeur take back and slices it;
+    - `-- compare` renders old against new.
+  - `tools/cascadeur/nim_jump_poses.py` (`--ap` for the AutoPosing rig) generates the jump.
+- **The take:** one continuous standing jump at real gravity, keyed in Cascadeur at 30 fps.
+  - Crouch 5, push 9, takeoff 10, apex 30 (pelvis +2.2 m), contact 50, squash 54, stand 64.
+  - The pelvis follows a true parabola, and the knees come from two-bone IK at her bone lengths.
+  - **The slices:**
+    - jump = frames 9–30;
+    - fall = 30–50;
+    - land = 50–64.
+  - **Timing:** the air slices are sped up 1.92× (`TIME_SCALE`). The game's arc is 2.2 m in 0.35 s, about
+    3.7 g, against real gravity's 0.67 s. The clips are in place: the game moves her body.
+- **Rig:**
+  - **The owner's hand-built rig works,** with AutoPosing: `.wip/nim/cascadeur/nim_ap.casc`.
+    - Same lesson as Nine Lives: a rig built from a template file through the MCP gets no neck or head controls,
+      and AutoPosing fails with "no object with name: 'neck'".
+  - **Working copies:** `nim_jump.casc` (keyed) and `nim_jump_phys.casc` (AutoPhysics snapped, which is the
+    exported take, `nim_jump_take.fbx`).
+- **What Cascadeur did and didn't do:**
+  - **AutoPosing** posed the standing frames (0, 5, 50–64) well. It rejected every airborne pose, which were
+    applied directly instead.
+  - **AutoPhysics** ran: its contacts sit at the feet, and gravity is right.
+    - Its solution sits about 35 cm off to the side of the animation (as in Nine Lives).
+    - Snapping it changed the motion only a little (the apex rose 9 cm).
+  - **Most of the gain over the scripted clips comes from authoring one continuous jump,** not from the physics.
+- **Gotchas (all fixed in the tools):**
+  - **Never call the MCP's `set_pose` from `run_python`:** it deadlocks Cascadeur's UI thread, and the app must
+    be force-closed.
+  - **Each `pose.set` returns about 12 KB:** key few frames, set only the main points.
+  - **The snap stops at an "Apply AutoPhysics: All Frames / Only keys" dialog** that the MCP fails to click.
+    Click it with `ui_inspect.dialogs` and `ui_input.click`.
+  - **The timeline must include the last key + 1** before snapping.
+  - **The baked spine, chest and head flipped 180°** from unkeyed box roll. They now take direction only, like
+    the limbs, and every bone takes its rotation relative to its own rest (the FBX's bone axes differ from
+    Nim's).
+- **Known flaws in the `_c` clips:**
+  - the jump's first frames swing the left forearm over her head (115° in one frame after the 1.9× speed-up);
+  - the fall ends with the head tipped back;
+  - the land starts with straight legs and the body high (true to the contact pose).
+- **On the Deck for testing (owner: "Sure"):** the Cascadeur clips now ship as `jump`, `fall` and `land` in both
+  outfits.
+  - `nim_cascadeur.py -- use <outfit> [c|k]` swaps the clips; the scripted ones are kept as `<outfit>_<clip>_k`.
+    Roll back with `-- use garb k` and `-- use suit k`, then `nim_build.py -- export`.
+  - **Bake fixes before shipping:**
+    - the jump starts at take frame 11, after the forearm flip at takeoff;
+    - the fall ends on the reach at 47, not the contact;
+    - the head and neck follow the chest, because the take's head snapped up to 170°.
+    - Worst steps now: the jump's arm swing at 67–70° a frame, the land's arm throw at 80°.
+  - **`nim_model.gd`:** `HOLD` = jump and fall. They play once and hold, and are out of the loop list.
+  - **Build size:** about 332 MB, up from 77, because the 17 cast GLBs now ship. Pruning or compressing them is
+    future work.
+
 ## 2026-11-11: WO-012 the cast in the game: all 17 bodies built, masked and exported
 - **Owner: "Proceed with the Blender work."** No credits were spent.
 - **The pipeline is `tools/cast_build.py`:**
@@ -67,7 +143,8 @@ print "0 failures".
   - **The talk gesture is generic:** one right-hand beat for everyone.
   - **Paint step not done:** Vesper's sleeves, Bastion's rosettes, the clouds on markings.
   - **Silke's veil** still has faint shading at its edge (not visible at game distance).
-  - **Not yet pushed to the Deck,** and the Deck frame rate with several cast models is unmeasured.
+  - **On the Deck** since the Cascadeur pilot build (2026-11-11). The Deck frame rate with several cast models is
+    still unmeasured: the test course shows only Vesper and Dash.
 
 ## 2026-11-11: WO-012 the sisters' masks: all seven modelled
 - **Owner: "Proceed on the masks."** Each mask went through two steps, the same as Nim's:
@@ -102,13 +179,8 @@ print "0 failures".
     the texture if it shows.
   - **Masks that open the face:** Lull and Grizelda (lower face only) and Augusta, Dash and Bastion (upper face
     only). The fit needs its eye or muzzle measurements from each body's `FACE`.
-- **Next: the free Blender work for the whole cast:**
-  - clean-up (Lull's floor disc);
-  - tail and ear chains;
-  - decimating to budget;
-  - paint;
-  - fitting the masks (rest pose!);
-  - Godot integration.
+- **Done since** (see "the cast in the game" above): clean-up, tail and ear chains, budget, mask fitting and Godot
+  integration. Only the paint step is left.
 
 ## 2026-11-11: WO-012 cast 3D: all 17 bodies (16 plus the Augusta test) modelled, remeshed and rigged
 - **Owner: "Proceed with the bodies."** Each body went through three steps:
@@ -140,10 +212,7 @@ print "0 failures".
     them.
 
   They are session scratch. Move them into `tools/` if the next session needs them.
-- **Next, waiting on the owner:**
-  - the 7 mask models (about 308 credits; quote and wait for a yes);
-  - then the free Blender work: clean-up, the tail and ear chains, decimating to budget, paint, the masks, and
-    Godot integration.
+- **Done since:** the 7 masks (326 credits) and the Blender work. See the entries above.
 
 ## 2026-11-11: WO-012 cast concepts, batch 4: every cast concept now exists
 - **Cost:** 63 credits (cast concepts total 315, about 7,175 left). Tasks in
