@@ -1,0 +1,7 @@
+{
+  "about": "The probe world's 'next morning's paper' (tools/ui_probe.gd checks World.complete plays a world's paper). Not in the game.",
+  "steps": [
+    {"card": {"kind": "newspaper", "title": "PROBE WORLD COMPLETED", "body": "A test of the paper after a world.",
+      "owner_review": true}}
+  ]
+}

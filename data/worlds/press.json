@@ -1,0 +1,90 @@
+{
+  "id": "press",
+  "number": 5,
+  "name": "The Decency Press",
+  "host": "Rivet (caracal)",
+  "gear": "lures",
+  "lesson": null,
+  "link": "the Decency League's pamphlet printers out front, the toy factory behind.",
+  "target_length": "70–90 minutes on a first visit",
+  "areas": [
+    {"name": "The Reading Room", "what": "the shopfront: pamphlets, a counter, a League volunteer", "mostly": "blend in"},
+    {"name": "The Print Floor", "what": "presses, paper rolls, drying racks overhead", "mostly": "covert"},
+    {"name": "The Line", "what": "the toy assembly line: conveyors, stamps, a paint shop, a testing booth", "mostly": "covert, the set piece"},
+    {"name": "The Loading Yard", "what": "vans, a weighbridge, a gatehouse with dogs", "mostly": "covert"},
+    {"name": "The Boiler House and chimney", "what": "the furnace and a 60 m chimney with a ladder", "mostly": "climbing"},
+    {"name": "The Foundry", "what": "the furnace's floor, under the chimney", "mostly": "the boss"}
+  ],
+  "wardrobes": [
+    "Rivet's van in the yard",
+    "the Reading Room's cloakroom",
+    "the boiler house's staff room"
+  ],
+  "shortcuts": [
+    "a paper chute from the Print Floor down to the Yard",
+    "a gantry from the Line across to the Boiler House"
+  ],
+  "keys": [
+    {"n": 1, "id": "press_01", "name": "Rivet's test: get a lure to land in a bin from across the Yard", "where": "the Yard", "outfit": "garb", "joke": "Rivet scores her out of ten. She gives six. \"I'm generous.\""},
+    {"n": 2, "id": "press_02", "name": "The Reading Room: command the volunteer to fetch the \"trade catalogue\"", "where": "the Reading Room", "outfit": "suit", "joke": "It has two covers. The inner one's the toy catalogue."},
+    {"n": 3, "id": "press_03", "name": "The drying racks: cross the Print Floor on the racks while pamphlets dry on them", "where": "the Print Floor", "outfit": "garb", "joke": "Nim comes out with DECENCY printed backwards on her side."},
+    {"n": 4, "id": "press_04", "name": "The proof copy: the next pamphlet's proof is in the press; swap it", "where": "the Print Floor", "outfit": "garb", "joke": "The swapped proof prints Swyne's photo upside down. Six thousand copies."},
+    {"n": 5, "id": "press_05", "name": "The magpie: cross the whole Line without quality control looking up", "where": "the Line", "outfit": "garb", "joke": "The magpie's caught a lure. He's keeping it."},
+    {"n": 6, "id": "press_06", "name": "The weighbridge: a van's overloaded; Open its back with its driver's own hands", "where": "the Yard", "outfit": "suit", "joke": "Nim tells him to weigh himself next. He does."},
+    {"n": 7, "id": "press_07", "name": "The chimney: climb all 60 m, then come down head first", "where": "the chimney", "outfit": "garb", "joke": "Vesper's not at the top. A note is: \"Proud of you. Don't fall.\""},
+    {"n": 8, "id": "press_08", "name": "The guard dogs: through the Yard and out the far gate with every dog still asleep", "where": "the Yard", "outfit": "garb", "joke": "One dog wakes, sees her, and goes back to sleep. Professional courtesy."},
+    {"n": 9, "id": "press_09", "name": "The line, backwards (the set piece)", "where": "the Line", "outfit": "garb", "joke": "See below."},
+    {"n": 10, "id": "press_10", "name": "Five testers woken", "where": "everywhere", "outfit": "either", "joke": "They give the product one star, all five of them."}
+  ],
+  "contraband": "100 contraband (toys off the line, crates in the vans)",
+  "tin": "the League's collection tin in the Reading Room",
+  "people_in_trances": "five testers who tried the products, still sitting in the testing booth. Nobody hurts them.",
+  "enemies": [
+    "Goons: moles in overalls and goggles, who work the line and fight. They're poor-sighted, so lures work twice as well on them.",
+    "Guard dogs in the Yard: Dobermans on chains, with handlers. They smell her. Lures, or the roofs.",
+    "Quality control: a magpie on a high stool over the line, who watches for anything out of place. Doesn't fight, pulls the line's alarm."
+  ],
+  "set_piece": {
+    "name": "The line, backwards",
+    "summary": "Rivet's plan: run the whole line in reverse, so it unmakes what it made.",
+    "beats": [
+      "Nim fights through the Line to the control room and throws the switch.",
+      "The conveyors run backwards and pick up speed. She rides them upstream, through the stamps, the paint shop, the testing booth, jumping between belts as presses come down in reverse.",
+      "The magpie pulls the alarm. Goons come down the belts toward her. She lures them off the sides.",
+      "At the end of the line, everything that's been made goes back in as raw parts."
+    ],
+    "punchline": "the line's last trick, run backwards, is to reprint the Reading Room's pamphlets as blank paper."
+  },
+  "boss": {
+    "name": "Foreman Grubb",
+    "species": "mole",
+    "summary": "A mole in a giant press of his own design, the Decency Engine: a printing press on legs. He fights in the Foundry.",
+    "phases": [
+      "The plates. The Engine stamps the floor in patterns. Nim reads the pattern, and the lures make him stamp the wrong way.",
+      "The ink. He floods the floor with ink, and she can't stay on it. She climbs the walls and swings across the ceiling chains with the rope.",
+      "The feed. She drops down into the Engine's feed and, from inside, the crop jams the rollers."
+    ],
+    "punchline": "the Engine, jammed, prints its last sheet: Grubb's signed confession, which he'd written in case anyone asked. Bound to the press. Nobody's printing anything tonight."
+  },
+  "leaves_with": [
+    "The lures, and the knowledge she can do it alone.",
+    "The broadcast schedule: midnight, City Hall's clock tower, the night of the vote. And the gift bags for the Ball.",
+    "Back at the club, Vesper's home from the hearing. She doesn't talk about it. She asks how the chimney was."
+  ],
+  "owner_review": "Every joke in the Key table, the names Foreman Grubb and the Decency Engine, Vesper's note, and Rivet's lines. The hearing on the radio (Swyne's lines).",
+  "status": "proposal",
+  "story": [
+    "Coming in: the Retreat's order forms come from the Decency Press, the League's printers in the industrial quarter. Rivet has a schematic of the building already. She drew it from memory after a tour. \"They gave me a pamphlet. I gave them nothing.\"",
+    "The same night: Vesper is called before the Council's Decency Committee. She goes, in her coat, calm. Nim hears it on the radio as she works: Swyne names \"a certain club in the Old Quarter\" in public, and Vesper doesn't deny it. The bell tower in this world is empty.",
+    "The Press: a red-brick works with a chimney. Out front, a reading room full of pamphlets: DECENCY: A GUIDE FOR THE FAMILY. Behind it, the line, making toys.",
+    "Going out: the foreman's office holds the broadcast schedule: midnight, City Hall's clock tower, the night of the Decency Act vote. And an order for six hundred gift bags for the Council's Decency Ball."
+  ],
+  "how_it_teaches": [
+    "Nothing new from Vesper. Rivet's lures after her test (Key 1): throw a seized toy, it buzzes, and guards go to look. A world built to use everything together, with the lures as the extra."
+  ],
+  "notes": [
+    "The factory. It leans covert, and it's the first world where Vesper isn't watching.",
+    "No new lesson: Vesper has taught everything. This world tests it.",
+    "The map: a factory in four halls, with a yard and a chimney."
+  ]
+}

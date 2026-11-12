@@ -1,0 +1,11 @@
+{
+  "about": "The example cutscene for docs/WRITING.md: a shot, the morning paper, a word from Nim. From the Pier brief's 'Going out' (Swyne condemns the filth on our seafront). Placeholder wording.",
+  "steps": [
+    {"shot": {"from": [195.0, 2.2, 13.0], "look_at": [193.0, 1.2, 9.0], "secs": 1.2}},
+    {"card": {"kind": "newspaper", "title": "SWYNE VOWS: \"I WILL CLEAN UP OUR SEAFRONT\"",
+      "body": "Councillor Swyne condemned \"the filth on our seafront\" last night and promised a full clean-up of the Pier's \"so-called amusements\". Asked about his own visits to the Pier, the Councillor said he had been \"inspecting\".",
+      "owner_review": true}},
+    {"say": {"file": "res://data/dialogue/course/paper.dialogue", "label": "start"}},
+    {"wait": 0.3}
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "id": "ball",
+  "number": 6,
+  "name": "The Decency Ball",
+  "host": "Augusta (lioness)",
+  "gear": "the signet",
+  "lesson": null,
+  "link": "Swyne in public, giving every councillor a toy as a party favour.",
+  "target_length": "70–90 minutes on a first visit",
+  "areas": [
+    {"name": "The Ballroom", "what": "the dance floor, the orchestra, the receiving line", "mostly": "blend in"},
+    {"name": "The Galleries", "what": "the upper floors: portraits, alcoves, balconies over the floor", "mostly": "blend in"},
+    {"name": "The Cloakroom", "what": "the gift bags, the coats, the cloakroom attendants", "mostly": "both"},
+    {"name": "The Kitchens", "what": "below stairs: cooks, waiters, a dumbwaiter", "mostly": "covert"},
+    {"name": "The Dome", "what": "the glass roof outside, the gutters, the lantern at the top", "mostly": "covert"},
+    {"name": "The Chandelier", "what": "the great chandelier over the floor", "mostly": "the boss"}
+  ],
+  "wardrobes": [
+    "the cloakroom",
+    "a maid's cupboard in the Kitchens",
+    "a skylight hatch on the Dome"
+  ],
+  "shortcuts": [
+    "the dumbwaiter from the Kitchens to the Galleries",
+    "the chandelier's chain from the Dome down to the floor"
+  ],
+  "keys": [
+    {"n": 1, "id": "ball_01", "name": "Augusta's test: the receiving line. Greet twelve dignitaries, each correctly", "where": "the Ballroom", "outfit": "suit", "joke": "Augusta corrects her on the eleventh. She was right. Augusta was testing."},
+    {"n": 2, "id": "ball_02", "name": "The cloakroom: command the attendant to fetch \"Councillor Swyne's other coat\"", "where": "the Cloakroom", "outfit": "suit", "joke": "It's lined with toys. He's been carrying stock all night."},
+    {"n": 3, "id": "ball_03", "name": "The portraits: one portrait in the Galleries hides a safe", "where": "the Galleries", "outfit": "suit", "joke": "The portrait is Swyne's. In the background, a toy, painted in."},
+    {"n": 4, "id": "ball_04", "name": "The dumbwaiter: ride it up and down the house without being opened on", "where": "the Kitchens", "outfit": "garb", "joke": "The last stop opens on a councillor's private dinner. He orders a starter from her."},
+    {"n": 5, "id": "ball_05", "name": "The dome: cross the glass without a crack", "where": "the Dome", "outfit": "garb", "joke": "Silke is already up there. She brought a flask."},
+    {"n": 6, "id": "ball_06", "name": "The speech: command the master of ceremonies to give Swyne the wrong card", "where": "the Ballroom", "outfit": "suit", "joke": "Swyne reads out his own shopping list. It's long and specific."},
+    {"n": 7, "id": "ball_07", "name": "The chef: in the Kitchens, take the \"special dessert\"", "where": "the Kitchens", "outfit": "garb", "joke": "It's a cake of toys. Dash eats the icing anyway."},
+    {"n": 8, "id": "ball_08", "name": "The dance: waltz with a councillor and take the key off his chain", "where": "the Ballroom", "outfit": "suit", "joke": "He thanks her for the most decent dance of his life."},
+    {"n": 9, "id": "ball_09", "name": "The swap (the set piece)", "where": "everywhere", "outfit": "suit", "joke": "See below."},
+    {"n": 10, "id": "ball_10", "name": "Five guests woken", "where": "the Ballroom", "outfit": "either", "joke": "All five find partners on waking, the same ones."}
+  ],
+  "contraband": "100 contraband (the gift bags, the coat, the cake)",
+  "tin": "the League's collection tin in the receiving line, collected by Swyne himself",
+  "people_in_trances": "five guests who opened a bag early, dancing the same waltz with no partner. Nobody hurts them.",
+  "enemies": [
+    "Goons: goats in footmen's livery, the Council's own staff. They fight once her cover's blown.",
+    "Private security: a Rottweiler at every door to the Galleries. Commanded with the signet, or avoided.",
+    "Swyne's secretary, watching the room the whole night (the boss).",
+    "The guests: the powerful, as a crowd. They're the cover."
+  ],
+  "set_piece": {
+    "name": "The swap",
+    "summary": "The crew swaps six hundred gift bags while Nim holds the room. The whole crew is on screen, each at her post.",
+    "beats": [
+      "The Ballroom's attention is a shared meter. Nim keeps it on her: a dance, a word with a councillor, the wrong card at the speech. Commands with the signet steer guests away from the cloakroom.",
+      "Every minute, cut to the crew: Silke lowers bags down through the dome, Rivet sorts in the cloakroom, Dash runs them through the kitchens, Lull wakes anyone who's already opened one, Grizelda keeps the waiters in line. Bastion holds the door.",
+      "If the room's attention slips, the secretary heads for the cloakroom. Nim heads him off."
+    ],
+    "punchline": "the new gift bags each hold one of the League's own pamphlets, blank, from the Press."
+  },
+  "boss": {
+    "name": "Mr. Horace Tupping",
+    "species": "ram",
+    "summary": "A ram, Swyne's private secretary. He sees Nim for what she is halfway through the night.",
+    "phases": [
+      "The waltz. He cuts in. A duel in public, on the dance floor: he leads, she follows, and each of his steps is a question. Answer in step, or lose Composure. The floor watches.",
+      "The galleries. Her cover's blown. It's a fight now, along the galleries, footmen coming from both ends. The signet clears a councillor's guard out of the way; the rope gets her across.",
+      "The chandelier. He takes the chandelier's chain up toward the dome to get out. She rides the chandelier up after him, swinging it to reach him."
+    ],
+    "punchline": "bound to the chandelier, lowered to just above the dance floor, he turns slowly to the music for the rest of the Ball."
+  },
+  "leaves_with": [
+    "The signet, and the gift bags swapped.",
+    "Tupping saw her face. The raid comes before dawn.",
+    "Augusta's verdict: \"You dance like a soldier. It'll do.\" Then, to Vesper: \"It's time.\""
+  ],
+  "owner_review": "Every joke in the Key table, Swyne's speech and shopping list, and Vesper's, Augusta's and the crew's lines. Vesper's dance with Swyne especially.",
+  "status": "proposal",
+  "story": [
+    "Coming in: six hundred gift bags, one for every guest at the Council's Decency Ball, each holding a receiver. The vote is next week. Augusta's been invited to the Ball for forty years and has never gone. \"It seemed a shame to waste the gown.\"",
+    "The plan: the crew swaps every gift bag for a harmless one while Nim keeps the room's attention.",
+    "The Ball: chandeliers, an orchestra, a glass dome, councillors and their wives. Swyne gives the welcome speech on decency, then works the room handing out the bags himself.",
+    "Vesper is a guest. She comes in on Augusta's invitation and dances with Swyne. In public. In front of everyone. He knows who she is now. She lets him.",
+    "Going out: the bags are swapped, but Swyne's secretary saw Nim's face. Before dawn, the police raid the Velvet Rope. The club is emptied, its door sealed. The crew scatters to safehouses. The vote is moved to tomorrow night."
+  ],
+  "how_it_teaches": [
+    "Nothing new from Vesper. Augusta's signet after her test (Key 1): Commands now work on the powerful. Councillors, their aides, the Ball's master of ceremonies. Without it, they ignore her."
+  ],
+  "notes": [
+    "The Council's grand hall, the night of the Ball. It leans blend-in, and the whole crew works it at once.",
+    "No new lesson.",
+    "The map: the Council's grand hall: a ballroom under a glass dome, with galleries round it.",
+    "Boss name approved by the owner, 2026-11-11 (the rest of the brief is a proposal)."
+  ]
+}

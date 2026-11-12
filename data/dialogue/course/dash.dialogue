@@ -1,0 +1,25 @@
+# Dash on the test course: the example conversation for docs/WRITING.md, added without code. It shows a condition,
+# a choice, a flag set and a second visit. Placeholder lines, not the Pier's.
+
+~ start
+[if dash_met] => again
+Dash [grin]: You're the new one. Nim, right? Vesper's latest project.
+Nim: I'm not a project.
+Dash: Everyone's a project. I was a project. Now I'm the fastest thing in the Old Quarter.
+- Prove it. => race
+- Good for you. => shrug
+
+~ race
+Dash [grin]: Gate to the end of the lane. Loser buys.
+set dash_race_offered
+set dash_met
+=> END
+
+~ shrug
+Dash: Wow. Cold. I like it.
+set dash_met
+=> END
+
+~ again
+[if dash_race_offered] Dash: The race is still on. I'll even give you a head start. A small one.
+[if not dash_race_offered] Dash: Back again? Changed your mind about the race?

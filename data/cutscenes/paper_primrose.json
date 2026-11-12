@@ -1,0 +1,8 @@
+{
+  "about": "After Primrose Close (docs/worlds/02_PRIMROSE_CLOSE.md, 'Going out'): the parish newsletter thanks Mrs. Gander.",
+  "steps": [
+    {"card": {"kind": "newspaper", "masthead": "THE PARISH NEWSLETTER", "title": "A RECORD YEAR",
+      "body": "The parish thanks Mrs. Gander for \"a record year\".",
+      "owner_review": true}}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "about": "The Decency Press (docs/worlds/05_DECENCY_PRESS.md, 'The same night'): on the radio, Swyne names a club in the Old Quarter at the Decency Committee, and Vesper doesn't deny it.",
+  "steps": [
+    {"card": {"kind": "radio", "title": "THE DECENCY COMMITTEE",
+      "body": "Councillor Swyne named \"a certain club in the Old Quarter\" before the Council's Decency Committee tonight. Its proprietor, called to answer, did not deny it.",
+      "owner_review": true}}
+  ]
+}

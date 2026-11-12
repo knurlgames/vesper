@@ -1,0 +1,92 @@
+{
+  "id": "retreat",
+  "number": 4,
+  "name": "The Retreat",
+  "host": "Lull (serval)",
+  "gear": "the pendant",
+  "lesson": "Hold the Room, the last thing she teaches",
+  "link": "the receivers are tested here. Everyone under waits for one signal.",
+  "target_length": "70–90 minutes on a first visit",
+  "areas": [
+    {"name": "Reception and the Lounge", "what": "wicker, ferns, whale song, a desk, a gift shop", "mostly": "blend in"},
+    {"name": "The Springs", "what": "terraces of hot pools, steam, wooden walkways, a waterfall", "mostly": "both"},
+    {"name": "The Treatment Wing", "what": "white corridors, therapy rooms behind frosted glass, the \"listening\" rooms", "mostly": "both"},
+    {"name": "The Gardens", "what": "a gravel garden, a hedge labyrinth, a bell tower", "mostly": "covert"},
+    {"name": "The Old Sanatorium", "what": "the closed wing: peeling paint, iron beds, her file", "mostly": "covert"},
+    {"name": "The Sensory Hall", "what": "a domed hall of hanging lights and slow spirals", "mostly": "the boss"}
+  ],
+  "wardrobes": [
+    "Lull's guest room",
+    "a linen room in the Treatment Wing",
+    "a boathouse by the lower pool"
+  ],
+  "shortcuts": [
+    "the waterfall's back ledge from the Springs to the Gardens",
+    "a laundry chute from the Sanatorium down to Reception"
+  ],
+  "keys": [
+    {"n": 1, "id": "retreat_01", "name": "Lull's test: fake a trance through the whole Lounge without breaking it", "where": "the Lounge", "outfit": "suit", "joke": "The guest beside her is faking too. They both notice. Neither says anything."},
+    {"n": 2, "id": "retreat_02", "name": "The gift shop: command the clerk to fetch the \"special\" stock from the back", "where": "Reception", "outfit": "suit", "joke": "The special stock is priced per session. Nim confiscates it at a discount."},
+    {"n": 3, "id": "retreat_03", "name": "The waterfall: climb behind it, along the back ledge, to the top", "where": "the Springs", "outfit": "garb", "joke": "Vesper is at the top, completely dry again."},
+    {"n": 4, "id": "retreat_04", "name": "The listening rooms: walk through all four in a fake trance while the tapes play", "where": "the Treatment Wing", "outfit": "suit", "joke": "The tapes say she is \"decent and calm and sleepy\". She is none of those things."},
+    {"n": 5, "id": "retreat_05", "name": "The labyrinth: the hedges change at the gong; get through before it sounds again", "where": "the Gardens", "outfit": "garb", "joke": "At the centre is a bench with the gardener on it, who's been lost since spring."},
+    {"n": 6, "id": "retreat_06", "name": "The herons: cross the Springs past all seven without one ringing the gong", "where": "the Springs", "outfit": "garb", "joke": "The seventh heron is asleep, standing up."},
+    {"n": 7, "id": "retreat_07", "name": "The bell tower: from the ceiling, take the gong's striker before it's rung", "where": "the Gardens", "outfit": "garb", "joke": "The orderlies come anyway, out of habit."},
+    {"n": 8, "id": "retreat_08", "name": "Her file", "where": "the Old Sanatorium", "outfit": "garb", "joke": "Not a joke. She takes it, and the photograph."},
+    {"n": 9, "id": "retreat_09", "name": "The session (the set piece)", "where": "the Treatment Wing", "outfit": "suit", "joke": "See below."},
+    {"n": 10, "id": "retreat_10", "name": "Five guests woken", "where": "everywhere", "outfit": "either", "joke": "The last one asks for a refund. Lull gives her one, from the doctor's safe."}
+  ],
+  "contraband": "100 contraband (receivers, tapes, the \"special stock\")",
+  "tin": "the League's collection tin in Reception",
+  "people_in_trances": "five guests who stayed too long, doing the same stretch by the pool, forever. Nobody hurts them.",
+  "enemies": [
+    "Orderlies: sheep in white tunics. Docile, until they're not. They fight, and they can be bound.",
+    "The quiet staff: herons in white coats who stand perfectly still in the pools and see everything. They don't fight; they ring the gong.",
+    "The gong brings every orderly in the area."
+  ],
+  "set_piece": {
+    "name": "The session",
+    "summary": "Dr. Strix holds a group session in the Treatment Wing's great room. Nim joins the group in a fake trance.",
+    "beats": [
+      "The doctor gives commands to the room: stand, turn, kneel, walk to the window. Nim must obey each in time, or she's spotted.",
+      "Between commands, while the doctor turns away, Nim acts: lifts a key, swaps a tape, pockets the session notes.",
+      "The commands come faster. The pendant wakes the others one by one, quietly, and they keep pretending too."
+    ],
+    "punchline": "at the end, the doctor says \"Wake.\" The whole room opens its eyes at once, looks at her, and walks out."
+  },
+  "boss": {
+    "name": "Dr. Strix",
+    "species": "owl",
+    "summary": "An owl, the retreat's founder. Her eyes do the hypnosis, and they don't work on Nim. She fights in the Sensory Hall.",
+    "phases": [
+      "The spirals. She turns every guest in the hall into a shield. Nim wakes them with the pendant, one at a time, while the doctor moves among them.",
+      "The lights. She flies between the hanging lights. Nim climbs and swings between them on the rope, and pounces her down.",
+      "The stare. On the floor, the doctor stares at her, everything she has. Nim holds the room. The doctor blinks first."
+    ],
+    "punchline": "bound in her own treatment chair, with her own tape on a loop: \"Decent and calm and sleepy.\""
+  },
+  "leaves_with": [
+    "The pendant, Hold the Room, and Vesper's last lesson. From here, Vesper teaches nothing new.",
+    "Her file, and the reason the toys never worked on her.",
+    "The order forms from the Decency Press.",
+    "Lull's verdict: \"You're not suggestible. I'm going to have to try much harder with you.\" Nim: \"Please don't.\""
+  ],
+  "owner_review": "Every joke in the Key table, the names Serenity Springs and Dr. Strix, the file's note, and Vesper's and Lull's lines. Vesper's scene in the Sanatorium especially. People in trances are never the joke. The \"faking it too\" guest is the joke on Nim's dignity, not on them.",
+  "status": "proposal",
+  "story": [
+    "Coming in: Tusk's charts point to Serenity Springs, a retreat in the hills. Nim knows the name before she knows why. Lull has been there as a guest for a week, offering \"sessions\". \"They think I'm one of them. I've never been so insulted.\"",
+    "Serenity Springs: terraces of hot springs, white robes, a gong every hour. A plaque over the door: OPENED BY COUNCILLOR SWYNE, FOR THE DECENT RECOVERY OF THE PURRLANDS.",
+    "The middle: in the old sanatorium wing, Nim finds her own patient file. Subject N, with a photograph, and the note \"Not suggestible. Discard.\" That's why the toys don't work on her.",
+    "Going out: the doctor's notes show the receivers are waiting for a single broadcast. Where and when, they don't say. The order forms are from the Decency Press.",
+    "Vesper watches from the bell tower, and this is the world where she steps in. See \"Vesper, once\"."
+  ],
+  "how_it_teaches": [
+    "Lull's pendant after her test (Key 1): it wakes people at range, and lets Nim fake a trance. While she's \"under\", goons ignore her as long as she walks slowly with her eyes half shut. Running, climbing or a held button breaks it.",
+    "Vesper's lesson, Hold the Room: in the Lounge, Vesper lets her own cover blow on purpose. Twelve guards turn. She looks at them. They stop, one by one, and go back to their posts. Then Nim learns it: when her cover's blown, a stare-down (hold, then release on the beat) bluffs the whole room back to calm."
+  ],
+  "notes": [
+    "A wellness retreat in the hills, where the hypnosis is made and tested. It's personal: Nim was held here.",
+    "The map: a hillside retreat, its terraces going up to an old sanatorium at the top.",
+    "Vesper, once: The one time she shows her full strength. After the file, the doctor's whole staff corners Nim in the Sanatorium, more than she can fight. Vesper walks in through the front door, alone, unhurried. She says nothing. Every orderly in the room kneels. Then she helps Nim up. \"That's what the Kneel is for. Eventually.\""
+  ]
+}

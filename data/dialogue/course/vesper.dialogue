@@ -1,0 +1,14 @@
+# Vesper on the test course: her stand-in teaching the ceiling crawl and the headfirst descent (Lessons.CEILING).
+# Placeholder lines for the course, not the game's: her real lesson is a scene at the Docks (WO-016).
+# OWNER REVIEW (Vesper)
+
+~ ceiling
+Vesper [calm]: Nobody looks up. Not guards, not crowds, not councillors. Live there.
+Vesper: Jump under anything with a grip to it, and hold on. Hands first. Then the rest of you.
+Nim: And getting down again?
+Vesper: Head first, if the wall will have you. It's quicker, and nobody expects it.
+- How do I know it'll hold me? => hold
+- Show me. => END
+
+~ hold
+Vesper [warm]: You don't. You test it, every time. I still do.

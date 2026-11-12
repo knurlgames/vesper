@@ -1,0 +1,33 @@
+# Godot
+.godot/
+.import/
+*.tmp
+export_presets.cfg.bak
+/build/
+*.translation
+mono_crash.*.json
+.mono/
+data_*/
+
+# Work in progress: Blender sources, Meshy downloads, concepts, previews (Godot skips dot-folders)
+.wip/
+
+# Blender backups
+*.blend1
+*.blend2
+
+# GIMP temp and autosave
+*.xcf~
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+
+# Keys
+.secrets/

@@ -1,0 +1,8 @@
+{
+  "about": "After the Pier (docs/worlds/01_PIER.md, 'Going out'): next morning's paper, Swyne condemns the filth on the seafront.",
+  "steps": [
+    {"card": {"kind": "newspaper", "title": "SWYNE: \"FILTH ON OUR SEAFRONT\"",
+      "body": "Councillor Swyne condemned \"the filth on our seafront\" last night and promised to clean it up.",
+      "owner_review": true}}
+  ]
+}

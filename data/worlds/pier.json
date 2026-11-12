@@ -1,0 +1,95 @@
+{
+  "id": "pier",
+  "number": 1,
+  "name": "The Pier",
+  "host": "Dash (cheetah)",
+  "gear": "the crop",
+  "lesson": "the takedown from above",
+  "link": "Swyne's hypnotic toys are handed out as arcade prizes, so they get into the hands of the whole seafront.",
+  "target_length": "60–80 minutes on a first visit",
+  "areas": [
+    {"name": "The Promenade", "what": "the way in from the Old Quarter: seafront shops, beach huts, the pier gate", "mostly": "hub link, the first wardrobe"},
+    {"name": "The Midway", "what": "game stalls, crowds, the high striker, the shooting gallery, the fortune teller", "mostly": "blend in"},
+    {"name": "Under the Pier", "what": "pilings, cross-beams, boards overhead, the tide, a smugglers' landing", "mostly": "covert"},
+    {"name": "Laffer's Fun Palace", "what": "the arcade: machines, the prize counter, the back office, a roof full of vents", "mostly": "both"},
+    {"name": "The Big Dipper and the wheel", "what": "the rollercoaster and Ferris wheel over the pier's end", "mostly": "climbing, the set piece"},
+    {"name": "The Prize Hall", "what": "a showroom at the very end, under a giant claw crane", "mostly": "the boss"}
+  ],
+  "wardrobes": [
+    "Dash's beach hut on the Promenade",
+    "a staff locker in the Fun Palace",
+    "a lifeguard hut under the pier"
+  ],
+  "shortcuts": [
+    "a ladder from Under the Pier up through a trapdoor into the Midway",
+    "the arcade's fire door onto the Big Dipper's platform"
+  ],
+  "keys": [
+    {"n": 1, "id": "pier_01", "name": "Beat Dash from the gate to the end of the pier", "where": "the whole pier", "outfit": "either", "joke": "She cheats. She still loses, then claims she let Nim win."},
+    {"n": 2, "id": "pier_02", "name": "The Smugglers' Landing: take the landing crew from above, one by one", "where": "Under the Pier", "outfit": "garb", "joke": "The last one's been bound already, by himself, practising."},
+    {"n": 3, "id": "pier_03", "name": "The shooting gallery: crop every target, though the gallery's rigged", "where": "the Midway", "outfit": "suit", "joke": "The prize is one of Swyne's toys. Nim confiscates it."},
+    {"n": 4, "id": "pier_04", "name": "The high striker: it's rigged too; climb the tower and ring the bell with the crop", "where": "the Midway", "outfit": "garb", "joke": "The bell rings. The goon on the mallet takes the credit."},
+    {"n": 5, "id": "pier_05", "name": "The fortune teller: Madame Pearl (a parrot) sells toys under the table. Pose as a buyer, haggle, keep your Composure", "where": "the Midway", "outfit": "suit", "joke": "Pearl predicts Nim's future. She's right about the ledger, wrong about everything else."},
+    {"n": 6, "id": "pier_06", "name": "The back office safe: in through the roof vents, out before the goons count to ten", "where": "the Fun Palace", "outfit": "garb", "joke": "The safe holds Laffer's Decency League membership card."},
+    {"n": 7, "id": "pier_07", "name": "The prize counter: command the clerk to kneel, then take the Key off the top shelf", "where": "the Fun Palace", "outfit": "suit", "joke": "He's been waiting all his life for someone to tell him to."},
+    {"n": 8, "id": "pier_08", "name": "The top of the Ferris wheel, climbed while it turns", "where": "the wheel", "outfit": "garb", "joke": "Vesper's in the car next to it. \"You took your time.\""},
+    {"n": 9, "id": "pier_09", "name": "The Big Dipper chase (the set piece)", "where": "the coaster", "outfit": "garb", "joke": "See below."},
+    {"n": 10, "id": "pier_10", "name": "Five people woken: break each plushie's device", "where": "everywhere", "outfit": "either", "joke": "The last one wakes holding a stranger's hand. They decide to keep holding it."}
+  ],
+  "contraband": "100 contraband (crates under the pier, prizes on the stalls, a stash in the Prize Hall)",
+  "tin": "the League's collection tin on the gate (one per world): smash it and a Key appears back in the Old Quarter",
+  "people_in_trances": "five prize winners wandering the pier, humming along with their plushies. Nobody hurts them.",
+  "enemies": [
+    "Goons: weasels in Laffer's striped staff waistcoats. They fight, and they can be bound.",
+    "Gull lookouts on the lamp posts and the coaster. They don't fight; they squawk and bring the goons. A crop flick shuts them up.",
+    "Bouncers: badgers at the doors. Too big to fight head on, so they're commanded, or taken from above."
+  ],
+  "set_piece": {
+    "name": "The Big Dipper",
+    "summary": "A courier (a stoat) runs off with Laffer's ledger and jumps a coaster car as it climbs the first hill.",
+    "beats": [
+      "Nim follows on foot along the track: tail-walking the rails, leaping the gaps, climbing the struts.",
+      "Gull lookouts squawk from the supports. She crops them as she goes.",
+      "At the loop, she crops a switch that diverts his car onto the maintenance spur.",
+      "She pounces into the car on the last drop and binds him before it pulls into the station."
+    ],
+    "punchline": "the ride photo shows the courier screaming and Nim with her eyes shut. She buys it."
+  },
+  "boss": {
+    "name": "Lucky Lou Laffer",
+    "species": "hyena",
+    "summary": "A hyena, a carnival barker in a straw boater, who never stops laughing, even when it isn't funny. The Prize Hall is a showroom under a giant claw crane, with prize mountains of boxed toys.",
+    "phases": [
+      "The Claw. He runs the crane from a booth up in the roof. The claw drops to grab Nim, and she dodges. After a drop it sticks for a moment, so she climbs its cable to the booth. He flees down a chute.",
+      "Whack-a-goon. The floor's a field of hatches. He and his goons pop up and down. Goons get struck and bound. He gets cropped while he's up. Gull lookouts call where he'll come up next, for anyone listening.",
+      "The prize mountain. He climbs the heap and waves a hypnotic toy at her. Nothing happens. \"...Huh.\" He throws boxes down on her as she climbs. She pounces him at the top and binds him."
+    ],
+    "punchline": "tied up under a WINNER rosette, he's handed to the police as \"the grand prize\". He's still laughing."
+  },
+  "leaves_with": [
+    "The crop. The takedown from above. Her first Key.",
+    "The ledger, which points to Primrose Close.",
+    "Vesper's verdict, on the walk back: \"Adequate.\" From her, that's warm."
+  ],
+  "owner_review": "Every joke in the Key table, the names Lucky Lou Laffer and Madame Pearl, and Vesper's lines.",
+  "status": "proposal",
+  "story": [
+    "Coming in (the prologue, in the hub): the toys turn up in the Velvet Rope's own dungeon. A member's guest walks in glassy-eyed, holding a prize-stall plush that hums. Vesper reads the tag: Laffer's Fun Palace, the Pier.",
+    "The Pier at night: neon, candyfloss, rain on the boards. A banner over the gate reads COUNCILLOR SWYNE: A CLEAN SEAFRONT FOR DECENT FAMILIES, while his crates come in under the boards below it.",
+    "Going out: Laffer is tied up with a WINNER rosette for the police, and the courier's ledger lists dozens of \"demonstration party\" orders in Primrose Close. Next morning's paper: Swyne condemns \"the filth on our seafront\" and promises to clean it up.",
+    "Vesper sits in a car at the top of the Ferris wheel all night, watching, and won't come down to help. Find her for an optional talk. In every world she's somewhere high, watching."
+  ],
+  "how_it_teaches": [
+    "The Promenade, in night garb: run, jump, climb the beach huts, tail-walk the bunting.",
+    "Under the Pier: sneaking, shadows, and Vesper's lesson. She drops off a beam onto a smuggler and binds him in one move, then makes Nim do the next three. Strike, pounce and bind are taught on the way.",
+    "Dash's beach hut: the first wardrobe, and the Domme suit. Dash is no help with the buttons.",
+    "The Midway, in the suit: walk among the crowd, Composure, Kneel. A bouncer at the arcade's door is the first command.",
+    "The Fun Palace: either way. The front door in the suit, or the roof vents in garb. Nim picks.",
+    "Dash's crop comes after her race (Key 1), and opens the crop Keys on the Midway."
+  ],
+  "notes": [
+    "The first world. It teaches both ways to play, and it's where Nim earns her first Key.",
+    "The map: a pier about 300 m long off a seafront promenade, with the arcade on it and a rollercoaster over the end.",
+    "Each Key is a short joke: a setup, something to play, a punchline."
+  ]
+}

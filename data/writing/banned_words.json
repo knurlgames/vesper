@@ -1,0 +1,9 @@
+{
+  "about": "Words the dialogue lint (tools/dialogue_lint.gd) refuses anywhere in the writing: dialogue, cutscenes, world data and on-screen text in code. From WORK_ORDERS.md §0.2: everyone is an unmistakable grown adult (no age jokes, nothing child-coded), and \"consent\" is never said as the thesis (it's shown). Whole words, any case. A proposal: the owner owns this list.",
+  "words": [
+    "consent", "consensual",
+    "child", "children", "childish", "kid", "kids", "kiddie", "minor", "minors", "underage", "teen", "teens", "teenage",
+    "teenager", "schoolgirl", "schoolgirls", "schoolboy", "jailbait", "loli", "lolita", "barely legal", "little girl",
+    "young girl", "baby girl"
+  ]
+}

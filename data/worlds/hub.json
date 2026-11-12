@@ -1,0 +1,43 @@
+{
+  "id": "hub",
+  "number": 0,
+  "name": "The Velvet Rope (the Old Quarter)",
+  "host": null,
+  "gear": null,
+  "lesson": null,
+  "link": null,
+  "target_length": null,
+  "areas": [],
+  "wardrobes": [],
+  "shortcuts": [],
+  "keys": [
+    {"n": 1, "id": "tin_pier", "name": "The League's collection tin in The Pier", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
+    {"n": 2, "id": "tin_primrose", "name": "The League's collection tin in Primrose Close", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
+    {"n": 3, "id": "tin_docks", "name": "The League's collection tin in The Docks", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
+    {"n": 4, "id": "tin_retreat", "name": "The League's collection tin in The Retreat", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
+    {"n": 5, "id": "tin_press", "name": "The League's collection tin in The Decency Press", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
+    {"n": 6, "id": "tin_ball", "name": "The League's collection tin in The Decency Ball", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
+    {"n": 7, "id": "hub_secret_1", "name": "Hub secret 1 (to design)", "where": null, "outfit": null, "joke": ""},
+    {"n": 8, "id": "hub_secret_2", "name": "Hub secret 2 (to design)", "where": null, "outfit": null, "joke": ""},
+    {"n": 9, "id": "hub_secret_3", "name": "Hub secret 3 (to design)", "where": null, "outfit": null, "joke": ""},
+    {"n": 10, "id": "hub_secret_4", "name": "Hub secret 4 (to design)", "where": null, "outfit": null, "joke": ""}
+  ],
+  "contraband": null,
+  "tin": null,
+  "people_in_trances": null,
+  "enemies": [],
+  "set_piece": null,
+  "boss": null,
+  "leaves_with": [],
+  "owner_review": null,
+  "status": "proposal",
+  "story": [
+    "The hub: the Velvet Rope, a members' club in the Old Quarter with the dungeon underneath. Bastion keeps the door.",
+    "The Old Quarter's streets open around it world by world, each area with a wardrobe and fast travel.",
+    "The hub changes as the story goes: the toys turn up in the Rope's own dungeon at the start, Swyne's posters go up, and the club is raided before the finale."
+  ],
+  "how_it_teaches": [],
+  "notes": [
+    "Open question for the owner: WO-021 says 'Hub secrets (10 Keys)' as well as each tin paying a hub Key; the 70-Key total in STUDY.md implies the tins are six of the hub's ten. Assumed here."
+  ]
+}
