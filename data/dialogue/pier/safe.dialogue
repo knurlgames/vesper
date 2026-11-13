@@ -1,0 +1,15 @@
+# The back office safe (worlds/01_PIER.md, Key 6). Opening it starts a goon counting to ten outside
+# (levels/pier/keys/safe.gd): out of the office before ten for the Key.
+
+~ open
+[if pier/safe_opened] => again
+[narrator] The safe isn't locked. Laffer trusts his goons not to look, and they never have.
+[narrator] Inside: petty cash, a stack of WINNER rosettes, and a laminated card.
+Nim: "The Decency League. Member in good standing: L. Laffer."
+Nim: The man handing out hypnotic toys as prizes is a paid-up member of the Decency League. Of course he is.
+Goon: Oi! Who's in the office? Right! I'm counting to ten, and then I'm coming in!
+set pier/safe_opened
+=> END
+
+~ again
+Goon: Oi! Not again! Right! I'm counting to ten!

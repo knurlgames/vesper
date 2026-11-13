@@ -54,9 +54,20 @@ BODIES = {
     "lull_suit": {"tail": 6, "ears": True, "floor_disc": True},
     "grizelda_garb": {"tail": 6, "ears": True, "mask": "grizelda"},
     "grizelda_suit": {"tail": 6, "ears": True},
-    "bastion_garb": {"tail": 0, "ears": True, "mask": "bastion"},   # Meshy's model has no tail (nor rosettes)
+    # Meshy's garb model came without a tail: `graft` gives it her suit's (mesh, texture, bones and weights).
+    "bastion_garb": {"tail": 7, "ears": True, "mask": "bastion", "tail_from": "bastion_suit"},
     "bastion_suit": {"tail": 7, "ears": True},
     "swyne": {"tail": 0, "ears": False},
+    # The vaults' dress code (WO-014b, owner 2026-11-12: "separate models for the Sisters in bikinis"): full-coverage
+    # two-pieces, barefoot, no masks (downstairs is among members). Tails as their suits'.
+    "augusta_swim": {"tail": 6, "ears": True},
+    "silke_swim": {"tail": 8, "ears": True},
+    "dash_swim": {"tail": 8, "ears": True},
+    "rivet_swim": {"tail": 5, "ears": True},
+    "lull_swim": {"tail": 6, "ears": True, "floor_disc": True},
+    # Her tail runs down the back of her right leg before it curls out: unpinned, the search took the part on the
+    # calf for the whole tail (0.29 m). The tip is the curl's end, read off the rest pose.
+    "grizelda_swim": {"tail": 6, "ears": True, "tail_tip": (-0.284, 0.606, 0.445)},
 }
 
 TARGET_TRIS = 60000     # ART_DIRECTION: the supporting cast is 30-80k triangles, 2K textures
@@ -234,9 +245,11 @@ def prep(body):
     dropped = _remove_floor(mesh, arm, height) if BODIES[body].get("floor_disc") else 0
     t("floor")
     # Decimate to budget, never across a UV seam; the vertex groups interpolate with it.
+    # A body may set its own budget ("tris": a crowd's people are small on screen and many).
     tris = sum(len(p.vertices) - 2 for p in mesh.data.polygons)
-    if tris > TARGET_TRIS:
-        dec = seams.decimate_safe(mesh, TARGET_TRIS / tris)
+    target = BODIES[body].get("tris", TARGET_TRIS)
+    if tris > target:
+        dec = seams.decimate_safe(mesh, target / tris)
         bpy.ops.object.select_all(action="DESELECT")
         mesh.select_set(True)
         bpy.context.view_layer.objects.active = mesh
@@ -499,7 +512,7 @@ def chains(body):
     vs = _world_verts(mesh)
     adj = _adjacency(mesh.data, vs)
     rep = {}
-    if cfg["tail"]:
+    if cfg["tail"] and "tail_from" not in cfg:      # a grafted tail brought its own bones and weights
         tip = _tail_tip(arm, vs, adj, cfg)
 
         skip = cfg.get("tail_skip", 0)     # rings of a wide tuft at the tip, left out of the widening test
@@ -549,13 +562,154 @@ def chains(body):
     arm.data.pose_position = "POSE"
     _reset_pose(arm)
     for k in range(cfg["tail"]):
-        _rotate(arm, "tail.%d" % (k + 1), Vector((1, 0, 0)), TEST_CURL)
+        if "tail.%d" % (k + 1) in arm.pose.bones:
+            _rotate(arm, "tail.%d" % (k + 1), Vector((1, 0, 0)), TEST_CURL)
     if cfg["ears"]:
         _rotate(arm, "ear.L", Vector((1, 0, 0)), -30)
         _rotate(arm, "ear.R", Vector((0, 1, 0)), 30)
     nb.WIP = WIP
     nb.render_views(mesh, "chains_%s" % body, size=600)
     _reset_pose(arm)
+    _save(body)
+    return rep
+
+
+# --- graft: a tail from the same character's other outfit -----------------------------------------------------------
+## Bastion's garb came out of Meshy tailless; her suit has a jaguar tail. The donor's tail (every vertex mostly
+## weighted to tail.*) is cut out with its material and texture, scaled by the hips' height, set into the garb's
+## back at the donor's root height (GRAFT_INSET inside her surface, so no gap shows), and joined with its bones and
+## weights. Run after `chains` (it adds only the tail) and before `clips` and `face`.
+GRAFT_INSET = 0.03
+
+
+def graft(body):
+    cfg = BODIES[body]
+    src, n = cfg["tail_from"], cfg["tail"]
+    names = ["tail.%d" % (k + 1) for k in range(n)]
+    arm_s, mesh_s = _open(src)
+    arm_s.data.pose_position = "REST"
+    bpy.context.view_layer.update()
+    pts = [_bone_world(arm_s, nm)[0] for nm in names] + [_bone_world(arm_s, names[-1])[1]]
+    hips_s = _bone_world(arm_s, "Hips")[0]
+    gidx = {g.index: g.name for g in mesh_s.vertex_groups}
+    keep = {v.index for v in mesh_s.data.vertices
+            if sum(g.weight for g in v.groups if gidx[g.group].startswith("tail.")) >= 0.5}
+    tail = mesh_s.copy()
+    tail.data = mesh_s.data.copy()
+    tail.name = "graft_tail"
+    bpy.context.scene.collection.objects.link(tail)
+    tail.parent = None
+    tail.modifiers.clear()
+    bm = bmesh.new()
+    bm.from_mesh(tail.data)
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.index not in keep], context="VERTS")
+    bm.to_mesh(tail.data)
+    bm.free()
+    tail.data.transform(mesh_s.matrix_world)
+    tail.matrix_world = Matrix.Identity(4)
+    tail["pts"] = [c for p in pts for c in p]
+    tail["hips"] = list(hips_s)
+    piece = os.path.join(WIP, "_graft_%s.blend" % body)
+    bpy.data.libraries.write(piece, {tail}, fake_user=True, compress=False)
+
+    arm, mesh = _open(body)
+    arm.data.pose_position = "REST"
+    bpy.context.view_layer.update()
+    with bpy.data.libraries.load(piece, link=False) as (_src, dst):
+        dst.objects = ["graft_tail"]
+    tail = dst.objects[0]
+    bpy.context.scene.collection.objects.link(tail)
+    pts = [Vector(tail["pts"][3 * k:3 * k + 3]) for k in range(n + 1)]
+    hips_s = Vector(tail["hips"])
+    hips = _bone_world(arm, "Hips")[0]
+    s = hips.z / hips_s.z
+    M = Matrix.Translation(hips) @ Matrix.Scale(s, 4) @ Matrix.Translation(-hips_s)
+    root = M @ pts[0]
+    back = max(v.y for v in _world_verts(mesh) if abs(v.x - root.x) < 0.06 and abs(v.z - root.z) < 0.04)
+    M = Matrix.Translation((0, back - GRAFT_INSET - root.y, 0)) @ M
+    tail.data.transform(M)
+    pts = [M @ p for p in pts]
+    _add_chain(arm, names, pts, "Hips")
+    bpy.ops.object.select_all(action="DESELECT")
+    tail.select_set(True)
+    mesh.select_set(True)
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.join()
+    os.remove(piece)
+    # The check: the chains render, tail curled.
+    arm.data.pose_position = "POSE"
+    _reset_pose(arm)
+    for nm in names:
+        _rotate(arm, nm, Vector((1, 0, 0)), TEST_CURL)
+    nb.WIP = WIP
+    nb.render_views(mesh, "graft_%s" % body, size=600)
+    _reset_pose(arm)
+    _save(body)
+    return {"verts": len(keep), "scale": round(s, 3), "root": [round(c, 3) for c in pts[0]],
+            "length": round(sum((b - a).length for a, b in zip(pts, pts[1:])), 3)}
+
+
+# --- paint: Vesper's sleeves, Silke's trousers, Bastion's rosettes (tools/cast_paint.py) ----------------------------
+def paint(body):
+    import cast_paint
+    arm, mesh = _open(body)
+    rep = cast_paint.paint(body, arm, mesh, FACE.get(body))
+    if rep.get("skipped"):
+        return rep
+    _reset_pose(arm)
+    if arm.animation_data:
+        arm.animation_data.action = None
+    nb.WIP = WIP
+    nb.render_views(mesh, "paint_%s" % body, size=600)
+    head = _bone_world(arm, "Head")[0]
+    for name, d in (("front", Vector((0.35, -1, 0.1))), ("side", Vector((1, 0.2, 0.1)))):
+        nb.closeup(head + Vector((0, 0, 0.08)), d.normalized(), 0.6, "paint_%s_head_%s.png" % (body, name), 500)
+    _save(body)
+    return rep
+
+
+# --- face: blink and brow keys, measured from each head's own paint (tools/cast_face.py) -----------------------------
+## Seeds for heads with no garb mask measurement whose sclera test fails: Vesper's two sides disagree a little,
+## Swyne's eyes are small and heavy-lidded (read off measure_swyne_front.png).
+FACE_SEED = {
+    "vesper_garb": {"eye_x": 0.080, "eye_z": 1.572},
+    "vesper_suit": {"eye_x": 0.083, "eye_z": 1.575},
+    "swyne": {"eye_x": 0.070, "eye_z": 1.476},
+    # Read off measure_rivet_swim_front.png: her garb's seed (1.212) is for a shorter body.
+    "rivet_swim": {"eye_x": 0.050, "eye_z": 1.339},
+}
+## Whole eye boxes, read off measure_<body>_front.png (mask hidden), for the white-furred heads: the detector takes
+## their fur for sclera. (x centre, half width) per side, the eye's (bottom, top) z, the painted brows' z band.
+FACE_BOX = {
+    "grizelda_garb": {"L": (0.087, 0.046), "R": (-0.087, 0.045), "z": (1.294, 1.331)},
+    "grizelda_suit": {"L": (0.080, 0.040), "R": (-0.079, 0.039), "z": (1.308, 1.342)},
+    "silke_garb": {"L": (0.068, 0.033), "R": (-0.070, 0.031), "z": (1.682, 1.715), "brow": (1.734, 1.754)},
+    "silke_suit": {"L": (0.080, 0.039), "R": (-0.081, 0.037), "z": (1.645, 1.684), "brow": (1.713, 1.739)},
+    # The swim bodies, read off measure_<body>_front.png: the detector took Dash's liner for eye (her blink dragged
+    # her cheek), Lull's eye for a 1 cm slit, and Augusta's lids for both eyes at once.
+    "augusta_swim": {"L": (0.065, 0.027), "R": (-0.067, 0.026), "z": (1.504, 1.529), "brow": (1.547, 1.559)},
+    "dash_swim": {"L": (0.064, 0.036), "R": (-0.065, 0.036), "z": (1.588, 1.633), "brow": (1.654, 1.678)},
+    "lull_swim": {"L": (0.067, 0.035), "R": (-0.065, 0.035), "z": (1.426, 1.467), "brow": (1.490, 1.508)},
+    "silke_swim": {"L": (0.074, 0.034), "R": (-0.076, 0.035), "z": (1.625, 1.662), "brow": (1.695, 1.718)},
+    # Her suit's seed sat on this body's mouth: her swim body stands taller (barefoot, rigged at 1.56 m).
+    "grizelda_swim": {"L": (0.079, 0.042), "R": (-0.080, 0.042), "z": (1.413, 1.450), "brow": (1.462, 1.495)},
+}
+def face(body):
+    import cast_face
+    arm, mesh = _open(body)
+    arm.data.pose_position = "REST"
+    if arm.animation_data:
+        arm.animation_data.action = None
+    bpy.context.view_layer.update()
+    # The garbs' hand-measured eyes (FACE, for the masks) seed heads whose white fur hides the sclera; a suit
+    # borrows its garb's (same character, close enough for a seed).
+    known = FACE_SEED.get(body) or FACE.get(body) or FACE.get(_who(body) + "_garb")
+    F, rep = cast_face.measure(arm, mesh, (known["eye_x"], known["eye_z"]) if known else None, FACE_BOX.get(body))
+    if F is None:
+        return rep
+    rep["keys"] = cast_face.keys(mesh, F)
+    cast_face.renders(arm, mesh, body, F, WIP)
+    arm.data.pose_position = "POSE"
     _save(body)
     return rep
 
@@ -650,6 +804,149 @@ def _talk_pose(arm, f):
     _rotate(arm, "Head", Y, 3 * math.sin(ph))
 
 
+## Talk, per character (DESIGN.md's crew table). World-axis rotations on Meshy's bones after _arms_down:
+## Arm about X, negative: the arm swings forward and up. ForeArm about X, negative: the elbow bends, hand up.
+## LeftArm about Y, negative (RightArm positive): the arm lifts out to the side. ForeArm about Z: the hand swings
+## across (positive moves it toward her left). Every clip loops over LOOP frames, so beats are whole cycles.
+def _s(f, n=1, off=0.0):
+    return math.sin(2 * math.pi * (f / LOOP * n + off))
+
+
+def _c(f, n=1, off=0.0):
+    return math.cos(2 * math.pi * (f / LOOP * n + off))
+
+
+def _talk_vesper(arm, f):
+    # Calm, exact: one open hand at the waist, a small slow beat; everything else still.
+    _rotate(arm, "Spine01", X, 1.0 * _s(f))
+    _rotate(arm, "RightArm", X, -22)
+    _rotate(arm, "RightForeArm", X, -62 - 6 * _s(f))
+    _rotate(arm, "RightForeArm", Z, 14 + 4 * _s(f))
+    _rotate(arm, "RightHand", Y, 20)
+    _rotate(arm, "Head", Y, 4)
+    _rotate(arm, "Head", X, 2 * _s(f))
+
+
+def _talk_augusta(arm, f):
+    # The elder, protocol: both hands open outward in a broad, unhurried presentation; a nod at the end.
+    o = 0.5 + 0.5 * _s(f)
+    _rotate(arm, "Spine01", X, -1.5 + 1.0 * _s(f))
+    _rotate(arm, "LeftArm", X, -18 - 6 * o)
+    _rotate(arm, "RightArm", X, -18 - 6 * o)
+    _rotate(arm, "LeftArm", Y, -10 - 10 * o)
+    _rotate(arm, "RightArm", Y, 10 + 10 * o)
+    _rotate(arm, "LeftForeArm", X, -50)
+    _rotate(arm, "RightForeArm", X, -50)
+    _rotate(arm, "LeftHand", Y, -25 * o)
+    _rotate(arm, "RightHand", Y, 25 * o)
+    _rotate(arm, "Head", X, 5 * max(0.0, _s(f, 1, 0.5)))
+
+
+def _talk_silke(arm, f):
+    # Silent and exact: hands held behind her, barely a movement; one precise tilt of the head.
+    _rotate(arm, "LeftArm", X, 14)
+    _rotate(arm, "RightArm", X, 14)
+    _rotate(arm, "LeftArm", Y, -6)
+    _rotate(arm, "RightArm", Y, 6)
+    _rotate(arm, "LeftForeArm", Z, 30)
+    _rotate(arm, "RightForeArm", Z, -30)
+    _rotate(arm, "Head", Y, 6 * max(0.0, _s(f)))
+    _rotate(arm, "Head", X, 2 * _s(f, 2))
+
+
+def _talk_dash(arm, f):
+    # Brash, fast: alternate hands jab forward on quick beats, the chest bounces, the head bobs.
+    _rotate(arm, "Spine01", X, -2 + 2.5 * _s(f, 4))
+    _rotate(arm, "Spine02", Z, 6 * _s(f, 2))
+    for side, sgn, off in (("Left", -1, 0.0), ("Right", 1, 0.5)):
+        jab = max(0.0, _s(f, 2, off))
+        _rotate(arm, side + "Arm", X, -20 - 25 * jab)
+        _rotate(arm, side + "ForeArm", X, -70 + 35 * jab)
+    _rotate(arm, "Head", X, 4 * _s(f, 4))
+    _rotate(arm, "Head", Y, 5 * _s(f, 2, 0.25))
+
+
+def _talk_rivet(arm, f):
+    # Sardonic engineer: left fist on her hip, the right hand flicks a point twice, head tilted, unimpressed.
+    _rotate(arm, "LeftArm", Y, -38)
+    _rotate(arm, "LeftArm", X, 10)
+    _rotate(arm, "LeftForeArm", X, -95)
+    _rotate(arm, "LeftForeArm", Z, 70)
+    flick = max(0.0, _s(f, 2)) ** 3
+    _rotate(arm, "RightArm", X, -35 - 8 * flick)
+    _rotate(arm, "RightForeArm", X, -40 - 10 * flick)
+    _rotate(arm, "RightHand", X, -25 * flick)
+    _rotate(arm, "Head", Y, -8)
+    _rotate(arm, "Head", Z, 3 * _s(f))
+
+
+def _talk_lull(arm, f):
+    # The hypnotist: the right hand draws slow circles before her, the body sways with it.
+    _rotate(arm, "Spine01", Y, 2.5 * _s(f))
+    _rotate(arm, "RightArm", X, -30 - 10 * _s(f))
+    _rotate(arm, "RightArm", Y, 6 + 8 * _c(f))
+    _rotate(arm, "RightForeArm", X, -55)
+    _rotate(arm, "RightHand", Z, 15 * _c(f))
+    _rotate(arm, "LeftArm", X, -8)
+    _rotate(arm, "LeftForeArm", X, -30)
+    _rotate(arm, "Head", Y, 4 * _s(f, 1, 0.1))
+    _rotate(arm, "Head", Z, 3 * _c(f))
+
+
+def _talk_grizelda(arm, f):
+    # Grumpy, terrifying: left forearm across her belly, the right finger wags hard, the head juts.
+    _rotate(arm, "LeftArm", X, -18)
+    _rotate(arm, "LeftForeArm", X, -85)
+    _rotate(arm, "LeftForeArm", Z, -55)
+    _rotate(arm, "RightArm", X, -42)
+    _rotate(arm, "RightForeArm", X, -75)
+    _rotate(arm, "RightForeArm", Z, 18 * _s(f, 4))
+    _rotate(arm, "Head", X, 6 + 3 * _s(f, 4))
+    _rotate(arm, "Spine02", X, 4)
+
+
+def _talk_bastion(arm, f):
+    # Bodyguard, few words: hands clasped low in front, two firm nods, nothing else moves.
+    _rotate(arm, "LeftArm", X, -14)
+    _rotate(arm, "RightArm", X, -14)
+    _rotate(arm, "LeftForeArm", X, -40)
+    _rotate(arm, "RightForeArm", X, -40)
+    _rotate(arm, "LeftForeArm", Z, -48)
+    _rotate(arm, "RightForeArm", Z, 48)
+    _rotate(arm, "Head", X, 7 * max(0.0, _s(f, 2)) ** 2)
+
+
+def _talk_swyne(arm, f):
+    # Pompous: chest puffed, left hand on his lapel, the right sweeps out in a grand flourish.
+    o = 0.5 + 0.5 * _s(f)
+    _rotate(arm, "Spine02", X, -5)
+    _rotate(arm, "LeftArm", X, -30)
+    _rotate(arm, "LeftForeArm", X, -95)
+    _rotate(arm, "LeftForeArm", Z, -50)
+    _rotate(arm, "RightArm", X, -25 - 15 * o)
+    _rotate(arm, "RightArm", Y, 10 + 30 * o)
+    _rotate(arm, "RightForeArm", X, -35 + 10 * o)
+    _rotate(arm, "RightHand", Y, 30 * o)
+    _rotate(arm, "Head", X, -6 + 3 * _s(f, 1, 0.25))
+    _rotate(arm, "Head", Y, 6 * _s(f))
+
+
+TALK = {"vesper": _talk_vesper, "augusta": _talk_augusta, "silke": _talk_silke, "dash": _talk_dash,
+        "rivet": _talk_rivet, "lull": _talk_lull, "grizelda": _talk_grizelda, "bastion": _talk_bastion,
+        "swyne": _talk_swyne}
+
+
+def _talk_for(body):
+    style = TALK.get(_who(body))
+
+    def pose(arm, f):
+        if style is None:
+            return _talk_pose(arm, f)
+        _arms_down(arm)
+        style(arm, f)
+    return pose
+
+
 def _layer(arm, act, name, ears):
     """Add tail sway and the ear twitch to one of Meshy's clips: only the chain bones are keyed."""
     arm.animation_data.action = act
@@ -729,7 +1026,7 @@ def clips(body):
         for t in list(arm.animation_data.nla_tracks):
             arm.animation_data.nla_tracks.remove(t)
     _make_clip(arm, "idle", _idle_pose, cfg["ears"])
-    _make_clip(arm, "talk", _talk_pose, cfg["ears"])
+    _make_clip(arm, "talk", _talk_for(body), cfg["ears"])
     for name in ("walk", "run"):
         _layer(arm, bpy.data.actions[name], name, cfg["ears"])
     clip_sheet(arm, mesh, body)
@@ -778,6 +1075,8 @@ def measure(body):
     arm, mesh = _open(body)
     arm.data.pose_position = "REST"
     bpy.context.view_layer.update()
+    if bpy.data.objects.get(body + "_Mask"):        # the face behind it is what's measured
+        bpy.data.objects[body + "_Mask"].hide_render = True
     head, crown = _bone_world(arm, "Head")[0], _bone_world(arm, "head_end")[0]
     vs = [v for v in _world_verts(mesh) if v.z > head.z - 0.05]
     c = Vector((0.0, (min(v.y for v in vs) + max(v.y for v in vs)) / 2, (head.z + max(v.z for v in vs)) / 2))
@@ -827,8 +1126,10 @@ MASK_FIT = {
     "rivet": {"anchor": "eyes", "m_width": 1.46, "frac": 1.0, "m_eye_z": 0.099, "m_front": -0.83, "ahead": 0.04,
               "crop_top": 0.62},
     "bastion": {"anchor": "eyes", "m_width": 1.63, "frac": 1.0, "m_eye_z": -0.128, "m_front": -0.949},
+    # Lull's shell is shallow: fitted 2 cm ahead of her nose it hung in the air before her muzzle (owner, on the
+    # Deck: "one mask is floating"). Set back so its rim reaches her cheeks; the push-out clears the fur.
     "lull": {"anchor": "muzzle", "m_width": 1.70, "frac": 0.85, "m_top": 0.586, "m_bot": -0.602, "m_front": -0.94,
-             "ahead": 0.02, "warm": 0.0},
+             "ahead": -0.055, "warm": 0.0},
     # Grizelda's face width is mostly cheek ruff: a smaller fraction.
     "grizelda": {"anchor": "muzzle", "m_width": 1.72, "frac": 0.6, "m_top": 0.558, "m_bot": -0.548,
                  "m_front": -0.70, "warm": 0.0},
@@ -1000,11 +1301,13 @@ def mask(body):
 
 
 # --- seams and export -----------------------------------------------------------------------------------------------
-def seam_fix(body):
+def seam_fix(body, mask_only=False):
+    """Pads every texture's unused texels. Never twice on the same textures (each run trims the islands' edges):
+    after refitting a mask (`mask` imports it fresh), run `maskseams`, which pads the mask alone."""
     arm, mesh = _open(body)
     arm.data.pose_position = "REST"
     rep = {}
-    for o in (mesh, bpy.data.objects.get(body + "_Mask")):
+    for o in ((None,) if mask_only else (mesh,)) + (bpy.data.objects.get(body + "_Mask"),):
         if o is None:
             continue
         imgs = {n.image for mat in o.data.materials if mat and mat.use_nodes
@@ -1031,15 +1334,15 @@ def export(body):
     name = "swyne" if body == "swyne" else body
     path = os.path.join(folder, "%s.glb" % name)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_animations=True,
-                              export_animation_mode="NLA_TRACKS", export_skins=True, export_morph=False,
+                              export_animation_mode="NLA_TRACKS", export_skins=True, export_morph=True,
                               export_yup=True, export_apply=False, export_force_sampling=True,
                               export_image_format="AUTO")
     return round(os.path.getsize(path) / 1e6, 1)
 
 
 # --- main -----------------------------------------------------------------------------------------------------------
-STAGES = {"prep": prep, "chains": chains, "clips": clips, "measure": measure, "measure_mask": measure_mask,
-          "mask": mask, "seams": seam_fix, "export": export}
+STAGES = {"prep": prep, "chains": chains, "graft": graft, "paint": paint, "face": face, "clips": clips, "measure": measure, "measure_mask": measure_mask,
+          "mask": mask, "seams": seam_fix, "maskseams": lambda b: seam_fix(b, True), "export": export}
 MASKS = ["augusta", "silke", "dash", "rivet", "lull", "grizelda", "bastion"]
 
 

@@ -179,3 +179,219 @@ Choices an agent made beyond the docs. The owner can overrule any of them.
   their names yet).
 - **The papers after a world** come straight from the briefs' wording. The Primrose one uses a "THE PARISH
   NEWSLETTER" masthead, and the Press one is a radio card.
+
+## WO-014 (2026-11-12): the Pier
+- **The layout** is a proposal built from the brief's area table. The map is in `levels/pier/pier.gd`'s header.
+  - **Stalls:** the gallery, the striker and Pearl's tent, plus candyfloss, hot dogs, hook-a-duck, penny falls, teas
+    and whelks.
+  - **Shop names:** Rock & Candy, Fish & Chips, Amusements, B&B Vacancies, Souvenirs, Tea Room.
+  - **The smugglers' crates** are stencilled "HABERDASHERY" (the Docks' joke, early).
+  - **The Fun Palace runs wall to wall.** Covert players go up the east walkway's marked wall and over the roof.
+- **Nim's moves:**
+  - **B on a beam drops her off its side.** It's the way down onto a goon for the takedown from above. On a beam she
+    can only walk along it, so before this there was no clean way off.
+  - **The crop works in the suit** on targets, bells, switches and gulls, never on goons. The shooting gallery is a
+    suit Key played with the crop. A tap of X in the suit still counts as a refused strike.
+  - **The push that grabs a wall counts as "up"** until the stick moves. This was a fix: with the camera facing her,
+    she grabbed and let go every frame.
+  - **Where beams cross, she follows the one the stick runs along.**
+- **Key 1, Dash's race:**
+  - **Her cheat:** she goes on "two" and vaults the 4 m fence onto the Fun Palace's west walkway, a route Nim can't
+    take.
+  - **Timing:** she runs it in 52 s. A clean run by Nim over the roof takes about 42 s.
+  - **The finish:** a line short of the Prize Hall.
+  - **The crop is handed over in Dash's "won" lines**, with the rule above in her words.
+- **Key 2:** any bind counts, not only from above (the beams make above the natural way). The self-tied smuggler
+  asks if his figure-eight with a loop is right: that's the Rope's knot (DESIGN.md).
+- **Key 3:** six targets in 30 s on rails behind the counter. They speed up as she hits them ("rigged"). The barker
+  only serves the suit.
+- **Key 4:** the bell hangs off the tower's west face, in the crop's reach from the top and out of it from the deck.
+  The mallet goon is Staff (he doesn't fight).
+- **Key 5, Pearl:** she haggles in three exchanges.
+  - Each soft answer costs 0.3 Composure; two of them, or naming the Rope, lose the sale and blow her cover.
+  - **Her reading:** "a ledger... somewhere with hedges" (Primrose Close), a nice accountant, and never anything
+    taller than a stepladder.
+- **Key 6:** the safe's unlocked. Opening it starts a goon's count; she has to be out of the office before ten, or the
+  palace's two goons are alerted and she can try again.
+- **Key 7:** the prize shelves are one tall unit with a marked rolling ladder at the end. The clerk kneels: "Oh. Oh,
+  finally. Thank you, Mistress."
+- **Vesper's lesson** starts on its own when Nim comes within 11 m under the pier. Vesper's lines are new and
+  `# OWNER REVIEW`.
+- **Vesper rides car 2 of the wheel** all night. "You took your time" plays when Key 8 is taken.
+- **Dash's buttons line** plays the first time Nim changes into the suit at her hut.
+- **Key 9, the Big Dipper chase.** The brief's beats, made playable:
+  - **The catwalk:** Nim follows on a maintenance catwalk beside the track, not on the rails themselves, so the car
+    never runs her down.
+  - **"At the loop":** the switch tower stands at the circuit's turnaround. There's no vertical loop.
+  - **The points** take effect the next time the car passes the branch.
+  - **The stall:** the spur car stalls at the crest of its last drop until she's beside it ("It's stopped! Why's it
+    stopped?!"), then crawls down. The catch counts if she's in the car, on its rim, or leaping over it.
+  - **A miss** sends him round again with the points reset.
+  - **The ledger's line:** "Demonstration parties. Primrose Close. Forty boxes, gift-wrapped." "The vicar's wife
+    ordered six."
+  - **The photo:** he's screaming, her eyes are shut, and she says "...I'll take two."
+- **Laffer's fight.** The brief's three phases, made playable:
+  - **The hall opens with the ledger** (Key 9), and the door locks during the fight.
+  - **The Claw:** the crane tracks her and shakes before it drops. "The booth" is a gallery along the east wall,
+    reached by walking the crane's bridge after climbing the stuck claw's cable.
+  - **Whack-a-goon:** nine hatches, three hits. The gull's calls are captions ("SQUAWK! Back row, left!"). Up to
+    four goons come up and fight.
+  - **The prize mountain:** six steps. He throws boxes that knock her back. A pounce or a hit at the top ends it.
+  - **Being downed** restarts the phase she'd reached.
+  - **Laffer's lines:** "Lucky Dip! You're the prize!", "It's all rigged!", "It works on everyone. It works on
+    EVERYONE. Ha... ha?", "The grand prize!", "Somebody stop me laughing."
+  - **Vesper's scene:** "They'll find him gift-wrapped." / "Adequate." (a narrator line: from Vesper, that's warm).
+  - **There's no boss Key** (the brief's ten don't include one). The fight ends the world (`done/pier`, the paper),
+    but she stays on the pier to finish up.
+
+## WO-014 (2026-11-12): Deck review fixes and dressing
+- **A crop flick hushes a gull for good:** it squawks and flies off, and doesn't come back on reload. The brief said
+  "shuts them up"; "for good" is mine (Banjo's lesson against respawning nuisances).
+- **The bit parts wear WO-013's bodies** until they get their own:
+  - the clerk is a meerkat (the Pier has none otherwise);
+  - the mallet goon and the barker are weasels in Laffer's waistcoat;
+  - the gulls stand on crow's nests atop their posts.
+- **Vesper's demonstration** has its own camera shot.
+
+## 2026-11-12: WO-014b, the Velvet Rope's house (the owner's asks; the details are mine)
+- **The club grows down, into vaults under the street behind it,** reached by a stair from the old dungeon. The
+  rooms, their names and sisters are mine: the Parlour (Augusta), the Rope Room (Silke), the Throne Room (Grizelda),
+  the Quiet Room (Lull), Dash's, the Workshop (Rivet). So is the swung-open shelf to the Backroom.
+- **Clients change at a screen by the bar**, street clothes to swimwear. (The robes on hooks were my earlier
+  suggestion; the screen reuses the WO-014 civilians upstairs.)
+- **The regulars:**
+  - **"Mr Smith"**, a Decency League man in a false moustache, wants scolding "for hypocrisy, ideally". His word
+    is "Decency".
+  - **Pip**, a nervous first-timer. Her word is "Teacup".
+  - Both mine; the hypocrite's the joke, never the kink.
+- **The session game:** cues each beat; Command, Hold, Praise, Check in, Stop.
+  - "Yellow" means slow down; the safeword means stop within 3 s, and stopping is a good ending.
+  - Vesper's line when Nim doesn't stop: "You heard the word, and you kept going. That's the one thing we never do."
+    (OWNER REVIEW)
+- **The sisters' games:** Silke's breathing (Switch) and knots (Domme); Augusta's posture (Switch) and corrections
+  (Domme). Each sister checks in halfway, or in a Domme expects to be asked.
+- **Every line** in `hub/sessions.dialogue`, the sisters' offers in `hub/club.dialogue`, and the rooms' exchanges
+  (`club_life.gd` `ROOM_LINES`) is mine and marked OWNER REVIEW.
+- **Dash's club lines:** "Nobody books me. Can't think why." / "I hit the bag. The bag doesn't complain. It's the
+  healthiest relationship in the building."
+
+## 2026-11-12: The sisters' swimwear (the owner's ask; the designs are mine)
+- **Each two-piece is full-coverage** (high-waisted bottoms, a supportive top), barefoot, with no masks: downstairs
+  is among members.
+- **Each is in her own colours:**
+  - Augusta: vintage burgundy with gold piping and a buckle;
+  - Silke: matte black with a crimson rope-braid trim and a halter neck;
+  - Dash: sporty orange and black;
+  - Rivet: glossy black with brass rings;
+  - Lull: midnight blue with lavender, a wrap top with long sleeves;
+  - Grizelda: black with purple piping and a high neck.
+- **They wear them in the vaults only** (their rooms, and the cross). The rig heights match their suits.
+
+## 2026-11-12: The cross (the owner's ask; the details are mine)
+- **The form's rows:** wrists, ankles, mouth (none, ball, bit), eyes, neck, and gentle or firm.
+- **A gag's safeword is a dropped bell,** held in the right hand.
+- **The tools:** feather, ice, whisper, flogger, crop, paddle. Sensation and impact only; no vibrating toys, since
+  those are Swyne's weapon in the story.
+- **Nim's muzzle is never a gag:** her mouth row is fixed when she's on the cross.
+- **The games:**
+  - Leading: a touch game (follow the sweet spot) and a rhythm game (land on the beat).
+  - On the cross: hold still and brace, from After Hours.
+  - The heat band, strain and trust numbers are mine.
+- **Each sister's wants, limits, safeword wording and tray:**
+  - Lull asks for the blindfold.
+  - Grizelda wants it "harder than you think".
+  - Rivet checks the buckles.
+  - Dash wriggles, so her sweet spot drifts more.
+- **The clients:**
+  - The generic client's word is "pineapple".
+  - Smith's is "decency" (the hypocrite joke).
+  - Pip's is "teacup", and Pip takes no impact tools.
+- **Where things happen:**
+  - The cross stands at the vaults' hall end, in front of the fireplace.
+  - Aftercare is in Lull's room, with a blanket.
+- Every line is OWNER REVIEW.
+
+## 2026-11-12: The tossed rose, and Swyne's toys (the owner's asks; the details are mine)
+- **The toss:** a deed's rose lobs down from 7 m up and 5 m beyond the spot, away from the camera, over 1.1 s,
+  spinning. It can't be taken in the air, and lands in a burst of crimson petals. Vesper watching is implied, never
+  shown. The five-woken rose and the tin's are still paid straight into the tally.
+- **The toys** (all suggestive and non-anatomical; never shown in use):
+  - **The contraband box:** cream and navy, a heart, a spiral sticker, a plain lilac shape in its window.
+  - **The held toys,** out of the box with the spiral lit and pulsing (a blue light in time with a hum): a plush seal
+    toy with a speaker grille, a wand massager, a love egg with its remote, a feather tickler.
+  - Each entranced person gets one by their id; the prologue's guest has the plush his lines mention.
+- **Swyne's palette:** cream, lilac and his pale blue spiral. Crimson stays the Rope's (only the rose wears it).
+- **"They can't stop and it feels so good":** the entranced hug their toy close and murmur when Nim's within 8 m
+  (`Entranced.MURMURS`, OWNER REVIEW):
+  - "Mmm... just a little longer..."
+  - "It's so warm. I can't put it down."
+  - "Everything's humming. Isn't it lovely?"
+  - "One more. Just one more."
+  - "I was going somewhere... wasn't I? ...Mmm. Later."
+  - "Don't take it. Not yet. Please."
+
+  Blissed out and a little sad; never the joke.
+
+## 2026-11-12: Velvet Roses and Rivet's bench (the owner's decisions; the details are mine)
+- **Velvet, not black,** for the rose: crimson velvet is the Rope's own (the velvet-red rule). Easy to swap.
+- **Vesper's lines giving the first rose** (`hub/prologue.dialogue` `tag`, OWNER REVIEW): "The Rope gives a rose for
+  good work. That was good work." / "It's a record. Keep every one you're given. Nobody can take them back." / the
+  gates know how many you hold; "One opens the Pier. The rest, you'll earn."
+- **The rose pickup** is a placeholder built from primitives (a stem, two leaves, a velvet bloom). A Meshy rose would
+  cost about 24.
+- **Rivet's rates:** a lure per 25 seized, an upgrade per 100 (health pip, then Composure, alternating). Composure
+  upgrades divide every drain by 1 + 0.25 each. Lures are kept in the save (`gear/lures`) and can be thrown once Nim
+  has Rivet's lure gear.
+- **Rivet's new lines** (`hub/club.dialogue`): "Bring me every one of Swyne's toys you seize. Gutted, they make good
+  distractions." / "And enough of them pays for better kit. Harder to knock down. Harder to rattle." Her handover
+  caption: "%d of Swyne's toys. I'll have the receivers out of them by morning."
+- **The first-contraband note:** "Contraband: one of Swyne's toys, off the street. Take what you seize to Rivet at
+  the club: she turns it into gear."
+
+## WO-014 (2026-11-12): Deck review 2 (seven clips)
+- **Dash teaches the suit** (new lines in `pier/dash.dialogue`, label `suit`) the first time Nim comes out of her hut
+  in it: walk, don't run; what costs Composure; a blown cover; how to get it back; try Kneel. The brief gave her the
+  buttons joke only.
+- **One-time HUD reminders:** the first time Composure drops, and the first time cover's blown.
+- **The strut is slower:** 2.4 m/s, down from 3.2, a poised walk for her legs. It was a jog, and the run clip cut
+  into it.
+- **Vesper leaves the lesson on foot,** down the sandbar into the dark, instead of vanishing.
+- **A dim fisherman's lantern** hangs off the deck near her beam, so she's seen standing on it.
+- **Dash shouts as she vaults the fence** ("Over the fence! Find your own way round, slowpoke!"). A "DASH" marker
+  over her head shows through walls during the race.
+
+## WO-014 step 6 (2026-11-12): the Pier's people and props (Meshy)
+- **Madame Pearl is a blue-and-gold macaw**, not a scarlet one: the velvet-red rule keeps crimson for the Rope. She
+  wears a purple head scarf, pearls and a fringed shawl.
+- **The civilians are four species:** an otter (thirties), a hare (forties), a fox (fifties) and a hedgehog (sixties),
+  in seaside night-out clothes. Each person gets a light tint, so four bodies fill a crowd. The same four play the
+  Midway's crowd, the five prize winners and the prologue's guest (the hare).
+- **The coaster car is teal and cream,** not the greybox's red (the same rule).
+- **Props:** the arcade cabinets, the prize boxes on the wall (a plush seal), the landing's crates and rowboat, Pearl's
+  table, and lifebuoys and deckchairs on the promenade (new dressing). The cabinets and crates are stretched to the
+  old boxes' sizes, so every route and contraband spot stays where it was.
+
+## WO-014 (2026-11-12): the hub
+- **The layout** (`levels/hub/hub.gd`): Rope Square with the club on its north side; Seafront Road east to the
+  Pier's gate; six short streets to the later worlds' gates.
+  - **The street names:** Primrose Lane, Hillside Road (the Retreat), Dock Street, Press Alley, Council Avenue (the
+    Ball), Clock Tower Way (City Hall).
+  - **The shop names:** Chandler, Oysters, Rooms, Shipwright.
+- **The club:** the lounge is at street level, with the dungeon "underneath" down a short ramp (1.6 m), not a whole
+  floor down.
+  - The dungeon's dressing: rope coiled on brass hooks, a padded bench, red light. Suggestive only.
+  - **The sisters** wait in the lounge in their suits. **Dash isn't there:** she's at the Pier.
+- **The prologue:**
+  - It's Nim's first night as a member. The guest comes in "on a member's card".
+  - **Waking him pays the hub's Key 10.** That's her first Key, so rank 1 opens the Pier. It reuses the "all
+    sleepers woken pays a Key" rule, with the hub's one sleeper.
+  - The lines are new (`data/dialogue/hub/prologue.dialogue`, `# OWNER REVIEW`).
+- **Hub Key 7:** over Seafront Road's rooftops to a harbour lamp.
+- **The way back from the Pier:** an arch at the promenade's west end.
+- **The club's lines** in each sister's voice:
+  - Augusta: posture;
+  - Silke: a nod;
+  - Rivet: "built it to outlast your bad decisions";
+  - Lull: Swyne cheapened her craft;
+  - Grizelda: "Shoes. Wipe.";
+  - Bastion: "Members."

@@ -209,7 +209,19 @@ func _play_slot() -> void:
 
 
 func _hud() -> void:
-	var level := current_scene
+	# A new game starts in the hub's prologue (Vesper's welcome is already under way: read it through). These checks
+	# want Dash on the test course.
+	for i in 40:
+		if not dialogue.call(&"is_active"):
+			break
+		await frames(28)
+		await tap_pad(JOY_BUTTON_A)
+	var level: Node = load("res://levels/test_course/course.tscn").instantiate()
+	current_scene.queue_free()
+	await frames(2)
+	root.add_child(level)
+	current_scene = level
+	await frames(10)
 	var nim: Node3D = level.get(&"nim")
 	var world_ui: Control = hud.get(&"_world_ui")
 	var hearts: Node = hud.get(&"_hearts")

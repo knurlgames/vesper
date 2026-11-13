@@ -1,0 +1,98 @@
+# OWNER REVIEW
+# The club's sessions (WO-014b, DESIGN.md "The Velvet Rope's house"; levels/hub/club_life.gd, core/club_game.gd).
+# A waiting client's check-in with Nim (in the suit; in her garb, the dress code), and the sisters' aftercare.
+# Content lines: suggestive, clothed (swimwear at most), consensual: a check-in before, aftercare after, and the
+# safeword always heard. The kink is never the joke; a hypocrite in a false moustache can be.
+
+~ client_garb
+Client: Are you one of the Mistresses? ...Oh. Not in those. Not tonight, then.
+[narrator] Sessions are in the suit. The members' wardrobe is upstairs, by the door.
+
+~ client_suit
+Client: Mistress? I was hoping someone would be free.
+Nim: Tell me what you'd like.
+Client: To be tied up and told what to do. Something soft. Nothing sharp.
+Nim: And if it gets to be too much?
+Client: My word's "pineapple". And "yellow" if I need you to slow down.
+Nim: Pineapple. Yellow. Good. Come with me.
+- Begin. => client_go
+- Not tonight. => client_later
+
+~ client_go
+set club/session_go
+=> END
+
+~ client_later
+Client: Another time, then. I'll be here.
+
+~ smith_garb
+Smith: I am not here. This is not me. Good evening.
+
+~ smith_suit
+Smith: Ahem. I am, er, Mister... Smith. A private citizen. Of no political affiliation whatsoever.
+Nim: Your moustache is coming off.
+Smith: It's a very relaxed moustache.
+Smith: I'd like to be scolded. Thoroughly. For hypocrisy, ideally. I have so much of it.
+Nim: And your word?
+Smith: "Decency." I never use it otherwise. Ha. Ha ha.
+- Begin. => client_go
+- Not tonight. => smith_later
+
+~ smith_later
+Smith: Quite right. I was never here.
+
+~ pip_garb
+Pip: Oh! Hi. Sorry. I thought you were... never mind. Hi.
+
+~ pip_suit
+Pip: Hi. Sorry. Hi. It's my first time. Is that obvious?
+Nim: A little. That's fine. What would you like?
+Pip: I don't know. Something gentle? I want to find out if I like it.
+Nim: Then we'll go slowly, and you'll tell me. Your word?
+Pip: Um. "Teacup"? Is that silly?
+Nim: Teacup's perfect. And "yellow" to slow down. I'll be watching for it.
+- Begin. => client_go
+- Not tonight. => pip_later
+
+~ pip_later
+Pip: That's okay. I'll just... sit. And watch. If that's allowed.
+
+# --- the sisters, afterwards ---------------------------------------------------------------------------------------
+
+~ silke_switch_after
+[narrator] Silke works the last knot loose and rubs Nim's wrists, slowly, one and then the other.
+Silke: How was that?
+- Quiet. Good quiet. => silke_after_good
+- Strange. Good strange. => silke_after_good
+
+~ silke_after_good
+Silke: Mm. Water. Sit a while. Don't stand up fast.
+Silke: You breathe well. Nobody teaches that.
+
+~ silke_switch_red
+[narrator] Silke has the rope off in three pulls, and a blanket round Nim's shoulders in a fourth.
+Silke: Red. Good. You said it, I heard it. That's the whole thing.
+Silke: Nothing's wrong. Sit with me.
+
+~ silke_domme_after
+[narrator] Nim unties her. Silke flexes her hands, looks at the knots, and nods.
+Silke: Not bad. Your third was lazy.
+Silke: ...I liked it. Ask me again sometime.
+
+~ silke_domme_red
+[narrator] Nim has the rope off before Silke finishes the word.
+Silke: Fast. Good. Nothing wrong, just enough. Thank you.
+
+~ augusta_switch_after
+Augusta: There. Sit. Tea's coming. You held that far longer than you think you did.
+Augusta: Most people fight their own shoulders. You let them go. Lovely.
+
+~ augusta_switch_red
+Augusta: Red. Good girl. Sit down, darling, sit. That's exactly what it's for.
+
+~ augusta_domme_after
+Augusta: Well. I've been corrected by worse. Your "shoulders down" wants more conviction.
+Augusta: ...And you asked how I was. Do keep doing that. It's the best part.
+
+~ augusta_domme_red
+Augusta: Thank you for stopping the instant I said it. That's all the conviction anyone needs.

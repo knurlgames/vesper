@@ -35,7 +35,8 @@ const WORD_LEVEL := {&"kneel": 1, &"fetch": 2, &"open": 2}
 ## Which lesson teaches each word ("" = she knows it from the start).
 const WORD_LESSON := {&"kneel": "", &"fetch": "lesson_fetch_open", &"open": "lesson_fetch_open"}
 
-const STRUT_SPEED := 3.2
+## A poised walk (it was 3.2, a jog for her legs: the strut clip skated and the run clip cut in; owner's Deck clips).
+const STRUT_SPEED := 2.4
 ## The stick pushed this far or less is a strut, in the suit.
 const STRUT_STICK := 0.6
 ## Composure: what drains it (per second, or per act) while she's watched, and what restores it.
@@ -236,11 +237,11 @@ func _composure(delta: float) -> void:
 	var speed := Vector2(nim.velocity.x, nim.velocity.z).length()
 	var before := composure
 	if nim.state == Nim.State.CLIMB or nim.state == Nim.State.HANG or nim.state == Nim.State.MANTLE:
-		composure -= DRAIN_CLIMB * delta
+		composure -= DRAIN_CLIMB * delta / _steadiness()
 	elif nim.crouching:
-		composure -= DRAIN_CROUCH * delta
+		composure -= DRAIN_CROUCH * delta / _steadiness()
 	elif nim.is_on_floor() and speed > STRUT_SPEED + 0.6:
-		composure -= DRAIN_RUN * delta
+		composure -= DRAIN_RUN * delta / _steadiness()
 	elif strutting():
 		composure = minf(1.0, composure + GAIN_STRUT * delta)
 	if composure != before:
@@ -248,8 +249,27 @@ func _composure(delta: float) -> void:
 
 
 func _spend(amount: float) -> void:
-	composure -= amount
+	composure -= amount / _steadiness()
+	_teach("taught/composure", "Someone saw that: Composure down. Strut where people can see you, and it comes back.")
 	_settle()
+
+
+## Rivet's Composure upgrades (Game flag "upgrade/composure"): each makes every slip cost a quarter less. Read by path
+## (probes compile this before autoloads exist).
+func _steadiness() -> float:
+	var game := nim.get_node_or_null(^"/root/Game")
+	return 1.0 + 0.25 * (int(game.call(&"get_flag", "upgrade/composure", 0)) if game else 0)
+
+
+## A one-time reminder on the HUD, the first time a thing happens (the save remembers): nothing had taught cover
+## (owner, on the Deck). Reached by path: probes compile this before autoloads exist.
+func _teach(once: String, text: String) -> void:
+	var game := nim.get_node_or_null(^"/root/Game")
+	var hud := nim.get_node_or_null(^"/root/Hud")
+	if game == null or hud == null or game.call(&"has_flag", once):
+		return
+	game.call(&"set_flag", once)
+	hud.call(&"note", text, 6.0)
 
 
 func _settle() -> void:
@@ -271,6 +291,7 @@ func _blow() -> void:
 	cover_blown = true
 	_unwatched_t = 0.0
 	said.emit("Cover blown.")
+	_teach("taught/cover", "Cover blown: the goons nearby are coming. Get out of sight and lie low for a few seconds, or change at a wardrobe.")
 	for e: Node3D in nim.get_tree().get_nodes_in_group(&"enemy"):
 		if e.global_position.distance_to(nim.global_position) <= BLOWN_RADIUS:
 			e.call(&"alert", nim.global_position)

@@ -79,15 +79,24 @@ func _collectibles() -> void:
 	await d.place(Vector3(-8, 0.05, 15.2), 0.0)
 	await d.tap(JOY_BUTTON_X)
 	await d.secs(0.5)
-	d.check(_count(&"tin") == 1 and game.call(&"has_collected", &"key", &"hub", &"tin_probe"),
-		"the collection tin, smashed, pays the hub its Key (tin_probe)")
+	d.check(_count(&"tin") == 1 and await _take_rose(&"hub", &"tin_probe"),
+		"the collection tin, smashed: the hub's rose (tin_probe) tossed down and picked up")
 	# Five people in a trance in a row at z 6, facing -Z: from in front, a strike at each one's toy.
 	for i in 5:
 		await d.place(Vector3(-12 + i * 6, 0.05, 6 - 1.2), PI)
 		await d.tap(JOY_BUTTON_X)
 		await d.secs(0.45)
 	d.check(_count(&"freed") == 5, "five people woken (%d)" % _count(&"freed"))
-	d.check(game.call(&"has_collected", &"key", &"probe", &"probe_10"), "and all five pay the world's Key 10")
+	d.check(await _take_rose(&"probe", &"probe_10"), "and all five pay the world's Key 10: a rose tossed down, picked up")
+
+
+## A rose earned without a pickup (a tin, five woken) is tossed down in front of her: let it land, step onto it.
+func _take_rose(w: StringName, id: StringName) -> bool:
+	await d.secs(1.5)
+	var rose := world.get_node_or_null("Key_%s" % id) as Node3D
+	if rose:
+		await d.place(rose.global_position + Vector3(0, 0.05, 0), 0.0)
+	return await d.until(func() -> bool: return game.call(&"has_collected", &"key", w, id), 1.5)
 
 
 func _rank_door() -> void:
@@ -212,5 +221,5 @@ func _slots(before: Dictionary) -> void:
 
 func _pause_tallies() -> void:
 	var text: String = hud.call(&"_tally_text")
-	d.check(text.contains("Keys: %d." % game.call(&"keys")) and text.contains("The Velvet Rope"),
-		"the pause screen tallies it (hub line and %d Keys)" % game.call(&"keys"))
+	d.check(text.contains("Velvet Roses: %d." % game.call(&"keys")) and text.contains("The Velvet Rope"),
+		"the pause screen tallies it (hub line and %d roses)" % game.call(&"keys"))

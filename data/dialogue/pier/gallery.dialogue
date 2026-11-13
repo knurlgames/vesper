@@ -1,0 +1,37 @@
+# The shooting gallery (worlds/01_PIER.md, Key 3): in the suit, with the crop. "set pier/gallery_go" starts the game
+# (levels/pier/keys/gallery.gd). The prize is one of Swyne's toys, and Nim confiscates it.
+
+~ start
+[if pier/gallery_won] => after
+[if not gear_crop] => nocrop
+[if not pier/in_suit] => garb
+Barker: Roll up, roll up! Six targets, thirty seconds, one fabulous prize!
+Barker: Ooh, a lady with a crop. Fancy your chances, Madame?
+- I'll play. => play
+- Not tonight. => END
+
+~ play
+Barker: Crack 'em all before the bell and the prize is yours. Off you go!
+set pier/gallery_go
+=> END
+
+~ nocrop
+Barker: No crop, no shoot, love. House rules. The cheetah's got one. She's always got one.
+
+~ garb
+Barker: Not in that, love. This stall's for a better class of customer. Come back dressed for it.
+
+~ lost
+Barker [grin]: Ooh, so close! Tricky little blighters, those targets. Have another go!
+
+~ won
+Barker [shock]: All six? Nobody gets all six. They're not supposed to... I mean. Congratulations! Your prize!
+[narrator] The prize is a boxed plushie with a spiral printed on its belly. It hums.
+Nim: Where did you get this?
+Barker: Comes in a crate, every night. Everyone wins one! Mr. Laffer's orders.
+Nim: Confiscated.
+Barker: You can't confiscate a prize!
+Nim: Watch me.
+
+~ after
+Barker: You've had your prize. Go on. Shoo.

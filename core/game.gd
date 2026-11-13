@@ -16,6 +16,8 @@ extends Node
 ## "travel/<world>/<id>".
 
 signal collected(kind: StringName, world: StringName, id: StringName)
+## A rose earned without a pickup of its own (five woken, a tin smashed): the level tosses one down (Game._earn).
+signal rose_earned(world: StringName, id: StringName)
 signal flag_changed(key: StringName)
 ## A rank reached (1 to 7): Keys have opened something.
 signal ranked(rank: int)
@@ -30,19 +32,23 @@ const SLOTS := 3
 const WORLDS: Array[StringName] = [&"hub", &"pier", &"primrose", &"docks", &"retreat", &"press", &"ball", &"city_hall"]
 const NAMES := {&"hub": "The Velvet Rope", &"pier": "The Pier", &"primrose": "Primrose Close", &"docks": "The Docks",
 	&"retreat": "The Retreat", &"press": "The Decency Press", &"ball": "The Decency Ball", &"city_hall": "City Hall",
-	&"test": "The test course", &"probe": "The probe world"}
-## Where each world's scene is, once it exists. The hub's stand-in is WO-002's street corner, the club's front door.
-const SCENES := {&"hub": "res://levels/style_test/corner.tscn", &"test": "res://levels/test_course/course.tscn"}
+	&"test": "The test course", &"probe": "The probe world", &"cast": "The cast stage"}
+## Where each world's scene is, once it exists. The hub is the Old Quarter round the Velvet Rope (WO-014 step 5).
+const SCENES := {&"hub": "res://levels/hub/hub.tscn", &"test": "res://levels/test_course/course.tscn",
+	&"pier": "res://levels/pier/pier.tscn"}
+## The hub's one sleeper is the prologue's guest; waking him pays the hub's Key 10 (hub_10), her first Key.
 const TOTALS := {
-	&"hub": {&"key": 10, &"contraband": 0, &"freed": 0, &"tin": 0},
+	&"hub": {&"key": 10, &"contraband": 0, &"freed": 1, &"tin": 0},
 	&"city_hall": {&"key": 0, &"contraband": 0, &"freed": 0, &"tin": 0},
 }
 const WORLD_TOTALS := {&"key": 10, &"contraband": 100, &"freed": 5, &"tin": 1}
 ## Keys needed for each rank; rank n opens world n (rank 7 is City Hall). A proposal, tuned at WO-014.
 const RANK_KEYS: Array[int] = [1, 6, 14, 22, 32, 42, 58]
 const RANK_WORLDS: Array[StringName] = [&"pier", &"primrose", &"docks", &"retreat", &"press", &"ball", &"city_hall"]
-## Where "New game" and "Continue" go until the prologue exists (WO-014).
-const START_SCENE := "res://levels/test_course/course.tscn"
+## Where "New game" and "Continue" go: the hub (a new game starts in the prologue, in the club's dungeon).
+const START_SCENE := "res://levels/hub/hub.tscn"
+## The cast stage: every cast body on screen, with a performance readout (the title's "Cast stage", and Back / Tab).
+const CAST_STAGE := "res://levels/cast_stage/cast_stage.tscn"
 ## The settings screen's options and their defaults (WO-010).
 const SETTING_DEFAULTS := {
 	"cam_speed": 1.0, "invert_x": false, "invert_y": false,
@@ -119,17 +125,36 @@ func collect(kind: StringName, world: StringName, id: StringName) -> bool:
 		return false
 	var rank_before := rank()
 	seen[String(id)] = true
+	if kind == &"key":
+		flags.erase("rose_pending/%s" % id)   # a tossed rose, picked up at last (World._restore_roses)
 	collected.emit(kind, world, id)
 	match kind:
 		&"freed":
 			if count(&"freed", world) >= total(&"freed", world):
-				collect(&"key", world, StringName("%s_10" % world))   # every brief's Key 10 is "five woken"
+				_earn(world, StringName("%s_10" % world))   # every brief's Key 10 is "five woken"
 		&"tin":
-			collect(&"key", &"hub", StringName("tin_%s" % world))
+			_earn(&"hub", StringName("tin_%s" % world))
 	if rank() > rank_before:
 		ranked.emit(rank())
 	save_game()
 	return true
+
+
+## A rose earned by something other than a pickup (five woken, a tin). The level tosses it down at Nim's feet, to be
+## picked up like any deed's rose (owner: "it makes the collection obvious ... and keeps the collect process
+## consistent"): see World._on_rose_earned. With no level listening, it's paid straight away.
+## A rose for something done (the club's sessions and scenes, WO-014b): tossed down like the rest.
+func earn_rose(world: StringName, id: StringName) -> void:
+	_earn(world, id)
+
+
+func _earn(world: StringName, id: StringName) -> void:
+	if has_collected(&"key", world, id):
+		return
+	if rose_earned.get_connections().is_empty():
+		collect(&"key", world, id)
+	else:
+		rose_earned.emit(world, id)
 
 
 func has_collected(kind: StringName, world: StringName, id: StringName) -> bool:

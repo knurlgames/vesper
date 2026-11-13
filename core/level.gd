@@ -5,8 +5,9 @@ extends Node3D
 
 const FollowCam := preload("res://core/follow_cam.gd")
 ## Back / Tab cycles through these.
-const TEST_SCENES := ["res://levels/test_course/course.tscn", "res://levels/style_test/corner.tscn", "res://main.tscn",
-	"res://levels/probe_world/probe_world.tscn"]
+const TEST_SCENES := ["res://levels/test_course/course.tscn", "res://levels/cast_stage/cast_stage.tscn",
+	"res://levels/style_test/corner.tscn", "res://main.tscn", "res://levels/probe_world/probe_world.tscn",
+	"res://levels/pier/pier.tscn", "res://levels/hub/hub.tscn"]
 
 const FALL_Y := -20.0
 
@@ -55,7 +56,7 @@ func spawn_player(at: Vector3, yaw := 0.0) -> void:
 	nim.camera = cam
 	nim.combat.health_changed.connect(Hud.set_health)
 	nim.combat.downed.connect(_on_downed)
-	Hud.set_health(nim.combat.health, NimCombat.MAX_HEALTH)
+	Hud.set_health(nim.combat.health, nim.combat.max_health)
 	for flag: String in Lessons.ALL:
 		nim.known[flag] = Game.has_flag(flag)
 	nim.gear.gear_changed.connect(Hud.set_gear)
@@ -76,7 +77,8 @@ func spawn_player(at: Vector3, yaw := 0.0) -> void:
 func _process(_delta: float) -> void:
 	if nim:
 		Hud.set_light(nim.light)
-		Hud.set_prompt(nim.suit.y_prompt())
+		# Held by a scene (the cross, the club's games, cutscenes): nothing to press Y at.
+		Hud.set_prompt(nim.suit.y_prompt() if nim.is_physics_processing() else "")
 
 
 ## The world's arrival card: its name, and its host and gear if its data has them.

@@ -39,6 +39,10 @@ var _scold_cool := 0.0
 
 func _ready() -> void:
 	nim = get_parent() as Nim
+	# The lures Rivet has made from seized contraband (Game flag "gear/lures", kept in the save).
+	var game := get_node_or_null(^"/root/Game")
+	if game:
+		lures = int(game.call(&"get_flag", "gear/lures", 0))
 
 
 func tick(delta: float) -> void:
@@ -115,6 +119,9 @@ func _throw_lure() -> void:
 		said.emit("No toys left to throw.")
 		return
 	lures -= 1
+	var game := get_node_or_null(^"/root/Game")
+	if game:
+		game.call(&"set_flag", "gear/lures", lures)
 	var dir := nim.facing()
 	if nim.combat.lock:
 		dir = nim.combat.lock.global_position - nim.global_position

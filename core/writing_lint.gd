@@ -70,9 +70,16 @@ func dialogue(path: String, text: String) -> void:
 	var section_marked := false
 	var seen_label := false
 	var n := 0
+	var prev := ""
 	for raw in text.split("\n"):
 		n += 1
 		var line := raw.strip_edges()
+		# Choices hang off the line before them: after a skipped [if] line they're skipped too, and the conversation
+		# just ends (the club's scene offers did, 2026-11-12). Keep an unconditional line before choices.
+		if line.begins_with("- ") and prev.begins_with("[if "):
+			problems.append("%s:%d: choices after a conditional line (skipped with it when its condition fails)" % [path, n])
+		if line != "" and not line.begins_with("#"):
+			prev = line
 		if line.begins_with("#"):
 			if MARK in line:
 				if seen_label:

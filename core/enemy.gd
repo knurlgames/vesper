@@ -19,6 +19,9 @@ enum State { PATROL, SUSPICIOUS, CHASE, FIGHT, SEARCH, RETURN, STAGGER, KNOCKDOW
 ## Points it walks between, in a loop (world space). Empty: it stands guard where it started, facing the way it faced.
 @export var patrol := PackedVector3Array()
 @export var colour := Color("7d8a5a")
+## His model (WO-013): an enemy body ("weasel_goon", "badger_bouncer"...). When its GLB exists it replaces the
+## greybox capsule (core/enemy_model.gd); the collision, the ? / ! and the bound ropes stay.
+@export var body := ""
 ## Security who know her face: they suspect her even in the suit (unless she's lost in a crowd).
 @export var knows_her := false
 
@@ -76,6 +79,7 @@ var _home_yaw := 0.0
 var _nim: Node3D
 var _model: Node3D
 var _fist: MeshInstance3D
+var _look: EnemyModel
 var _mark: Label3D
 var _ropes: Node3D
 var _note: Label3D
@@ -433,18 +437,23 @@ func _build() -> void:
 	add_child(col)
 	_model = Node3D.new()
 	add_child(_model)
-	var body := MeshInstance3D.new()
-	var cap_mesh := CapsuleMesh.new()
-	cap_mesh.radius = RADIUS
-	cap_mesh.height = HEIGHT
-	body.mesh = cap_mesh
-	body.position.y = HEIGHT / 2.0
-	body.material_override = Look.toon(colour)
-	body.material_overlay = Look.outline(AABB(Vector3(-RADIUS, -HEIGHT / 2.0, -RADIUS), Vector3(RADIUS * 2, HEIGHT, RADIUS * 2)), 0.015)
-	_model.add_child(body)
-	_part(Vector3(0.0, HEIGHT - 0.05, 0.0), Vector3(0.62, 0.12, 0.62), colour.darkened(0.4))     # the cap
-	_part(Vector3(0.0, HEIGHT - 0.12, -0.38), Vector3(0.5, 0.05, 0.25), colour.darkened(0.4))    # its peak: his front
-	_fist = _part(Vector3(0.38, 1.0, -0.2), Vector3(0.2, 0.2, 0.2), Color("c8b8a0"))
+	if EnemyModel.exists(body):
+		_look = EnemyModel.new()
+		_look.body = body
+		_model.add_child(_look)
+	else:
+		var capsule := MeshInstance3D.new()
+		var cap_mesh := CapsuleMesh.new()
+		cap_mesh.radius = RADIUS
+		cap_mesh.height = HEIGHT
+		capsule.mesh = cap_mesh
+		capsule.position.y = HEIGHT / 2.0
+		capsule.material_override = Look.toon(colour)
+		capsule.material_overlay = Look.outline(AABB(Vector3(-RADIUS, -HEIGHT / 2.0, -RADIUS), Vector3(RADIUS * 2, HEIGHT, RADIUS * 2)), 0.015)
+		_model.add_child(capsule)
+		_part(Vector3(0.0, HEIGHT - 0.05, 0.0), Vector3(0.62, 0.12, 0.62), colour.darkened(0.4))     # the cap
+		_part(Vector3(0.0, HEIGHT - 0.12, -0.38), Vector3(0.5, 0.05, 0.25), colour.darkened(0.4))    # its peak: his front
+		_fist = _part(Vector3(0.38, 1.0, -0.2), Vector3(0.2, 0.2, 0.2), Color("c8b8a0"))
 	_mark = Label3D.new()
 	_mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_mark.font_size = 96
@@ -452,7 +461,7 @@ func _build() -> void:
 	_mark.outline_size = 14
 	_mark.outline_modulate = Look.INK
 	_mark.position.y = HEIGHT + 0.6
-	_mark.no_depth_test = true
+	_mark.no_depth_test = false   # behind walls and floors it stays hidden (it showed through the pier's boards)
 	add_child(_mark)
 	# Bound: three turns of the Rope's red, and a note for the police.
 	_ropes = Node3D.new()
@@ -493,10 +502,28 @@ func _part(at: Vector3, size: Vector3, c: Color) -> MeshInstance3D:
 
 ## Poses the greybox for the state: a raised fist winding up, a thrown one, a stagger's lean, lying knocked down.
 func _show() -> void:
+	_mark.text = ""
+	if _look:
+		_look.show_state(state, _t, Vector2(velocity.x, velocity.z).length(), RECOVER)
+		match state:
+			State.SUSPICIOUS, State.SEARCH:
+				_mark.text = "?"
+				_mark.modulate = Color("ffd84a")
+			State.CHASE, State.FIGHT:
+				_mark.text = "!"
+				_mark.modulate = Color("ff5a4a")
+			State.FROZEN:
+				_mark.text = "!?"
+				_mark.modulate = Color("a0d0ff")
+		# Bound: his model sits up tied in its own ropes (the `bound` clip). The greybox rings are only for a model
+		# without one; the note for the police stays, at his seated head.
+		if _ropes:
+			_ropes.visible = state == State.BOUND and not _look.has_bound
+			_note.position.y = (1.3 if _look.has_bound else HEIGHT + 0.25)
+		return
 	_model.rotation = Vector3.ZERO
 	_model.position = Vector3.ZERO
 	_fist.position = Vector3(0.38, 1.0, -0.2)
-	_mark.text = ""
 	match state:
 		State.SUSPICIOUS, State.SEARCH:
 			_mark.text = "?"

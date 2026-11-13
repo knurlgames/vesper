@@ -6,6 +6,9 @@ extends Node3D
 ##
 ## The body is optional: a Talker can sit on a character (a child of Vesper's stand-in) or stand alone as a greybox.
 
+## A conversation (or cutscene) has finished; `which` is the label that played. A world's Key scripts listen.
+signal talked(which: String)
+
 @export_file("*.dialogue") var file := ""
 @export var label := "start"
 @export var once := false
@@ -22,8 +25,13 @@ extends Node3D
 ## GLB exists. The collision capsule stays either way.
 @export var who := ""
 @export var outfit := "garb"
+## Or an enemy body to wear ("weasel_goon"...; assets/enemies), idling, for staff and bit parts.
+@export var look_body := ""
 
 var model: CastModel
+var look: EnemyModel
+## True while walk_path is taking them somewhere.
+var walking := false
 
 
 func _ready() -> void:
@@ -33,7 +41,13 @@ func _ready() -> void:
 		model.who = who
 		model.outfit = outfit
 		add_child(model)
-	if greybox or model:
+	elif look_body != "" and EnemyModel.exists(look_body):
+		look = EnemyModel.new()
+		look.body = look_body
+		look.process_mode = Node.PROCESS_MODE_ALWAYS   # they stand and idle: keep breathing through a conversation
+		add_child(look)
+		look.show_state(0, 0.0, 0.0, 0.0)
+	if greybox or model or look:
 		var body := StaticBody3D.new()
 		var shape := CapsuleShape3D.new()
 		shape.radius = 0.35
@@ -49,7 +63,7 @@ func _ready() -> void:
 		mesh.mesh = cap
 		mesh.position.y = 0.875
 		mesh.material_override = Look.toon(colour)
-		mesh.visible = model == null
+		mesh.visible = model == null and look == null
 		body.add_child(mesh)
 		add_child(body)
 	if display_name != "":
@@ -91,3 +105,33 @@ func talk() -> void:
 		await dialogue.call(&"run", file, which)
 	if once and which == label and game:
 		game.call(&"set_flag", once_flag())
+	talked.emit(which)
+
+
+## Walks (or runs) through `points` in turn at `speed` m/s, turned the way they're going, the legs keeping pace (a
+## cast model's walk or run, a body's walk). Await it. For leaving a scene on foot instead of vanishing (owner, on
+## the Deck: "have the characters move on organically instead of simply teleporting away"). `walking` is true until
+## they arrive.
+func walk_path(points: Array, speed := 1.6) -> void:
+	walking = true
+	for p: Vector3 in points:
+		var flat := Vector3(p.x - global_position.x, 0.0, p.z - global_position.z)
+		if flat.length() > 0.05:
+			rotation.y = atan2(-flat.x, -flat.z)
+		_pace(speed)
+		var secs := global_position.distance_to(p) / speed
+		if secs > 0.0:
+			var tw := create_tween()
+			tw.tween_property(self, ^"global_position", p, secs)
+			await tw.finished
+		if not is_inside_tree():
+			return
+	_pace(0.0)
+	walking = false
+
+
+func _pace(speed: float) -> void:
+	if model:
+		model.speed = speed
+	if look:
+		look.show_state(0, 0.0, speed, 0.0)

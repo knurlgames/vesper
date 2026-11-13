@@ -259,7 +259,19 @@ any other cast member.**
 - Bosses: Laffer (hyena), Gander (goose), Tusk (walrus), Dr. Strix (owl), Grubb (mole) and the Decency Engine,
   Tupping (ram).
 - **Concepts:** one anchor per species; variants are tints.
-- **Cost:** about 1,000 credits.
+- **Owner's decisions (2026-11-12):**
+  - **Batching:** the Pier first, end to end (weasel goon, badger bouncer, gull lookout, Laffer, stoat courier).
+    It feeds WO-014 and tests the auto-rig on a blocky goon and a bird.
+  - **Guard dogs:** upright Doberman guards, anthro like everyone else, on the goon pipeline.
+  - **Stoats added:** one anchor. It's the Pier's courier; the Docks' customs uniform is a variant.
+  - **The Decency Engine:** a Meshy model, tidied in Blender if needed.
+- **Pipeline:**
+  - **Concepts:** nano-banana-pro image-to-image, multi-view. The style reference is Swyne's front, and each prompt
+    leads with the build.
+  - **3D:** multi-image (35), remesh (5), auto-rig (5).
+  - **Fighters** also get four Meshy library clips (3 each): Combat Idle 89, Right Jab from Guard 192, Hit Reaction
+    178, Knock Down 187. Bound, kneel and look-around are scripted.
+- **Cost:** about 1,290 for the full roster (20 characters).
 - **Acceptance:** owner approves concepts; each enemy in a test scene.
 - **Depends on:** WO-011's approved concepts (the style bar).
 
@@ -277,6 +289,57 @@ any other cast member.**
   - Is the camera trustworthy?
   - Is Vesper the mentor we want?
 - **Depends on:** WO-003 to WO-013.
+- **Build order (proposal, 2026-11-12; started on the owner's "proceed to WO-014"):**
+  1. **The Pier's layout** (done 2026-11-12; HANDOFF): all six areas built in code with the painted shaders, at
+     night in the rain.
+     - Everything placed: traversal, wardrobes, shortcuts, checkpoints, zones, fast travel, goons, gulls,
+       bouncers, the five sleepers, 100 contraband and the tin.
+     - `pier_probe` walks the routes between the areas.
+  2. **The Keys** (done 2026-11-12; HANDOFF): each Key's little script and its lines (Dash's race, the landing crew, the gallery, the high
+     striker, Madame Pearl, the safe, the prize counter, the wheel). Vesper's lesson under the pier.
+  3. **The set piece** (done 2026-11-12; HANDOFF): the Big Dipper chase.
+  4. **The boss** (done 2026-11-12; HANDOFF): Laffer's three phases.
+  5. **The prologue, the club and the first Old Quarter streets** (done 2026-11-12; HANDOFF; sized to DESIGN.md
+     "Sizing"): a door from the hub to the Pier.
+  6. **Art** (done 2026-11-12; HANDOFF. The free part: the gulls, the clerk, the mallet goon and the barker wear
+     WO-013's models. The Meshy part, 462 credits: Madame Pearl, four civilians and eight props, in the game):
+     - Meshy props and the new people: Madame Pearl, the clerk, the prize winners, the crowd. **Quote first.**
+     - Lighting, neon, sound placeholders.
+  7. **`pier_flow`** (built 2026-11-12, 0 failures; HANDOFF): every Key and the boss with real inputs. Then a Deck push, and **stop** for the owner's
+     playtest.
+
+## WO-014b: The Velvet Rope's house (started 2026-11-12, during the WO-014 playtest; HANDOFF)
+- **Status:**
+  - **Built:** steps 1–6. Silke and Augusta's scenes are in, Silke's both ways; Augusta's Domme is probed, and her
+    Switch is built but not probed.
+  - **The cross** (2026-11-12, HANDOFF): a session on the vaults' cross, either way round, with any client or any
+    sister. The form covers gag, blindfold, collar, cuffs and gentle or firm; then a tray of tools and aftercare.
+    Client sessions now go there, and every sister has it both ways. Probed in `club_probe`.
+  - **To do:** the four other sisters' signature scenes (beyond the cross); Nim's two-piece (her own pipeline);
+    Augusta's parlour props; a Deck push.
+DESIGN.md "The Velvet Rope's house". The club grows into a place to wander between worlds. Build order:
+1. **The layout:** the Dungeon hall and six sisters' rooms, and the Backroom behind Rivet's shelf.
+   - Sized to "Sizing": everything within about 30 s of the door. `zfight_check` clean, `hub_probe` routes.
+   - Rivet's bench moves to her workshop.
+2. **The ambient sessions:** each sister with a client, on a loop.
+   - **The dress code** (DESIGN): clients in swimwear downstairs and in robes at the door; Nim in her black
+     two-piece.
+   - **Art:** new client bodies in swimwear (Meshy, about 54 each: quote first), robes on hooks, and Nim's third
+     outfit. A few props (a rope frame, a boot-black stool, a reading chair).
+   - **Meshy:** quote first, maybe 3–5 props (about 24 each).
+3. **The Backroom:** the map table, the pinboard, Vesper's desk. Briefings move here.
+4. **A living dungeon:** clients filter in (a robe at the door), take a free sister's room for a session, go to
+   Lull's room for aftercare, and leave. A few fixed regulars, plus a rotating crowd.
+5. **The client mini-game** (the comic regular to start), and its hub Rose.
+   - The safeword rule comes first and is probed: Nim must stop on "red".
+6. **Switch and Domme, opt-in, with any sister** (owner): both ways per sister, in character.
+   - Start with two: Silke (rope) and Augusta (posture), each with a check-in and aftercare.
+   - The first one pays the hub Rose; the rest pay small perks and the sister's bond.
+7. **A Deck push, and stop** for the owner's notes.
+- **Writing:** every line in these scenes is marked for owner review. Consent and aftercare are on screen; nothing
+  is explicit.
+- **Answered (DESIGN):** the clients filter in and out; Switch and Domme are opt-in with any sister. Still open: the
+  Backroom board versus the gates (recommendation: alongside).
 
 ## WO-015: Primrose Close
 - worlds/02_PRIMROSE_CLOSE.md. The demonstration party set piece, Gander.

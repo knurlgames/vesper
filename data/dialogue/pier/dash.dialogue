@@ -1,0 +1,59 @@
+# Dash on the Pier (worlds/01_PIER.md, Key 1): the race from the gate to the end of the pier, and her crop.
+# levels/pier/keys/dash_race.gd runs the race; "set pier/race_go" starts it. Every joke is the owner's to review.
+
+~ start
+[if pier/race_won] => after
+[if pier/race_on] => waiting
+[if pier/race_lost] => rematch
+Dash [grin]: There she is. Vesper's new climber.
+Nim: Nim.
+Dash: Dash. Fastest thing in the Old Quarter, on two legs or four.
+Dash: Here's the deal. Beat me from the gate to the end of the pier, and you get my crop.
+Nim: And if I lose?
+Dash: You don't get my crop. And I tell everyone.
+- You're on. => go
+- Not now. => later
+
+~ go
+Dash [grin]: The gate. I'll count us in.
+set pier/race_go
+=> END
+
+~ later
+Dash: Scared. Understandable.
+=> END
+
+~ waiting
+Dash: The gate, Nim. The big pink one. You can't miss it.
+
+~ rematch
+Dash [grin]: Back for more? Same deal. Gate to the end.
+- Again. => go
+- Not now. => later
+
+~ won
+Dash [shock]: ...Huh.
+Nim: I won.
+Dash: You won because I let you win. Obviously. For morale.
+Nim: You vaulted a fence.
+Dash: I was warming up.
+Dash: Fine. A deal's a deal. Hold your strike and it cracks. Bells, switches, targets, gulls.
+Dash: Goons too, in the garb. Not in the suit. That's just tacky.
+=> END
+
+~ after
+Dash: That shooting gallery on the Midway's rigged, by the way. And nobody's ever rung the bell on the striker. Have fun.
+
+# The first time Nim comes out of Dash's hut in the Domme suit: how the suit works (worlds/01_PIER.md "How it
+# teaches" 3-4). Player mechanics, said by Dash (owner, on the Deck: nothing taught cover). dash_race.gd plays it.
+~ suit
+Dash [grin]: Need a hand with the buttons? ...Yeah, no. Claws. You're on your own.
+Dash: Right. In that, nobody sees a burglar. They see someone who belongs here.
+Dash: So act like it. Walk. Slow, chin up, like the pier owes you money.
+Dash: Run, jump, climb a wall, start a scrap where people can see? They notice. That's your Composure going.
+Dash: Lose it all and your cover's blown. Every goon in shouting distance comes running.
+Nim: And then?
+Dash: Then you get out of sight and let them forget your face. Or change back at a wardrobe.
+Dash: Strutting about in plain view puts it back. So does being obeyed.
+Dash [grin]: And with that look, try telling someone to kneel. See what happens.
+=> END

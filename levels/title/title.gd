@@ -5,6 +5,7 @@ extends Control
 ##   Saves             three slots: play one (new or continued), or erase one (asked twice)
 ##   Settings          the settings screen (core/settings_menu.gd)
 ##   Content           the content card again
+##   Cast stage        a performance test scene (every cast body on screen); not part of the game
 ##   Quit
 ## Pad, keys and mouse throughout. A game starts in Game.START_SCENE until the prologue exists (WO-014).
 
@@ -95,6 +96,10 @@ func show_main() -> void:
 	Menu.button(col, "Saves", show_slots).name = "Saves"
 	Menu.button(col, "Settings", func() -> void: Hud.open_settings(show_main)).name = "Settings"
 	Menu.button(col, "Content", show_content).name = "Content"
+	# A test scene, not the game: every cast body on screen with a frame-rate readout (levels/cast_stage).
+	Menu.button(col, "Cast stage (perf test)", func() -> void: Game.travel(Game.CAST_STAGE)).name = "CastStage"
+	# WO-014 in progress: the Pier's layout, straight in (the hub's door to it comes with the hub).
+	Menu.button(col, "The Pier (in progress)", func() -> void: Game.travel(Game.SCENES[&"pier"], "start")).name = "Pier"
 	Menu.button(col, "Quit", func() -> void: get_tree().quit()).name = "Quit"
 	Menu.focus_first.call_deferred(col)
 
@@ -115,7 +120,7 @@ func show_slots() -> void:
 		play.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		play.custom_minimum_size = Vector2(0, 52)
 		play.add_theme_font_size_override(&"font_size", 20)
-		play.text = "Slot %d   %s" % [n, "empty: a new game" if s.is_empty() else "%d Keys   %s" % [s["keys"], _when(s["saved_at"])]]
+		play.text = "Slot %d   %s" % [n, "empty: a new game" if s.is_empty() else "%d Roses   %s" % [s["keys"], _when(s["saved_at"])]]
 		play.pressed.connect(_play.bind(n))
 		row.add_child(play)
 		if not s.is_empty():

@@ -15,12 +15,27 @@ const GLB := {
 	1: "res://assets/characters/nim/nim_suit.glb",
 }
 ## How fast the moving clips' feet travel at speed scale 1 (m/s), so playback matches her real speed.
-const CLIP_SPEED := {&"walk": 1.6, &"strut": 1.4, &"prowl": 1.5, &"run": 5.5, &"balance": 0.9, &"climb_up": 1.2,
+const CLIP_SPEED := {&"walk": 1.6, &"strut": 1.4, &"prowl": 1.5, &"run": 3.4, &"balance": 0.9, &"climb_up": 1.2,
 	&"climb_side": 1.0, &"ceiling": 1.0, &"descend": 2.0}
 const BLEND := 0.12
-## Clips that play once and hold their last frame while she's still in that state.
-const HOLD := [&"jump", &"fall"]
-const RUN_FROM := 3.6       # m/s: faster than this is a run
+## Her head, scaled in game to sit with the cast's (0.59 m wide against their 0.29-0.45). core/bone_scale.gd.
+const HEAD_SCALE := 0.8
+## The muzzle mask's own overall scale (it's under the head bone): matched to her shrunken face by eye.
+const MASK_SCALE := 0.9
+## Snappier cross-fades for the fight: a strike's wind-up is 0.07 s (nim_combat.HITS), so the default blend would eat it.
+const FAST_BLEND := {&"strike1": 0.03, &"strike2": 0.03, &"strike3": 0.04, &"pounce": 0.04}
+## Faster than RUN_FROM is a run, and a run lasts until she's slower than RUN_TO. The walk's feet travel 1.6 m/s, so
+## past about 2.5 a walk only plays faster. It was 3.6: pacing Dash at 3.6 m/s she walked at the 2x cap, feet barely
+## off the ground and arms a blur, and that was what read as a jittery run (owner's Deck clips, 2026-11-12).
+const RUN_FROM := 2.6
+const RUN_TO := 2.2
+## The walk and the strut never play faster than this.
+const WALK_SCALE_MAX := 1.5
+## The strut may play a little faster, so her feet keep up with her at its top speed (NimSuit.STRUT_SPEED).
+const STRUT_SCALE_MAX := 1.8
+## The run plays no faster than this: at her 7 m/s the cadence would otherwise pass six steps a second (it read as
+## jitter on the Deck). Past it her feet slide a little, which reads better than a blur of legs.
+const RUN_SCALE_MAX := 1.4
 const MOVE_FROM := 0.3      # m/s: slower than this is standing
 ## The frame (at 24 fps) where the muzzle's catch clicks: it appears or disappears then.
 const MASK_CLICK := 9.0 / 24.0
@@ -28,6 +43,8 @@ const MASK_CLICK := 9.0 / 24.0
 var nim: Node
 var outfit := 0
 var loaded := false
+## Held still for a scene on the cross (core/cross_scene.gd): her clips stop, frozen on idle, so her bones can be posed.
+var held := false
 var mask_on := true
 
 var _models: Array = [null, null]
@@ -56,16 +73,28 @@ func _ready() -> void:
 		_dress(m)
 		_models[o] = m
 		_players[o] = m.find_child("AnimationPlayer", true, false)
+		for sk: Skeleton3D in m.find_children("*", "Skeleton3D", true, false):
+			var hs := BoneScale.new()
+			hs.bone_name = &"head"
+			hs.factor = HEAD_SCALE
+			sk.add_child(hs)
 		for mi: MeshInstance3D in m.find_children("*", "MeshInstance3D", true, false):
 			if mi.name.ends_with("_Mask"):
 				if o == 0:
 					_mask = mi
+				# The mask rides the head bone and shrinks by the full HEAD_SCALE, but her muzzle's skin is partly
+				# weighted to the neck and shrinks less, so the shrunken mask sank into her face (owner, on the
+				# Deck). It's shrunk only to MASK_SCALE overall.
+				# Scaled about the head joint (the attachment's origin), not the mask node's own origin, which sits
+				# far from the face (scaling about it lifted the mask over her brow).
+				var k := MASK_SCALE / HEAD_SCALE
+				mi.transform = Transform3D(mi.transform.basis.scaled(Vector3.ONE * k), mi.transform.origin * k)
 			elif mi.mesh is ArrayMesh and (mi.mesh as ArrayMesh).get_blend_shape_count() > 0:
 				_faces[o] = mi
 		for ap: AnimationPlayer in [_players[o]]:
 			if ap:
 				ap.animation_finished.connect(_on_finished)
-				for loop_clip in [&"idle_garb", &"idle_suit", &"walk", &"prowl", &"strut", &"run",
+				for loop_clip in [&"idle_garb", &"idle_suit", &"walk", &"prowl", &"strut", &"run", &"jump", &"fall",
 						&"climb_up", &"climb_side", &"hang", &"balance", &"ceiling", &"descend", &"swing", &"bind",
 						&"trance"]:
 					if ap.has_animation(loop_clip):
@@ -124,20 +153,43 @@ func set_outfit(o: int) -> void:
 	_apply_mask()
 
 
+func hold(on: bool) -> void:
+	held = on
+	var ap: AnimationPlayer = _players[outfit]
+	if ap == null:
+		return
+	var idle := &"idle_suit" if outfit == 1 else &"idle_garb"
+	if on:
+		ap.play(idle)
+		ap.seek(0.0, true)
+		ap.pause()
+	else:
+		var sk := skeleton()
+		if sk:
+			sk.reset_bone_poses()
+		_clip = &""
+		ap.play(idle)
+
+
+func skeleton() -> Skeleton3D:
+	var m: Node = _models[outfit]
+	return m.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D if m else null
+
+
 func _physics_process(delta: float) -> void:
 	if not loaded:
 		return
 	_update_mask(delta)
 	_update_face(delta)
-	if _oneshot != &"":
+	if _oneshot != &"" or held:
 		return
 	var want := _pick()
 	var ap: AnimationPlayer = _players[outfit]
-	# Jump and fall (the Cascadeur pilot) play once and hold their last frame: replaying a finished one would restart
-	# the push-off mid-air (Nine Lives' one-shot gotcha).
-	if want != _clip or (not ap.is_playing() and not want in HOLD):
+	# The fight's clips play once and hold their last frame: a strike clip ends a few frames before the strike does,
+	# and replaying it restarted the punch for those frames (owner: "She punches and it jerks back quickly").
+	if want != _clip or (not ap.is_playing() and not FAST_BLEND.has(want)):
 		_clip = want
-		ap.play(want, BLEND)
+		ap.play(want, FAST_BLEND.get(want, BLEND))
 	ap.speed_scale = _speed_for(want)
 
 
@@ -188,7 +240,17 @@ func _pick() -> StringName:
 		return &"idle_suit" if outfit == 1 else &"idle_garb"
 	if nim.get(&"crouching"):
 		return &"prowl"
-	if flat > RUN_FROM:
+	# A dead band: once running she keeps running down to RUN_TO, so a speed hovering at the threshold (pacing Dash
+	# at 3.6 m/s, owner's Deck clip) doesn't flip walk and run back and forth through cross-fades.
+	# In the suit, a strut is always the strut: the run waits for a real run (past the strut's top speed). Her strut
+	# was 3.2 m/s, over RUN_FROM, so every strut flipped into the run clip and back (owner, Deck: "her hips jar back
+	# and forth").
+	var run_from := RUN_FROM
+	var run_to := RUN_TO
+	if outfit == 1:
+		run_from = NimSuit.STRUT_SPEED + 0.6
+		run_to = NimSuit.STRUT_SPEED + 0.3
+	if flat > run_from or (_clip == &"run" and flat > run_to):
 		return &"run"
 	return &"strut" if outfit == 1 else &"walk"
 
@@ -200,7 +262,19 @@ func _speed_for(clip: StringName) -> float:
 	var s := Vector2(v.x, v.z).length()
 	if clip in [&"climb_up", &"descend"]:
 		s = absf(v.y) + s * 0.3
-	return clampf(s / CLIP_SPEED[clip], 0.5, 2.0)
+	var top := RUN_SCALE_MAX if clip == &"run" else STRUT_SCALE_MAX if clip == &"strut" \
+		else WALK_SCALE_MAX if clip == &"walk" else 2.0
+	return clampf(s / CLIP_SPEED[clip], 0.5, top)
+
+
+## For the perf overlay: the clip playing and its playback rate.
+func clip_name() -> StringName:
+	return _clip
+
+
+func clip_scale() -> float:
+	var ap: AnimationPlayer = _players.get(outfit)
+	return ap.speed_scale if ap else 0.0
 
 
 func _play_once(clip: StringName) -> void:

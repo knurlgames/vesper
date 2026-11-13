@@ -46,7 +46,7 @@ func _physics_process(_delta: float) -> void:
 		return
 	var game := get_node_or_null(^"/root/Game")
 	var have: int = game.call(&"keys") if game else 0
-	_label.text = "%d KEYS\n(you have %d)" % [keys_needed, have]
+	_label.text = "%d ROSES\n(you have %d)" % [keys_needed, have]
 	if have < keys_needed:
 		return
 	var nim := get_tree().get_first_node_in_group(&"player") as Node3D

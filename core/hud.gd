@@ -289,18 +289,22 @@ func _apply_setting(key: String) -> void:
 
 ## Banjo-style: a pick-up shows its world's count for a moment, then gets out of the way.
 func _on_collected(kind: StringName, world: StringName, _id: StringName) -> void:
-	var names := {&"key": "Keys", &"contraband": "Contraband", &"freed": "Woken", &"tin": "Collection tin"}
+	# A "key" in the code is a Velvet Rose on screen (owner, 2026-11-12): the Rope's rose for good work.
+	var names := {&"key": "Roses", &"contraband": "Contraband", &"freed": "Woken", &"tin": "Collection tin"}
 	_counter.text = "%s  %d / %d\n%s" % [names.get(kind, String(kind)), Game.count(kind, world), Game.total(kind, world),
 		Game.NAMES.get(world, String(world))]
 	_counter_t = 3.0
 	if kind == &"key":
-		note("Keys: %d. Rank %d." % [Game.keys(), Game.rank()], 3.0)
+		note("Velvet Roses: %d. Rank %d." % [Game.keys(), Game.rank()], 3.0)
+	elif kind == &"contraband" and not Game.has_flag("taught/contraband"):
+		Game.set_flag("taught/contraband")
+		note("Contraband: one of Swyne's toys, off the street. Take what you seize to Rivet at the club: she turns it into gear.", 7.0)
 
 
 ## The pause screen's tallies: every world, Banjo-style, and her rank.
 func _tally_text() -> String:
 	var lines: Array[String] = []
-	lines.append("%-22s %6s %10s %7s %5s" % ["", "Keys", "Contraband", "Woken", "Tin"])
+	lines.append("%-22s %6s %10s %7s %5s" % ["", "Roses", "Contraband", "Woken", "Tin"])
 	for w: StringName in Game.WORLDS:
 		if w == &"city_hall":
 			continue
@@ -316,7 +320,11 @@ func _tally_text() -> String:
 	var r := Game.rank()
 	var next := "" if r >= Game.RANK_KEYS.size() else "  (next at %d)" % Game.RANK_KEYS[r]
 	lines.append("")
-	lines.append("Keys: %d.  Rank %d%s" % [Game.keys(), r, next])
+	lines.append("Velvet Roses: %d.  Rank %d%s" % [Game.keys(), r, next])
+	var handed := int(Game.get_flag("rivet/handed", 0))
+	var seized := Game.count(&"contraband")
+	if seized > 0:
+		lines.append("Contraband seized: %d%s" % [seized, "" if seized <= handed else "  (%d still to hand to Rivet)" % (seized - handed)])
 	return "\n".join(lines)
 
 

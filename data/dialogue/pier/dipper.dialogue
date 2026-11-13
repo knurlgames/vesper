@@ -1,0 +1,12 @@
+# The Big Dipper chase (worlds/01_PIER.md, Key 9; levels/pier/keys/dipper.gd): the courier caught in the car, the
+# ledger, and the ride photo.
+
+~ caught
+Courier: Okay! Okay! Take it! It's only orders! Just a lot of orders!
+Nim: "Demonstration parties. Primrose Close. Forty boxes, gift-wrapped." Who's buying hypnotic toys for a tea party?
+Courier: Everyone on the Close, by the look of it. The vicar's wife ordered six.
+=> photo
+
+~ photo
+[narrator] At the bottom of the drop, the ride photo prints: the stoat screaming his head off, and Nim beside him, eyes screwed tight shut.
+Nim: ...I'll take two.

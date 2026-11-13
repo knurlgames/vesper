@@ -14,6 +14,8 @@ A pose names where things go, not bone angles:
   elbow.L/R   pole direction (outward, back, up), mirrored
   curl.L/R    the wrist bent forward (deg); shrug.L/R the shoulder up (deg)
   air         feet ride with the pelvis offset
+  turn        deg: the whole body yaws about the vertical (+ turns her to her left), legs and arms with it
+  grip.L/R    finger curl for this key (deg), over the clip's CLIP_GRIP
   frame       body frame: ankles, feet and hands are given as if she stood upright, and turn with her hips and
               chest. For the clips where she's on her back under a ceiling or head down on a wall.
 The tail and ears are procedural (`tail`, `ears` per clip).
@@ -96,8 +98,12 @@ class Poser:
         rest = self.rest
         M["root"] = rest["root"].copy()
         f = self._follow(M, "hips")
-        off = Vector(pose.get("pelvis", (0, 0, 0)))
-        qh = _q(*pose.get("hips", (0, 0, 0)))
+        # `turn`: the whole body yaws about the vertical through her pelvis (feet, knees and hands with it), so a spin
+        # pivots her instead of twisting the pelvis over planted feet. The pelvis offset is in the turned frame.
+        qt = Quaternion((0, 0, 1), math.radians(pose.get("turn", 0.0)))
+        pivot = Vector((f.translation.x, f.translation.y, 0.0))
+        off = qt @ Vector(pose.get("pelvis", (0, 0, 0)))
+        qh = qt @ _q(*pose.get("hips", (0, 0, 0)))
         M["hips"] = _mat(f.translation + off, qh @ f.to_quaternion())
         for n in ("spine", "chest", "neck", "head"):
             f = self._follow(M, n)
@@ -116,7 +122,7 @@ class Poser:
                 ankle = T @ (rest_ankle + o)
                 knee_pole = T.to_quaternion() @ knee_pole
             else:
-                ankle = rest_ankle + o + (off if pose.get("air") else Vector())
+                ankle = pivot + qt @ (rest_ankle + o - pivot) + (off if pose.get("air") else Vector())
                 knee_pole = qh @ knee_pole
             knee, ankle = _ik(hip, ankle, self.len["thigh." + s], self.len["shin." + s], knee_pole)
             M["thigh." + s] = self._swing(f_th, knee - hip)
@@ -125,6 +131,8 @@ class Poser:
             fwd = Vector((0, -math.cos(down), -math.sin(down)))
             if frame:
                 fwd = T.to_quaternion() @ fwd
+            else:
+                fwd = qt @ fwd
             M["foot." + s] = self._swing(self._follow(M, "foot." + s), fwd)
             M["toe." + s] = self._follow(M, "toe." + s)
             # Arms: the shoulder rides the chest; the wrist target is relative to the shoulder joint, mirrored.
@@ -139,6 +147,8 @@ class Poser:
             v, pole = Vector((sign * hx, hy, hz)), Vector((sign * ex, ey, ez))
             if frame:
                 v, pole = Tc @ v, Tc @ pole
+            else:
+                v, pole = qt @ v, qt @ pole
             elbow, H = _ik(S, S + v, self.len["upper_arm." + s], self.len["forearm." + s], pole)
             M["upper_arm." + s] = self._swing(f_ua, elbow - S)
             M["forearm." + s] = self._swing(self._follow(M, "forearm." + s), H - elbow)
@@ -203,6 +213,8 @@ def _mirror(pose):
             out[k] = (v[0], -v[1], -v[2])
         elif k == "pelvis":
             out[k] = (-v[0], v[1], v[2])
+        elif k == "turn":
+            out[k] = -v
         else:
             out[k] = v
     return out
@@ -254,6 +266,61 @@ def gait(frames, stride, lift, bob, lean=0.0, crouch=0.0, swing=0.12, sway=0.0, 
     return keys
 
 
+def _smooth01(e0, e1, x):
+    t = min(max((x - e0) / (e1 - e0), 0.0), 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def run_cycle(frames=14, reach=0.24, duty=0.30, crouch=0.06, bob=0.018, lift=0.26, kick=0.18, drive=0.10,
+              lean=8.0, twist=6.0, arm=0.20, hand=(0.05, -0.02, -0.20), elbow=(0.3, 1.0, -0.4), curl=25.0,
+              head=-6.0):
+    """A run keyed on every frame from continuous curves (the gait() run was three keys a step, and its planted foot
+    moved back at uneven speeds: owner, on the Deck, "Nim's running is way jerky").
+    Per leg, phase 0..1 (the right leg half a cycle behind the left):
+      stance (the first `duty`): the foot slides back from `reach` ahead to `reach` behind at a constant speed, so
+        it stays put on the ground (ground speed 2*reach / (duty * cycle));
+      swing: the leg trails out behind and the heel kicks up (`kick`), the foot tucks (`lift`), the knee drives
+        through and the foot reaches past the landing spot (`drive`) before it comes back to land.
+    The pelvis is lowest at each mid-stance and highest in the flight between; the hips twist with the legs, the
+    chest against them, and the arms swing opposite the legs.
+    Deck review 2 (owner, beside Dash's Meshy run: "still jittery"): the first version ran crouched with short,
+    fast, small steps (it read as scurrying). This one is more upright, bobs half as much, cycles slower, and makes
+    its stride big in the swing, where the leg isn't held to the ground: a long trail behind, a knee drive in front."""
+    keys = {}
+    tau = 2 * math.pi
+    for k in range(frames):
+        ph = k / frames
+        pose = {"hips": (lean, 0.0, -twist * math.cos(tau * ph)), "chest": (4.0, 0.0, 1.4 * twist * math.cos(tau * ph)),
+                "neck": (-4.0, 0.0, 0.0), "head": (head, 0.0, -0.4 * twist * math.cos(tau * ph)),
+                "pelvis": (0.0, 0.0, -crouch - bob * math.cos(tau * (2 * ph - duty)))}
+        for side, off in (("L", 0.0), ("R", 0.5)):
+            p = (ph + off) % 1.0
+            x = 0.0
+            if p < duty:
+                u = p / duty
+                y, z = -reach + 2 * reach * u, 0.0
+                foot = -5.0 + 45.0 * u * u               # flat on landing, rolling to the toe-off
+            else:
+                u = (p - duty) / (1.0 - duty)
+                y = reach - 2 * reach * _smooth01(0.15, 0.95, u) + kick * math.sin(math.pi * min(u / 0.6, 1.0)) \
+                    - drive * math.sin(math.pi * min(max((u - 0.4) / 0.6, 0.0), 1.0))
+                # Peaks early (the tuck) and comes down gradually: a plain sine dropped 14 cm in the last frame.
+                z = lift * math.sin(math.pi * u ** 0.65) ** 1.2
+                foot = 50.0 * (1.0 - u) - 5.0 * u        # toe pointed off the ground, flat again to land
+            pose["ankle." + side] = (x, y, z)
+            pose["foot." + side] = foot
+        # Arms opposite the legs: the right hand forward as the left foot reaches (phase 0).
+        sw = math.cos(tau * ph)
+        for side, sgn in (("R", -1.0), ("L", 1.0)):
+            fwd = sgn * sw                              # -1: fully forward
+            pose["hand." + side] = (hand[0], hand[1] + arm * fwd, hand[2] + 0.06 * max(0.0, -fwd))
+            pose["elbow." + side] = elbow
+            pose["curl." + side] = curl
+        keys[k + 1] = pose
+    keys[frames + 1] = None
+    return keys
+
+
 # --- her poses -------------------------------------------------------------------------------------------------------
 # The night garb: a trainee's ready stance, weight forward on the balls of her feet, hands loose and near.
 READY = {"pelvis": (0, 0.0, -0.03), "hips": (5, 0, 0), "spine": (2, 0, 0), "chest": (1, 0, 0), "neck": (-2, 0, 0),
@@ -290,18 +357,25 @@ CLIPS = {
         49: _with(POISE, chest=(-3, -2, 5), head=(3, 3, -2), hips=(0, 6, -4)),
         73: None}),
     # --- getting about ---
-    "walk": dict(loop=True, tail=tail_fn(lift=20, curl=8, sway=10, bob=3, cycles=1), ears=ears_fn(0, 0),
+    "walk": dict(loop=True, tail=tail_fn(lift=20, curl=8, sway=5, bob=3, cycles=1), ears=ears_fn(0, 0),
                  keys=gait(24, 0.26, 0.10, 0.015, lean=3, swing=0.10, chest=1)),
     "prowl": dict(loop=True, tail=tail_fn(lift=8, curl=4, sway=6, bob=1, cycles=1), ears=ears_fn(-12, 0),
                   keys=gait(20, 0.30, 0.14, 0.01, lean=24, crouch=0.30, swing=0.06, hand=(0.12, -0.16, -0.27),
                             elbow=(0.8, 0.6, -0.3), curl=30, chest=6, head=-22, twist=4)),
+    # Owner, on the Deck: "her hips jar back and forth and her knees look buckled to the side". The feet crossed 7 cm
+    # past the midline (the IK could only reach it by bending the knees in), and the hips rocked 7 deg and twisted
+    # 6 deg a step. Now a narrow line (2.5 cm), and half the rock and twist: poised, not knock-kneed.
     "strut": dict(loop=True, tail=tail_fn(lift=14, curl=10, sway=14, bob=2, cycles=1), ears=ears_fn(-3, 0),
-                  keys=gait(24, 0.24, 0.09, 0.012, lean=-2, swing=0.07, sway=7, twist=6, cross=0.07, chest=-3,
+                  keys=gait(24, 0.24, 0.09, 0.012, lean=-2, swing=0.07, sway=3.5, twist=3, cross=0.025, chest=-3,
                             head=2, extra={"hand.R": (-0.04, 0.03, -0.29), "elbow.R": (1.0, 0.4, 0.0),
                                            "curl.R": -35})),
-    "run": dict(loop=True, tail=tail_fn(lift=40, curl=4, sway=9, bob=4, cycles=1), ears=ears_fn(-15, 0),
-                keys=gait(12, 0.44, 0.34, 0.04, lean=14, crouch=0.04, swing=0.16, hand=(0.05, -0.02, -0.25),
-                          elbow=(0.3, 1.0, -0.4), curl=25, chest=4, head=-12, twist=6, run=True)),
+    # Ground speed of the planted foot: 2 * 0.24 / (0.30 * 14/24 s) = 2.7 m/s (her leg is 0.73 m: a longer reach
+    # locks the knee straight at touchdown and it snaps). nim_model's CLIP_SPEED["run"] is a little above it and
+    # its playback is capped (RUN_SCALE_MAX), so at her top speed the cadence stays sane and the feet slide.
+    # The tail's sway is per segment and adds up down its 7 bones: 9 deg twice a cycle swung the tip ~60 deg, which
+    # flailed (owner, Deck review 2). Now 3 deg once a cycle: it streams out behind and drifts.
+    "run": dict(loop=True, tail=tail_fn(lift=32, curl=3, sway=3, bob=2, cycles=1), ears=ears_fn(-15, 0),
+                keys=run_cycle()),
     # --- the air ---
     "jump": dict(loop=True, tail=tail_fn(lift=55, curl=10, sway=6, bob=4, cycles=2), ears=ears_fn(-20, 0), keys={
         1: TUCK, 7: _with(TUCK, spine=(8, 0, 0), ankle_L=(0, -0.12, 0.36)), 13: None}),
@@ -318,15 +392,33 @@ CLIPS = {
             "elbow.R": (1.0, 0.3, 0.0), "curl.L": 35, "curl.R": 35, "shrug.L": 8, "shrug.R": 8},
         6: _with(READY, pelvis=(0, -0.02, -0.10), hips=(12, 0, 0)),
         9: READY}),
-    "pounce": dict(loop=False, tail=tail_fn(lift=10, curl=2, sway=4, bob=2, cycles=1), ears=ears_fn(-30, 0), keys={
-        1: {"pelvis": (0, 0.04, -0.22), "hips": (40, 0, 0), "chest": (8, 0, 0), "neck": (-24, 0, 0),
-            "head": (-14, 0, 0), "ankle.L": (0.04, -0.04, 0), "ankle.R": (-0.04, 0.14, 0),
-            "hand.L": (0.12, -0.10, -0.30), "hand.R": (0.12, -0.10, -0.30), "curl.L": 20, "curl.R": 20},
-        3: {**AIR, "pelvis": (0, -0.10, 0.06), "hips": (68, 0, 0), "chest": (2, 0, 0), "neck": (-36, 0, 0),
-            "head": (-20, 0, 0), "ankle.L": (0.04, 0.38, 0.30), "foot.L": 50, "ankle.R": (-0.04, 0.46, 0.22),
-            "foot.R": 52, "hand.L": (0.10, -0.40, 0.10), "hand.R": (0.10, -0.40, 0.10),
-            "elbow.L": (1.0, 0.0, 0.6), "elbow.R": (1.0, 0.0, 0.6), "curl.L": -40, "curl.R": -40},
-        7: None}),
+    # The pounce: she's already moving at full speed on the press (POUNCE_TIME 0.25 s = 6 frames), so there's no
+    # crouch: frame 1 is the push-off, then a full stretch, claws out, a rake down, and she lands on him low.
+    "pounce": dict(loop=False, tail=tail_fn(lift=-6, curl=2, sway=3, bob=1, cycles=1), ears=ears_fn(-35, 0),
+                   ease={3: "out"}, keys={
+        1: {"pelvis": (0, -0.08, -0.14), "hips": (50, 0, 0), "chest": (2, 0, 0), "neck": (-30, 0, 0),
+            "head": (-18, 0, 0), "ankle.L": (0.04, 0.04, 0.02), "foot.L": 25, "ankle.R": (-0.04, 0.36, 0.08),
+            "foot.R": 60, "hand.L": (0.12, -0.36, -0.04), "hand.R": (0.12, -0.34, -0.08),
+            "elbow.L": (1.0, 0.2, 0.2), "elbow.R": (1.0, 0.2, 0.2), "curl.L": -30, "curl.R": -30,
+            "grip.L": 0, "grip.R": 0},
+        3: {**AIR, "pelvis": (0, -0.10, 0.04), "hips": (76, 0, 0), "chest": (0, 0, 0), "neck": (-38, 0, 0),
+            "head": (-24, 0, 0), "ankle.L": (0.05, 0.52, 0.30), "foot.L": 55, "ankle.R": (-0.05, 0.56, 0.24),
+            "foot.R": 58, "hand.L": (0.14, -0.44, 0.12), "hand.R": (0.12, -0.44, 0.10),
+            "elbow.L": (1.0, 0.0, 0.6), "elbow.R": (1.0, 0.0, 0.6), "curl.L": -45, "curl.R": -45,
+            "grip.L": 0, "grip.R": 0, "shrug.L": 10, "shrug.R": 10},
+        5: {**AIR, "pelvis": (0, -0.08, 0.0), "hips": (60, 0, 0), "chest": (4, 0, 0), "neck": (-30, 0, 0),
+            "head": (-16, 0, 0), "ankle.L": (0.05, 0.20, 0.22), "foot.L": 30, "ankle.R": (-0.05, 0.26, 0.18),
+            "foot.R": 35, "hand.L": (0.14, -0.38, -0.16), "hand.R": (0.13, -0.38, -0.18),
+            "elbow.L": (1.0, 0.2, 0.3), "elbow.R": (1.0, 0.2, 0.3), "curl.L": 10, "curl.R": 10,
+            "grip.L": 60, "grip.R": 60},
+        7: {"pelvis": (0, -0.06, -0.22), "hips": (36, 0, 0), "chest": (8, 0, 0), "neck": (-20, 0, 0),
+            "head": (-10, 0, 0), "ankle.L": (0.05, -0.10, 0), "ankle.R": (-0.05, 0.14, 0), "foot.R": 40,
+            "hand.L": (0.14, -0.30, -0.34), "hand.R": (0.13, -0.28, -0.35), "elbow.L": (1.0, 0.4, 0.0),
+            "elbow.R": (1.0, 0.4, 0.0), "curl.L": 20, "curl.R": 20, "grip.L": 70, "grip.R": 70},
+        9: {"pelvis": (0, -0.04, -0.16), "hips": (28, 0, 0), "chest": (6, 0, 0), "neck": (-14, 0, 0),
+            "head": (-8, 0, 0), "ankle.L": (0.05, -0.08, 0), "ankle.R": (-0.05, 0.12, 0), "foot.R": 30,
+            "hand.L": (0.14, -0.26, -0.32), "hand.R": (0.13, -0.24, -0.33), "curl.L": 20, "curl.R": 20,
+            "grip.L": 60, "grip.R": 60}}),
     # --- walls, ledges, beams, ceilings, ropes ---
     "climb_up": dict(loop=True, tail=tail_fn(lift=-5, curl=6, sway=8, bob=2, cycles=1), ears=ears_fn(-5, 0), keys={
         1: _with(WALL, hand_L=(0.10, -0.22, 0.30), hand_R=(0.12, -0.24, 0.02), ankle_L=(0.02, -0.18, 0.12),
@@ -388,30 +480,75 @@ CLIPS = {
              "curl.R": 50, "hips": (14, 0, 0), "ankle.L": (0.03, 0.26, 0.20), "ankle.R": (-0.03, 0.22, 0.14)},
         25: None}),
     # --- the fight ---
-    "strike1": dict(loop=False, tail=tail_fn(lift=30, curl=8, sway=6, bob=4), ears=ears_fn(-20, 0), keys={
-        # A right-hand claw, straight in.
-        1: READY,
-        3: _with(READY, hips=(6, 0, 18), chest=(4, 0, 14), hand_R=(0.10, 0.12, -0.20), elbow_R=(0.6, 1, 0),
-                 curl_R=-20),
-        5: _with(READY, pelvis=(0, -0.06, -0.06), hips=(10, 0, -20), chest=(6, 0, -18),
-                 hand_R=(-0.02, -0.40, 0.02), elbow_R=(1, 0.4, -0.4), curl_R=-30, ankle_L=(0.04, -0.18, 0)),
+    # The combo is timed to nim_combat.HITS (wind-up, active, recover; 24 fps): strikes 1 and 2 are 0.07/0.08/0.22 s,
+    # so the wind-up is frame 1, the hit lands at 3 (inside the active window), and she's back by 10. The wind-up key
+    # eases in (slow, then a snap into the hit) and the hit eases out into an overshoot. Hips yaw + turns her to her
+    # left, so a right-hand blow winds up at - and lands at +. The head counter-turns to keep her eyes on him.
+    "strike1": dict(loop=False, tail=tail_fn(lift=30, curl=8, sway=10, bob=4, whip=25), ears=ears_fn(-25, 0),
+                    ease={1: "in", 3: "out"}, keys={
+        # A right-hand claw rake: shoulder back, then the whole side drives through, a step in on the left foot.
+        1: _with(READY, pelvis=(0, 0.03, -0.05), hips=(4, 0, -20), chest=(2, 0, -14), head=(-4, 0, 26),
+                 hand_R=(0.14, 0.10, -0.08), elbow_R=(0.7, 1.0, 0.1), curl_R=-25, grip_R=10, shrug_R=6,
+                 hand_L=(0.02, -0.20, -0.16), elbow_L=(1.0, 0.2, -0.2), curl_L=10,
+                 ankle_L=(0.04, -0.06, 0), ankle_R=(-0.04, 0.10, 0), foot_R=10),
+        3: _with(READY, pelvis=(0, -0.08, -0.08), hips=(12, 0, 22), chest=(8, 0, 18), neck=(-4, 0, 0),
+                 head=(-8, 0, -30), hand_R=(-0.02, -0.41, 0.05), elbow_R=(1.0, 0.3, -0.3), curl_R=-35, grip_R=0,
+                 shrug_R=10, hand_L=(0.06, 0.06, -0.20), elbow_L=(0.6, 1.0, 0.0),
+                 ankle_L=(0.04, -0.24, 0), foot_L=-6, ankle_R=(-0.04, 0.18, 0.03), foot_R=35),
+        4: _with(READY, pelvis=(0, -0.10, -0.09), hips=(13, 0, 28), chest=(9, 0, 24), neck=(-4, 0, 0),
+                 head=(-8, 0, -36), hand_R=(-0.10, -0.38, -0.04), elbow_R=(1.0, 0.3, -0.3), curl_R=-10, grip_R=30,
+                 shrug_R=8, hand_L=(0.06, 0.06, -0.20), elbow_L=(0.6, 1.0, 0.0),
+                 ankle_L=(0.04, -0.24, 0), foot_L=-6, ankle_R=(-0.04, 0.18, 0.03), foot_R=35),
+        6: _with(READY, pelvis=(0, -0.08, -0.07), hips=(10, 0, 16), chest=(6, 0, 12), head=(-6, 0, -20),
+                 hand_R=(-0.12, -0.24, -0.22), elbow_R=(1.0, 0.5, -0.2), curl_R=20, grip_R=55,
+                 hand_L=(0.06, 0.0, -0.24), ankle_L=(0.04, -0.20, 0), ankle_R=(-0.04, 0.14, 0), foot_R=20),
         10: READY}),
-    "strike2": dict(loop=False, tail=tail_fn(lift=30, curl=8, sway=10, bob=4), ears=ears_fn(-20, 0), keys={
-        # The left hand back the other way, a wide swipe.
-        1: READY,
-        3: _with(READY, hips=(6, 0, -16), chest=(4, 0, -20), hand_L=(0.36, 0.06, -0.04), elbow_L=(0.6, 1, 0)),
-        5: _with(READY, pelvis=(0, -0.04, -0.06), hips=(8, 0, 22), chest=(8, 0, 24),
-                 hand_L=(-0.14, -0.36, -0.06), elbow_L=(1, 0.2, 0.2), curl_L=-35, ankle_R=(-0.04, -0.12, 0)),
+    "strike2": dict(loop=False, tail=tail_fn(lift=30, curl=8, sway=12, bob=4, whip=-30), ears=ears_fn(-25, 0),
+                    ease={1: "in", 3: "out"}, keys={
+        # The left hand back the other way: wound wide, a flat swipe across, the right foot stepping in.
+        1: _with(READY, pelvis=(0, 0.03, -0.05), hips=(4, 0, 18), chest=(2, 0, 16), head=(-4, 0, -28),
+                 hand_L=(0.34, 0.04, -0.02), elbow_L=(0.6, 1.0, 0.5), curl_L=-30, grip_L=10, shrug_L=6,
+                 hand_R=(0.0, -0.22, -0.14), elbow_R=(1.0, 0.2, -0.2), curl_R=10,
+                 ankle_R=(-0.04, -0.06, 0), ankle_L=(0.04, 0.10, 0), foot_L=10),
+        3: _with(READY, pelvis=(0, -0.07, -0.08), hips=(12, 0, -20), chest=(8, 0, -22), neck=(-4, 0, 0),
+                 head=(-8, 0, 34), hand_L=(0.0, -0.42, 0.02), elbow_L=(1.0, 0.2, 0.4), curl_L=-35, grip_L=0,
+                 shrug_L=10, hand_R=(0.06, 0.06, -0.20), elbow_R=(0.6, 1.0, 0.0),
+                 ankle_R=(-0.04, -0.22, 0), foot_R=-6, ankle_L=(0.04, 0.16, 0.03), foot_L=35),
+        4: _with(READY, pelvis=(0, -0.08, -0.09), hips=(13, 0, -28), chest=(9, 0, -30), neck=(-4, 0, 0),
+                 head=(-8, 0, 44), hand_L=(-0.16, -0.36, -0.02), elbow_L=(1.0, 0.2, 0.4), curl_L=-15, grip_L=30,
+                 shrug_L=8, hand_R=(0.06, 0.06, -0.20), elbow_R=(0.6, 1.0, 0.0),
+                 ankle_R=(-0.04, -0.22, 0), foot_R=-6, ankle_L=(0.04, 0.16, 0.03), foot_L=35),
+        6: _with(READY, pelvis=(0, -0.06, -0.07), hips=(10, 0, -16), chest=(6, 0, -18), head=(-6, 0, 26),
+                 hand_L=(-0.18, -0.22, -0.18), elbow_L=(1.0, 0.5, 0.2), curl_L=20, grip_L=55,
+                 hand_R=(0.06, 0.0, -0.24), ankle_R=(-0.04, -0.18, 0), ankle_L=(0.04, 0.12, 0), foot_L=20),
         10: READY}),
-    "strike3": dict(loop=False, tail=tail_fn(lift=40, curl=4, sway=4, bob=4, whip=55), ears=ears_fn(-25, 0), keys={
-        # The finisher: a spinning back-kick, the tail lashing round with it.
-        1: READY,
-        4: _with(READY, pelvis=(0, 0, -0.08), hips=(10, 0, 90), chest=(6, 0, 30), head=(-4, 0, -40),
-                 ankle_R=(-0.04, 0.06, 0.20), foot_R=20),
-        7: _with(READY, pelvis=(0, 0.02, -0.04), hips=(-20, 0, 170), chest=(-6, 0, 20), head=(-6, 0, -60),
-                 ankle_R=(-0.10, 0.62, 0.62), foot_R=30, hand_L=(0.30, -0.06, -0.10), hand_R=(0.28, 0.0, -0.06)),
-        10: _with(READY, hips=(6, 0, 260), chest=(4, 0, 30), ankle_R=(-0.04, 0.10, 0.12)),
-        14: _with(READY, hips=(5, 0, 360))}),
+    "strike3": dict(loop=False, tail=tail_fn(lift=40, curl=4, sway=4, bob=4, whip=70), ears=ears_fn(-30, 0),
+                    ease={5: "out"}, keys={
+        # The finisher (0.1/0.1/0.4 s): a spinning back-kick. The whole body pivots on the left foot (`turn`), her
+        # back comes round to him at frame 5 inside the hit window, and the right heel drives straight back into
+        # him while she looks over her shoulder. Then the leg folds and she spins on round to face him.
+        1: _with(READY, pelvis=(0, 0, -0.07), hips=(8, 0, 0), chest=(4, 0, -10), head=(-4, 0, 8),
+                 hand_L=(0.10, -0.18, -0.16), hand_R=(0.10, -0.10, -0.20), curl_L=20, curl_R=20,
+                 ankle_L=(0.03, -0.04, 0), ankle_R=(-0.03, 0.06, 0)),
+        3: _with(READY, turn=110, pelvis=(0, 0.02, -0.06), hips=(10, 0, 0), chest=(4, 0, 20), neck=(0, 0, -15),
+                 head=(-6, 0, -45), hand_L=(0.16, -0.10, -0.12), hand_R=(0.16, -0.08, -0.10),
+                 elbow_L=(1.0, 0.4, 0.2), elbow_R=(1.0, 0.4, 0.2), curl_L=25, curl_R=25,
+                 ankle_L=(0.03, 0.0, 0), ankle_R=(-0.02, 0.0, 0.30), foot_R=20),
+        5: _with(READY, turn=180, pelvis=(0, 0.08, -0.05), hips=(50, 0, 0), chest=(6, 0, 0), neck=(-14, 0, -20),
+                 head=(-16, 0, -55), hand_L=(0.18, -0.28, -0.22), hand_R=(0.18, -0.26, -0.24),
+                 elbow_L=(1.0, 0.3, 0.0), elbow_R=(1.0, 0.3, 0.0), curl_L=10, curl_R=10,
+                 ankle_L=(0.03, 0.02, 0), foot_L=0, ankle_R=(-0.02, 0.70, 0.80), foot_R=-20),
+        6: _with(READY, turn=186, pelvis=(0, 0.09, -0.05), hips=(54, 0, 0), chest=(6, 0, 0), neck=(-14, 0, -20),
+                 head=(-16, 0, -55), hand_L=(0.18, -0.30, -0.24), hand_R=(0.18, -0.28, -0.26),
+                 elbow_L=(1.0, 0.3, 0.0), elbow_R=(1.0, 0.3, 0.0), curl_L=10, curl_R=10,
+                 ankle_L=(0.03, 0.02, 0), foot_L=0, ankle_R=(-0.02, 0.72, 0.86), foot_R=-20),
+        9: _with(READY, turn=250, pelvis=(0, 0.02, -0.06), hips=(14, 0, 0), chest=(4, 0, 0), head=(-6, 0, -30),
+                 hand_L=(0.14, -0.12, -0.14), hand_R=(0.14, -0.10, -0.16), curl_L=20, curl_R=20,
+                 ankle_L=(0.03, 0.0, 0), ankle_R=(-0.03, 0.06, 0.26), foot_R=20),
+        12: _with(READY, turn=330, pelvis=(0, -0.02, -0.10), hips=(12, 0, 0), chest=(4, 0, 0), head=(-6, 0, -8),
+                  hand_L=(0.08, -0.18, -0.20), hand_R=(0.10, -0.12, -0.22), curl_L=20, curl_R=20,
+                  ankle_L=(0.04, -0.06, 0), ankle_R=(-0.04, 0.08, 0)),
+        16: _with(READY, turn=360)}),     # 0.625 s, just past the 0.6 s the hit lasts, so it never replays
     "bind": dict(loop=True, tail=tail_fn(lift=20, curl=10, sway=8, bob=2, cycles=2), ears=ears_fn(-6, 8, 0.4), keys={
         # Kneeling over a downed goon, working the rope.
         1: {"pelvis": (0, -0.10, -0.46), "hips": (30, 0, 0), "chest": (14, 0, 0), "neck": (6, 0, 0),
@@ -620,9 +757,18 @@ def make(rig, prefix, name):
             pb = rig.pose.bones["ear." + s]
             pb.rotation_quaternion = Quaternion((1, 0, 0), math.radians(-ef(s, t)))
             pb.keyframe_insert("rotation_quaternion", frame=f, group=pb.name)
+    # `ease` {frame: "in" | "out"}: the body's move out of that key accelerates (a strike leaving its wind-up) or
+    # decelerates (settling past the hit). Everything else is Bezier. The tail and ears are keyed every frame.
+    ease = spec.get("ease", {})
     for fc in _fcurves(act):
+        procedural = fc.data_path.startswith(('pose.bones["tail.', 'pose.bones["ear.'))
         for kp in fc.keyframe_points:
-            kp.interpolation = "BEZIER"
+            kind = None if procedural else ease.get(int(round(kp.co.x)))
+            if kind:
+                kp.interpolation = "CUBIC"
+                kp.easing = "EASE_IN" if kind == "in" else "EASE_OUT"
+            else:
+                kp.interpolation = "BEZIER"
     ad.action = None
     for pb in rig.pose.bones:
         pb.rotation_quaternion = (1, 0, 0, 0)

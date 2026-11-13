@@ -122,6 +122,11 @@ var _air_top := 0.0
 var _step_t := 0.0
 var _ceiling_y := 0.0
 var _headfirst := false
+## Pushing into a wall started this climb, and the stick hasn't been let go since (see _climb).
+var _grab_push := false
+var _grab_stick := Vector2.ZERO
+## Seconds left in which a beam won't catch her (she's just dropped off one on purpose).
+var _no_magnet := 0.0
 var _anchor: Node3D
 var _rope_len := 0.0
 var _left_anchor: Node3D
@@ -263,6 +268,7 @@ func knock(v: Vector3) -> void:
 
 func _physics_process(delta: float) -> void:
 	_regrab -= delta
+	_no_magnet -= delta
 	_buffer = BUFFER if Input.is_action_just_pressed(&"jump") else _buffer - delta
 	suit.tick(delta)
 	gear.tick(delta)
@@ -348,8 +354,11 @@ func _move(delta: float) -> void:
 		_coyote -= delta
 	var wish := _wish()
 	var busy := combat.busy()
-	_beam = _beam_under() if grounded else null
+	_beam = _beam_under(wish) if grounded else null
 	_set_state(State.BALANCE if _beam else State.MOVE)
+	if _beam and Input.is_action_just_pressed(&"crouch") and not busy and not suit.in_suit():
+		_drop_off_beam(wish)
+		grounded = false
 
 	# B crouches in the night garb; in the suit it's the strut (NimSuit.adjust), and she doesn't crouch.
 	var wants_crouch := Input.is_action_pressed(&"crouch") and not suit.in_suit() and not suit.faking_trance
@@ -487,13 +496,31 @@ func _can_stand() -> bool:
 
 # --- beams -----------------------------------------------------------------------------------------------------------
 
-func _beam_under() -> Beam:
+## Where two beams cross (the pier's stringers over its cross-beams), she takes the one the stick runs along; with the
+## stick let go, she stays on the one she was on.
+func _beam_under(wish := Vector3.ZERO) -> Beam:
+	var best: Beam = null
+	var best_fit := -1.0
 	for i in get_slide_collision_count():
 		var c := get_slide_collision(i)
 		# Under her feet now: the last slide's contacts outlive a teleport by a frame.
 		if c.get_normal().y > 0.7 and c.get_collider() is Beam and c.get_position().distance_to(global_position) < 0.6:
-			return c.get_collider()
-	return null
+			var b: Beam = c.get_collider()
+			var fit := absf(b.axis().dot(wish)) if wish.length() > 0.3 else (1.0 if b == _beam else 0.0)
+			if fit > best_fit:
+				best = b
+				best_fit = fit
+	# The contacts name only one of two crossing beams: look for another crossing right here that runs with the stick.
+	if best and wish.length() > 0.3:
+		for b: Beam in get_tree().get_nodes_in_group(&"beam"):
+			if b == best or not b.spans(global_position):
+				continue
+			var on := b.closest(global_position)
+			var off := Vector2(global_position.x - on.x, global_position.z - on.z).length()
+			if off < 0.3 and absf(global_position.y - on.y) < 0.15 and absf(b.axis().dot(wish)) > best_fit + 0.2:
+				best = b
+				best_fit = absf(b.axis().dot(wish))
+	return best
 
 
 ## On a beam she keeps to its line (the tail does the work).
@@ -504,9 +531,46 @@ func _hold_on_beam(beam: Beam, delta: float) -> void:
 	global_position.z = lerpf(global_position.z, on.z, k)
 
 
+## B on a beam: she lets go and drops off its side, the way down onto a goon below it (the takedown from above). The
+## stick picks the side; with it let go, her right.
+func _drop_off_beam(wish: Vector3) -> void:
+	var dir := Vector3(wish.x, 0.0, wish.z)
+	if dir.length() < 0.3:
+		dir = facing().cross(Vector3.UP)
+	dir = dir.normalized()
+	# Step clear of every beam under her (at a crossing, both), toward the stick's side of each.
+	var p := global_position
+	for i in 3:
+		var on := _beam_at(p)
+		if on == null:
+			break
+		var across := on.axis().cross(Vector3.UP).normalized()
+		if across.dot(dir) < 0.0:
+			across = -across
+		var line := on.closest(p)
+		var off := Vector3(p.x - line.x, 0.0, p.z - line.z).dot(across)
+		p += across * (on.width / 2.0 + RADIUS + 0.05 - off)
+	global_position = p
+	velocity = Vector3.ZERO
+	_no_magnet = 0.5
+	_beam = null
+	_set_state(State.MOVE)
+
+
+## A beam she'd be standing on at `p` (its top at her feet, its line within her reach), or null.
+func _beam_at(p: Vector3) -> Beam:
+	for b: Beam in get_tree().get_nodes_in_group(&"beam"):
+		if not b.spans(p):
+			continue
+		var on := b.closest(p)
+		if absf(p.y - on.y) < 0.2 and Vector2(p.x - on.x, p.z - on.z).length() < b.width / 2.0 + RADIUS:
+			return b
+	return null
+
+
 ## Falling close above a beam pulls her onto its line, so a wire a few centimetres wide is catchable.
 func _beam_magnet() -> void:
-	if velocity.y > 0.0:
+	if velocity.y > 0.0 or _no_magnet > 0.0:
 		return
 	for b: Beam in get_tree().get_nodes_in_group(&"beam"):
 		if not b.spans(global_position):
@@ -514,9 +578,14 @@ func _beam_magnet() -> void:
 		var on := b.closest(global_position)
 		var above := global_position.y - on.y
 		var off := Vector2(global_position.x - on.x, global_position.z - on.z).length()
-		if above > -0.05 and above < 0.7 and off < 0.5:
+		# Up to 20 cm below the top still counts: stepping off a platform onto a beam at a run, a little off its line,
+		# she's already dropping by the time she's over it.
+		if above > -0.2 and above < 0.7 and off < 0.5:
 			global_position.x = on.x
 			global_position.z = on.z
+			if above < 0.0:
+				global_position.y = on.y
+				velocity.y = 0.0
 			return
 
 
@@ -545,6 +614,8 @@ func _try_climb(wish: Vector3) -> bool:
 	_face(-_wall_n)
 	_set_crouch(false)
 	_set_state(State.CLIMB)
+	_grab_push = true
+	_grab_stick = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	return true
 
 
@@ -558,6 +629,14 @@ func _climb(delta: float) -> void:
 		_leave_wall(_wall_n * 1.5)
 		return
 	var v := Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
+	# The push that put her on the wall means "up" until the stick's let go: the grab reads the stick through the
+	# camera, the climb reads it raw, and with the camera facing her, "toward the wall" is "down" raw. Without this she
+	# grabbed and let go every frame, flickering at the foot of the wall.
+	if _grab_push:
+		if v.length() < 0.3 or _grab_stick.length() < 0.3 or v.normalized().dot(_grab_stick.normalized()) < 0.8:
+			_grab_push = false
+		elif not _headfirst:
+			v = Vector2(0.0, -1.0)
 	var right := (-_wall_n).cross(Vector3.UP)
 	var before := global_position
 	# Head first (she came over the top of it), "up" on the stick takes her down the wall, and fast.

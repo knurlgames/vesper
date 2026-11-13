@@ -46,6 +46,8 @@ const STUN := 0.35
 const DOWN_TIME := 1.2
 
 var nim: Nim
+## MAX_HEALTH plus Rivet's health upgrades (Game flag "upgrade/health": seized contraband, handed in at the club).
+var max_health := MAX_HEALTH
 var health := MAX_HEALTH
 ## The goon LT is locked on (or null).
 var lock: Node3D
@@ -62,6 +64,9 @@ var _struck := {}
 var _target: Node3D
 var _bind_t := 0.0
 var _binding: Enemy
+var _cloud: ScuffleCloud
+## Closer than this, the scuffle cloud swallows Nim too.
+const CLOUD_SWALLOWS := 2.2
 var _invulnerable := 0.0
 var _stun := 0.0
 var _down := 0.0
@@ -70,6 +75,8 @@ var _marker: MeshInstance3D
 
 func _ready() -> void:
 	nim = get_parent() as Nim
+	refresh_max_health()
+	health = max_health
 	_marker = MeshInstance3D.new()
 	var s := SphereMesh.new()
 	s.radius = 0.12
@@ -125,13 +132,17 @@ func tick(delta: float) -> void:
 	if not free or _stun > 0.0:
 		return
 	var refuses := nim.suit.refuses_fight()
-	# Dash's crop: X held past CROP_HOLD lashes out at long reach once the claw is done.
+	# Dash's crop: X held past CROP_HOLD lashes out at long reach once the claw is done. In the suit it's a Domme's
+	# crop, not a fight: it cracks at targets, bells, switches and gulls, never at a goon (_strike_now).
 	if Input.is_action_pressed(&"strike"):
 		_x_held += delta
-		if _x_held >= CROP_HOLD and not _crop_done and not refuses and nim.knows(Lessons.CROP):
+		if _x_held >= CROP_HOLD and not _crop_done and nim.knows(Lessons.CROP):
 			_crop_done = true
 			_crop_pending = true
 	else:
+		# In the suit, with the crop: a tap (let go before the crop's hold) is the refused strike.
+		if refuses and nim.knows(Lessons.CROP) and _x_held > 0.0 and _x_held < CROP_HOLD:
+			nim.suit.refused()
 		_x_held = 0.0
 		_crop_done = false
 	if _crop_pending and _hit == 0:
@@ -141,7 +152,8 @@ func tick(delta: float) -> void:
 		return
 	if Input.is_action_just_pressed(&"strike"):
 		if refuses:
-			nim.suit.refused()   # in the suit, with her cover, she won't
+			if not nim.knows(Lessons.CROP):
+				nim.suit.refused()   # in the suit, with her cover, she won't (with the crop, a tap is: see above)
 		elif _hit == 0:
 			_start_hit(1)
 		elif _hit < 3:
@@ -202,8 +214,9 @@ func _strike_now() -> void:
 	var reach_max := CROP_RANGE if crop else STRIKE_RANGE
 	var arc := CROP_HALF_ARC if crop else STRIKE_HALF_ARC
 	var tall := CROP_HEIGHT if crop else 1.8
+	var spare_goons := nim.suit.refuses_fight()
 	for t: Node3D in nim.get_tree().get_nodes_in_group(&"hittable"):
-		if _struck.has(t) or not t.call(&"can_be_hit"):
+		if _struck.has(t) or not t.call(&"can_be_hit") or (spare_goons and t is Enemy):
 			continue
 		var to := t.global_position - nim.global_position
 		if absf(to.y) > tall:
@@ -276,6 +289,33 @@ func _begin_bind(e: Enemy, secs: float) -> void:
 	_bind_t = secs
 	_face(e.global_position)
 	e.begin_bind()
+	_start_cloud(e)
+
+
+## The old-cartoon scuffle (core/scuffle_cloud.gd): a ball of dust between them for the length of the bind, which
+## swallows the goon, and Nim too when she's close (not when Silke's rope ties him from afar).
+func _start_cloud(e: Enemy) -> void:
+	_end_cloud()
+	var level := nim.get_parent()
+	if level == null:
+		return
+	_cloud = ScuffleCloud.new()
+	var near := _flat_dist(e) < CLOUD_SWALLOWS
+	var at := e.global_position
+	if near:
+		at = (e.global_position + nim.global_position) * 0.5
+	level.add_child(_cloud)
+	_cloud.global_position = at
+	var hide: Array = [e.get(&"_model")]
+	if near and nim.get(&"model"):
+		hide.append(nim.get(&"model"))
+	_cloud.hide_while(hide)
+
+
+func _end_cloud() -> void:
+	if _cloud and is_instance_valid(_cloud):
+		_cloud.poof()
+	_cloud = null
 
 
 ## The takedown from above (Vesper's world-1 lesson; Nim calls this when she lands from high up): a goon she's landed
@@ -295,10 +335,12 @@ func drop_takedown() -> bool:
 func _tick_bind(delta: float) -> void:
 	if not is_instance_valid(_binding):
 		_bind_t = 0.0
+		_end_cloud()
 		return
 	_bind_t -= delta
 	if _bind_t <= 0.0:
 		_binding.finish_bind()
+		_end_cloud()
 		if lock == _binding:
 			lock = null
 		_binding = null
@@ -356,7 +398,8 @@ func hurt(from: Vector3) -> void:
 		_binding.cancel_bind()
 		_binding = null
 		_bind_t = 0.0
-	health_changed.emit(health, MAX_HEALTH)
+		_end_cloud()
+	health_changed.emit(health, max_health)
 	var away := nim.global_position - from
 	away.y = 0.0
 	away = away.normalized() if away.length() > 0.01 else -nim.facing()
@@ -369,11 +412,24 @@ func hurt(from: Vector3) -> void:
 
 ## Back up after being downed (the level has put her at the checkpoint).
 func revive() -> void:
-	health = MAX_HEALTH
+	health = max_health
 	_down = 0.0
 	_stun = 0.0
 	_invulnerable = INVULNERABLE
-	health_changed.emit(health, MAX_HEALTH)
+	health_changed.emit(health, max_health)
+
+
+## Her cap, with Rivet's upgrades. Reached by path: probes compile this before autoloads exist.
+func refresh_max_health() -> void:
+	var game := get_node_or_null(^"/root/Game")
+	max_health = MAX_HEALTH + (int(game.call(&"get_flag", "upgrade/health", 0)) if game else 0)
+
+
+## Rivet's upgrade, given at the club: one more pip, and she's topped up.
+func add_upgrade() -> void:
+	refresh_max_health()
+	health = max_health
+	health_changed.emit(health, max_health)
 
 
 func _face(p: Vector3) -> void:

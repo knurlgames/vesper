@@ -96,7 +96,7 @@ func _blend_in() -> void:
 	var hidden := 0
 	var frames := 0
 	for target: Vector3 in [Vector3(X - 2.1, 0, -3.8), Vector3(X - 2.1, 0, -25.0)]:
-		for i in 14 * 60:
+		for i in 20 * 60:   # the strut's 2.4 m/s (it was 3.2); at half stick, 2.0
 			var at := d.nim.global_position
 			if Vector2(at.x - target.x, at.z - target.z).length() < 0.4:
 				break
@@ -109,7 +109,8 @@ func _blend_in() -> void:
 				hidden += 1
 	d.stick(0, 0)
 	d.check(d.nim.global_position.z < -24.5 and not suit().cover_blown and worst < 0.3 and lowest >= start - 0.01,
-		"blend in: strutting down the crowd past security, unnoticed (his suspicion %.2f, Composure %.2f to %.2f)" % [worst, start, lowest])
+		"blend in: strutting down the crowd past security, unnoticed (his suspicion %.2f, Composure %.2f to %.2f) %s" % [
+			worst, start, lowest, d.at()])
 	d.check(hidden > frames * 0.7, "and she was lost in the crowd for most of it (%d of %d frames)" % [hidden, frames])
 	# Out of the crowd, in his view: he starts to wonder. Then back in, and he forgets.
 	# Past the end of the rows, then half a step east: just out of the crowd, about 9 m from him.

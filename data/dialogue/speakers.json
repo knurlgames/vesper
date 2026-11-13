@@ -11,5 +11,14 @@
   "Swyne": {"name": "Councillor Swyne", "color": "#efe4c8", "pitch": 0.8},
   "Goon": {"name": "Goon", "color": "#7d8a5a", "pitch": 0.9},
   "Clerk": {"name": "Clerk", "color": "#e0d8c8", "pitch": 1.0},
+  "Pearl": {"name": "Madame Pearl", "color": "#3aa86a", "pitch": 1.2},
+  "Barker": {"name": "Barker", "color": "#c83a3a", "pitch": 1.1},
+  "Mallet": {"name": "Mallet", "color": "#7d8a5a", "pitch": 0.85},
+  "Courier": {"name": "Courier", "color": "#a07a5a", "pitch": 1.25},
+  "Laffer": {"name": "Lucky Lou Laffer", "color": "#d8a040", "pitch": 1.1},
+  "Guest": {"name": "The guest", "color": "#b0a0c8", "pitch": 1.0},
+  "Client": {"name": "A member's guest", "color": "#c8b8a0", "pitch": 1.0},
+  "Smith": {"name": "\"Mr Smith\"", "color": "#d8c8a0", "pitch": 0.85},
+  "Pip": {"name": "Pip", "color": "#a8c8d8", "pitch": 1.15},
   "Narrator": {"name": "", "color": "#d8d0bc"}
 }

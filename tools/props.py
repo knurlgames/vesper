@@ -25,6 +25,30 @@ MESHY = {
     "gas_lamp": dict(h=3.6),
     "ad_column": dict(h=3.0),
     "bench": dict(h=0.95, tex=1024),
+    # The Pier (WO-014 step 6). `l` scales by the longest side on the ground instead of the height.
+    "arcade_cabinet": dict(h=1.85),
+    "prize_box": dict(h=0.6, tex=1024),
+    "crate": dict(h=0.9, tex=1024),
+    "lifebuoy": dict(h=1.5, tex=1024),
+    "deckchair": dict(h=0.95, tex=1024),
+    "coaster_car": dict(l=2.3),
+    "fortune_table": dict(h=1.15, tex=1024),
+    "rowboat": dict(l=3.4),
+    # The Velvet Rose (a Key, on screen), contraband in its box, and the toys the entranced hold (2026-11-12).
+    "velvet_rose": dict(h=0.62, tex=1024),
+    "contraband_box": dict(h=0.34, tex=1024),
+    "toy_plush": dict(h=0.32, tex=512),
+    "toy_wand": dict(h=0.34, tex=512),
+    "toy_egg": dict(l=0.24, tex=512),
+    "toy_tickler": dict(h=0.42, tex=512),
+    # The Velvet Rope's vaults (WO-014b).
+    "club_throne": dict(h=1.9),
+    "rope_frame": dict(h=2.6),
+    "punch_bag": dict(h=2.2),
+    "workbench": dict(h=1.6),
+    "map_table": dict(h=1.7),   # with its lamp: the tabletop lands near 0.9 m
+    "chaise": dict(l=2.0),
+    "club_cross": dict(h=2.3),
 }
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -50,7 +74,10 @@ def clean_meshy(name, src, out_dir):
     obj = bpy.context.active_object
     obj.name = obj.data.name = name
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-    obj.data.transform(Matrix.Scale(spec["h"] / obj.dimensions.z, 4))
+    if "l" in spec:
+        obj.data.transform(Matrix.Scale(spec["l"] / max(obj.dimensions.x, obj.dimensions.y), 4))
+    else:
+        obj.data.transform(Matrix.Scale(spec["h"] / obj.dimensions.z, 4))
     # Bounds from the vertices themselves: obj.bound_box is cached and still holds the unscaled mesh here.
     vs = [v.co for v in obj.data.vertices]
     shift = Vector(((min(v.x for v in vs) + max(v.x for v in vs)) / -2,

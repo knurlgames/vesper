@@ -80,6 +80,20 @@ The Old Quarter's streets open around it world by world, each area with a wardro
 the story goes: the toys turn up in the Rope's own dungeon at the start, Swyne's posters go up, and the club is raided
 before the finale.
 
+**Sizing (owner, 2026-11-12: "remember the sizing principles from Banjo").** From STUDY.md §1–4, applied to the hub and
+to every area added later:
+- **Mid-sized, grown by area.** One square, and one short street per world, opened as its world is. Tooie's areas, with
+  Kazooie's sense of a path: each street leads to one door, never a web.
+- **Small enough to hold in your head.** Tooie's own designers said "all the levels were so big".
+  - Rope Square is 40 m across (6 s at a run), and the club on its north side is the landmark from everywhere.
+  - Each world's door stands at the end of a street you can see down.
+- **Short walks between the things that matter.** The club's door to the Pier's gate is about 70 m (12 s, checked by
+  `hub_probe`). A later street should keep its world's door within about 15 s of the club.
+- **Fast travel from the start** in every area (not bolted on, Tooie's mistake), and a teacher spot: Vesper, in the
+  club.
+- **Gates are characters, and their cost is visible.** Each street ends at a rank door showing its Key count.
+- **A few hub secrets per area** (Kazooie's hub Jiggies). Seafront Road's is over the rooftops.
+
 | # | World | The link | Host | Lean | Set piece | Boss (never a feline) |
 |---|---|---|---|---|---|---|
 | 1 | **The Pier**: a seaside boardwalk | toys as arcade prizes | Dash | both, a tutorial for each | a rollercoaster chase | the arcade's owner |
@@ -103,11 +117,129 @@ councillors included. They vote him emergency powers, and the clubs close for go
 ★ City Hall: Vesper's final exam in the raided club, then midnight.
 
 **The economy:**
-- **Keys:** 10 per world and 10 in the hub. Ranks in the order are counted in Keys, never spent, and each rank opens the
-  next world.
-- **Contraband:** 100 seized per world.
+- **Velvet Roses** (owner, 2026-11-12, in place of "Keys": "a Black or Velvet Rose, awarded for her improved
+  performance in the Velvet Rope"): 10 per world and 10 in the hub. The Rope gives a rose for good work. Ranks in the
+  order are counted in roses, never spent, and each rank opens the next world's gate in the Old Quarter.
+  - Vesper gives Nim her first in the prologue and says what they are.
+  - The code and the older docs still say "Key" (`Game.keys()`, `RANK_KEYS`, kind `key`, the world briefs' Key
+    tables); everything the player reads says Roses.
+  - **Velvet, crimson**, not black (the Rope's own colour, by the velvet-red rule). Black is a quick swap if the
+    owner prefers.
+- **Contraband:** 100 seized per world. **Rivet turns it into gear** (owner, 2026-11-12): hand it in by talking to
+  her at the club.
+  - Every 25 is a lure (a gutted toy that buzzes where it lands).
+  - Every 100 (a world's worth) is an upgrade, alternating one more health pip and a steadier Composure (slips cost
+    a quarter less).
+  - Never needed to finish a world. A note the first time Nim seizes some says where it goes.
 - **Five people in trances per world.** Freeing all five pays a Key.
 - **Vesper:** she teaches a move in each of worlds 1 to 4. She shows her full strength once, at the Retreat.
+
+## The Velvet Rope's house (proposal, 2026-11-12)
+**Owner, 2026-11-12:** "the Velvet Rope needs a much larger interior. There should be the usual dungeon/kink rooms and
+then a separate backroom where the covert ops planning takes place... I want you to be able to wander and see the
+other members working with clients, having a client as a mini game, and even allowing yourself to Switch and be
+dominated by one of your sisters."
+
+**The rules it's built on** (the content lines, and Vesper as "the one person who asks"):
+- Everything is suggestive, never explicit. No sex acts and no nudity.
+- **The dress code** (owner, 2026-11-12: "the clients and Nim in undergarments, or like a bikini if a woman and
+  shorts if a man"):
+  - **Downstairs:** clients and Nim wear swimwear-level coverage: a full-coverage bikini for women, shorts for men.
+    Nothing sheer, and nothing that reads as coming off.
+  - **Clients change at the door:** robes hang on hooks by Bastion, so upstairs they're in robes.
+  - **Nim's set:** a black two-piece with the Rope's velvet-red piping. She keeps her muzzle and eye mask: her
+    identity, and Rivet's filter.
+  - **The sisters too** (owner, 2026-11-12: "separate models for the Sisters in bikinis as well"): downstairs in the
+    vaults each wears her own full-coverage two-piece, in her colours (`<who>_swim.glb`). Upstairs and on missions
+    they keep their suits and garb. Rope goes over skin or swimwear, never under it.
+  - **Art cost:** Nim's third outfit goes through her own pipeline. The clients need new Meshy bodies in swimwear,
+    about 54 each: four species, men and women. To quote when it's built.
+- Every scene is consensual and reads that way: check-ins, safewords, aftercare. The kink is never the joke. The
+  joke can be a hypocrite who turns up as a client (a Decency League man in a false moustache).
+- Clients are adults, members' guests who asked to be there.
+
+**The layout** (sized by Banjo's lessons: compact, one landmark, everything within about 30 s of the door):
+- **Ground floor:** the lounge and bar (as now), Bastion at the door, and the members' wardrobe.
+- **Down the ramp, the Dungeon:** a vaulted hall, with the sisters' rooms off it. Each sister works there with a
+  client when Nim passes, as ambient scenes on a loop. Nim can stop and watch, or talk between sessions.
+  - **Silke's rope room:** a client in a chest harness over his shirt; Silke checks a knot and asks how it feels.
+  - **Augusta's parlour:** posture and protocol; a client kneels with a book on his head, and she corrects his chin.
+  - **Grizelda's throne room:** a client blacks her boots, very carefully. She inspects the shine.
+  - **Lull's quiet room:** low light and cushions; aftercare. A client under a blanket with tea, talking.
+  - **Rivet's workshop:** her bench (contraband into gear moves here), the muzzle on a stand, Swyne's toys gutted.
+  - **Dash's room:** a punching bag and a fridge. Nobody books Dash; she's here anyway.
+- **The Backroom:** behind a door in Rivet's workshop (a shelf that swings), the covert side.
+  - A map table of the Purrlands, and a pinboard of Swyne's chain (photos and red string, one link per world).
+  - Vesper's desk. Briefings for each world happen here.
+  - The board is also where the worlds are chosen: a diegetic world map.
+
+**Nim with a client (a mini-game, in the suit; it pays a hub Rose):** a session is reading someone, not winning.
+- The client has a meter of what they want, and shows it in body language: eager, nervous, near a limit.
+- Nim uses her Commands (the D-pad words, plus session words: Kneel, Hold, Count, Good).
+- **The point is listening.** A client's "yellow" means slow down and check in; "red" means stop, at once. Pressing
+  on through a safeword fails the session, by design, and Vesper says why.
+- A good session ends in aftercare (Lull's room is next door). A few clients over the game, each with a joke and a
+  want. Some are comic (the moustache), some are sweet (a nervous first-timer).
+
+**Switch (Nim bottoms for a sister; optional; it pays a hub Rose):**
+- Nim asks a sister, and the sister checks in first: limits, a safeword.
+- **Silke's rope:** Silke ties Nim's arms (over the suit's sleeves). A stillness game: breathe with the rhythm and
+  hold still; it's about trust. Silke checks in halfway.
+- **Augusta's posture** (a later visit): hold a pose while she talks you through it. A balance game, using the tail
+  balance Nim already has.
+- **Afterwards,** a short aftercare scene: tea, and what it was like. It also unlocks something small and
+  character-based (Silke: a rope trick for the Docks; Augusta: a better Composure in the suit).
+
+**The owner's answers (2026-11-12):**
+1. **The clients filter in and out:** "perhaps have some fixed, but they can also be 'random' in a sense like the
+   dungeon is alive".
+   - A few regulars (the moustache, the nervous first-timer) come back with new wants.
+   - Around them a rotating crowd:
+     - each arrives in a robe at the door, changes, and goes down;
+     - takes a free sister's room for a while (an ambient session);
+     - then Lull's room for aftercare, and out.
+   - Which rooms are busy changes as Nim walks about. Any client in the hall, between sessions, can be Nim's for the
+     mini-game.
+2. **Switching is opt-in, with any sister:** "have the player opt-in who they want to be their Switch so each one".
+   - **And Nim can Domme a sister:** "expand and have the option to Domme a sister too".
+   - Each sister gets a small game both ways, in character:
+     - **Silke:** rope, both ways; she corrects your knots from underneath them.
+     - **Augusta:** posture; as a bottom, she critiques your technique, politely.
+     - **Grizelda:** boots; tops from the bottom, outrageously.
+     - **Dash:** can't keep still, either way.
+     - **Lull:** breath and stillness.
+     - **Rivet:** a puzzle of buckles.
+   - **Build two at a time.** Every scene opens with the check-in (limits, a safeword) and ends with aftercare.
+**The cross (decided by the owner, 2026-11-12; built in `core/cross_scene.gd`):** "part of the Dom process has
+option of the Sub on the cross where they can pick a gag, blindfold or not, collar or not etc. and have toys used on
+them". It's a bigger version of Nine Lives' After Hours: Nim on either side, with clients or any sister.
+- **The form first:**
+  - The choices: wrists, ankles, mouth, eyes, neck, gentle or firm.
+  - The sub's limits are greyed out.
+  - A gag swaps the safeword for a dropped bell.
+- **Nim leads:**
+  - Touch tools are a steadiness game; impact tools are a rhythm.
+  - Praise and check-ins are always on offer.
+  - The sub's cues say how it's landing. Yellow means ease off; their word means stop, and stopping is a good ending.
+- **Nim on the cross:**
+  - She holds still and braces.
+  - She can hold B for her word at any time.
+  - The sister asks her colour.
+  - Her muzzle stays, so she's never gagged.
+- **Aftercare every time,** in Lull's room.
+- **Proposal (owner review):**
+  - The tools are sensation and impact only: feather, ice, whisper, flogger, crop, paddle.
+  - Swyne's vibrating toys are the story's weapon, so they're never used in a scene.
+  - Each sister's wants, limits and tray are in character (Lull asks for the blindfold, Grizelda tops from the bottom).
+
+3. **Not decided (owner unsure).** **Recommendation: alongside.**
+   - The street gates stay where a world is unlocked (a gate with its cost on show is a character; the walk down
+     its street is part of the trip).
+   - The Backroom board is for briefings and progress: Swyne's chain with each link crossed off, and fast travel to
+     any world already open.
+
+**Rewards:** the hub's two spare Roses go to the first client session and the first Switch or Domme scene. The rest
+pay small, character-based perks, and a sister's bond (her lines change).
 
 ## Nim's moves (proposal)
 Rules, from the study: a small core she has from the prologue, moves taught where they're first needed, and teaching

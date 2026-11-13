@@ -2,11 +2,16 @@ class_name Guest
 extends StaticBody3D
 ## A guest at one of Swyne's parties (WO-006): they stand in knots, chatting. Strutting among two or more of them, Nim
 ## in her suit is one of the crowd (NimSuit.hidden_in_crowd). They're watchers too: what she does in front of them
-## costs Composure. Greybox: a capsule in party colours, turned toward the knot.
+## costs Composure. A civilian's body (`look_body`) tinted in party colours, turned toward the knot; a capsule without.
 
 ## Where they're looking (yaw: 0 looks down -Z). Set it toward the knot's middle.
 @export var look_yaw := 0.0
 @export var colour := Color("b08a6a")
+## A civilian's body (EnemyModel, e.g. "otter_civilian"); `colour` tints it lightly. Empty or missing: the capsule.
+@export var look_body := ""
+
+## How far `colour` tints a body's texture.
+const TINT := 0.35
 
 const SIGHT_RANGE := 10.0
 const SIGHT_HALF_ANGLE := deg_to_rad(70.0)
@@ -31,6 +36,13 @@ func _ready() -> void:
 	add_child(col)
 	_model = Node3D.new()
 	add_child(_model)
+	if EnemyModel.exists(look_body):
+		var look := EnemyModel.new()
+		look.body = look_body
+		look.tint = Color.WHITE.lerp(colour.lightened(0.3), TINT)
+		_model.add_child(look)
+		look.show_state(0, 0.0, 0.0, 0.0)
+		return
 	var body := MeshInstance3D.new()
 	var cap := CapsuleMesh.new()
 	cap.radius = RADIUS

@@ -14,6 +14,8 @@ signal alarm(at: Vector3)
 ## How far either side of watch_yaw the head sweeps.
 @export var sweep := deg_to_rad(40.0)
 @export var perch_height := 2.5
+## A model to stand on the perch ("gull_lookout"...; assets/enemies), in place of the greybox bird.
+@export var look_body := ""
 
 const SIGHT_RANGE := 16.0
 const SIGHT_HALF_ANGLE := deg_to_rad(60.0)
@@ -36,12 +38,72 @@ var _phase := 0.0
 var _head: Node3D
 var _mark: Label3D
 var _nim: Node3D
+## Flicked with the crop (the Pier's brief: "A crop flick shuts them up"): it flaps off and stays gone (Game flag
+## "hushed/<world>/<name>").
+var hushed := false
+var _bird: Array[Node3D] = []
+var _pivot: Node3D
+var _look: EnemyModel
+
+
+## What the crop aims at: a point on the post a little under the bird, in the crop's reach from the ground (3.2 m up)
+## and out of the claws' (1.8 m).
+class Target extends Node3D:
+	var hit_radius := 0.4
+	var bird: Node
+
+	func can_be_hit() -> bool:
+		return not bird.get(&"hushed")
+
+	func take_hit(_from: Vector3, _power: int) -> void:
+		bird.call(&"hush")
 
 
 func _ready() -> void:
 	add_to_group(&"lookout")
 	add_to_group(&"watcher")
 	_build()
+	var t := Target.new()
+	t.name = "CropTarget"
+	t.bird = self
+	t.position.y = minf(perch_height, 3.0)
+	add_child(t)
+	t.add_to_group(&"hittable")
+	var game := get_node_or_null(^"/root/Game")
+	if game and game.call(&"has_flag", _hush_flag()):
+		hushed = true
+		for n in _bird:
+			n.visible = false
+		_mark.text = ""
+
+
+func _hush_flag() -> String:
+	var n := get_parent()
+	while n and not n.has_method(&"spawn_player"):
+		n = n.get_parent()
+	return "hushed/%s/%s" % [n.get(&"world_id") if n else "test", name]
+
+
+## Cropped: a squawk, and it's off, for good.
+func hush() -> void:
+	if hushed:
+		return
+	hushed = true
+	alarmed = false
+	suspicion = 0.0
+	_mark.text = ""
+	var game := get_node_or_null(^"/root/Game")
+	if game:
+		game.call(&"set_flag", _hush_flag())
+	var hud := get_node_or_null(^"/root/Hud")
+	if hud:
+		hud.call(&"caption", "", "SQUAWK!", 1.0)
+	var tw := create_tween().set_parallel()
+	for n in _bird:
+		tw.tween_property(n, ^"position", n.position + Vector3(6.0, 9.0, -4.0), 1.2).set_ease(Tween.EASE_IN)
+	await tw.finished
+	for n in _bird:
+		n.visible = false
 
 
 func looking() -> Vector3:
@@ -49,6 +111,9 @@ func looking() -> Vector3:
 
 
 func _physics_process(delta: float) -> void:
+	if hushed:
+		sees_her = false
+		return
 	if _nim == null or not is_instance_valid(_nim):
 		_nim = get_tree().get_first_node_in_group(&"player")
 	_phase += delta
@@ -75,6 +140,8 @@ func _physics_process(delta: float) -> void:
 	elif not alarmed:
 		suspicion = maxf(0.0, suspicion - FORGET * delta)
 	_mark.text = "!!" if alarmed else ("?" if suspicion > 0.15 else "")
+	if _pivot:
+		_pivot.rotation.y = _head.rotation.y
 	_mark.modulate = Color("ff5a4a") if alarmed else Color("ffd84a")
 
 
@@ -107,6 +174,9 @@ func _build() -> void:
 	pole.material_override = Look.toon(Color("4a3a32"))
 	post.add_child(pole)
 	add_child(post)
+	if EnemyModel.exists(look_body):
+		_build_model()
+		return
 	var body := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.25
@@ -119,6 +189,7 @@ func _build() -> void:
 	_head = Node3D.new()
 	_head.position.y = perch_height + 0.5
 	add_child(_head)
+	_bird = [body, _head]
 	var head := MeshInstance3D.new()
 	var hs := SphereMesh.new()
 	hs.radius = 0.14
@@ -140,6 +211,39 @@ func _build() -> void:
 	_mark.pixel_size = 0.006
 	_mark.outline_size = 14
 	_mark.outline_modulate = Look.INK
-	_mark.no_depth_test = true
+	_mark.no_depth_test = false   # behind walls and floors it stays hidden (it showed through the pier's boards)
 	_mark.position.y = perch_height + 1.2
+	add_child(_mark)
+
+
+## The model version: the lookout (an anthro gull, WO-013) stands on a little crow's nest at the post's top, and turns
+## the way its head looks.
+func _build_model() -> void:
+	var nest := MeshInstance3D.new()
+	var disc := CylinderMesh.new()
+	disc.top_radius = 0.5
+	disc.bottom_radius = 0.4
+	disc.height = 0.12
+	nest.mesh = disc
+	nest.position.y = perch_height
+	nest.material_override = Look.toon(Color("4a3a32"))
+	add_child(nest)
+	_head = Node3D.new()
+	_head.position.y = perch_height + 1.4
+	add_child(_head)
+	_pivot = Node3D.new()
+	_pivot.position.y = perch_height + 0.06
+	add_child(_pivot)
+	_look = EnemyModel.new()
+	_look.body = look_body
+	_pivot.add_child(_look)
+	_look.show_state(0, 0.0, 0.0, 0.0)
+	_bird = [_pivot]
+	_mark = Label3D.new()
+	_mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_mark.font_size = 96
+	_mark.pixel_size = 0.006
+	_mark.outline_size = 14
+	_mark.outline_modulate = Look.INK
+	_mark.position.y = perch_height + 2.2
 	add_child(_mark)

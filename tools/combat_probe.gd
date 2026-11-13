@@ -69,7 +69,26 @@ func _unaware() -> void:
 	await d.frames(3)
 	d.check(sentry.state == Enemy.State.PATROL and sentry.can_bind(), "H: the sentry hasn't noticed her (suspicion %.2f)" % sentry.suspicion)
 	await d.tap(JOY_BUTTON_Y)
-	await d.secs(0.8)
+	await d.secs(0.2)
+	# The scuffle cloud (core/scuffle_cloud.gd): mid-bind, a cloud is up and has swallowed both of them.
+	var clouds := d.nim.get_parent().get_children().filter(func(n: Node) -> bool: return n is ScuffleCloud)
+	var goon_model: Node3D = sentry.get(&"_model")
+	d.check(clouds.size() == 1, "H: binding raises a scuffle cloud (%d)" % clouds.size())
+	d.check(not goon_model.visible and not (d.nim.model as Node3D).visible,
+		"H: the cloud swallows them both")
+	# And it's where they are: it once bobbed about at the level's origin, out of sight (its base read too early).
+	var far := 99.0
+	if clouds.size() == 1:
+		var c: Node3D = clouds[0]
+		far = Vector2(c.global_position.x - sentry.global_position.x, c.global_position.z - sentry.global_position.z).length()
+	d.check(far < 1.5, "H: and the cloud's right there, over them (%.2f m off)" % far)
+	await d.secs(0.9)
+	d.check(goon_model.visible and (d.nim.model as Node3D).visible, "H: the cloud poofs and gives them back")
+	var left := 0
+	for c in d.nim.get_parent().get_children():
+		if c is ScuffleCloud:
+			left += 1
+	d.check(left == 0, "H: and the cloud is gone (%d left)" % left)
 	d.check(sentry.is_bound(), "H: Y binds him where he stands, no fight")
 	d.check(game.call(&"has_flag", sentry.bound_flag()), "H: and the world remembers it (%s)" % sentry.bound_flag())
 

@@ -289,7 +289,11 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     stage = argv[0] if argv else "export"
     outfit = argv[1] if len(argv) > 1 else "garb"
-    print("NIMC", stage, outfit, {"export": export, "bake": bake, "compare": compare, "use": use}[stage](outfit), flush=True)
+    if stage == "use":
+        result = use(outfit, argv[2] if len(argv) > 2 else "c")
+    else:
+        result = {"export": export, "bake": bake, "compare": compare}[stage](outfit)
+    print("NIMC", stage, outfit, result, flush=True)
 
 
 if __name__ == "__main__":

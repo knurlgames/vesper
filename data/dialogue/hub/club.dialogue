@@ -1,0 +1,194 @@
+# The Velvet Rope's people, in the hub (levels/hub/hub.gd, prologue.gd): Bastion at the door, the sisters in their
+# rooms in the vaults, Vesper. Short lines in each voice (docs/WRITING.md); they change as the worlds are done.
+# (Choices hang off the line before them: keep an unconditional line there, or a skipped [if] line takes them too.)
+
+~ bastion
+[if done/pier] Bastion: Good.
+[if not done/pier] Bastion: Members.
+
+# OWNER REVIEW: the sisters' scenes (WO-014b), opt-in, either way round, with any of them. A check-in first, aftercare
+# after (hub/sessions.dialogue, core/cross_scene.gd), and "red" always ends it well. "The cross" is a scene on the
+# vaults' cross (core/cross_scene.gd): "club/cross/<sister>_dom" Nim leads, "_sub" she does.
+
+~ augusta
+[if done/pier] Augusta: I hear you took a carnival barker apart. Tidily, I hope.
+Augusta: Posture, Nim. A Domme stands as though the room were hers. Because it is.
+- Ask her for a scene. => augusta_scene
+- Leave her be. => END
+
+~ augusta_scene
+Augusta: Oh, how lovely. And which of us is in charge?
+- You are. => augusta_switch
+- I am. => augusta_domme
+- The cross. => augusta_cross
+- Another time. => END
+
+~ augusta_switch
+Augusta: Then stand for me. Feet together, chin level, tail balanced. I'll talk you through it.
+Augusta: If it's too much, "red". "Yellow" and we rest a moment. I'll ask how you are, halfway.
+Nim: Red. Yellow. Yes, Augusta.
+set club/scene/augusta_switch
+=> END
+
+~ augusta_domme
+Augusta: I'll hold a posture for you, and I'll get it wrong. Mostly on purpose. Correct me.
+Augusta: My word is "red". And do remember to ask how I am. It's terribly attractive.
+set club/scene/augusta_domme
+=> END
+
+~ augusta_cross
+Augusta: The cross. Mm. And who's going on it, darling?
+- You. I'll lead. => augusta_cross_dom
+- Me. You lead. => augusta_cross_sub
+- Another time. => END
+
+~ augusta_cross_dom
+Augusta: Then we'll do the form properly. My word is "red".
+set club/cross/augusta_dom
+=> END
+
+~ augusta_cross_sub
+Augusta: Then up you go, and we'll do the form properly. Your word is "red". Use it whenever you like.
+set club/cross/augusta_sub
+=> END
+
+~ silke
+[if done/pier] Silke: Good knots.
+[narrator] Silke looks up from a coil of rope, nods once, and goes back to it.
+- Ask her for a scene. => silke_scene
+- Leave her be. => END
+
+~ silke_scene
+Silke: Mm. Which way round?
+- You lead. => silke_switch
+- I'll lead. => silke_domme
+- The cross. => silke_cross
+- Another time. => END
+
+~ silke_switch
+Silke: Arms, then. Over the sleeves. Nothing tight.
+Silke: Your word is "red". "Yellow" and I loosen. I'll ask you, halfway.
+Nim: Red. Yellow. Got it.
+Silke: Breathe with me.
+set club/scene/silke_switch
+=> END
+
+~ silke_domme
+Silke: You? Tie me? ...All right.
+Silke: My word's "red". Ask me how I'm doing, now and then. Properly.
+Nim: I will.
+set club/scene/silke_domme
+=> END
+
+~ silke_cross
+Silke: The cross. Who's going on it?
+- You. I'll lead. => silke_cross_dom
+- Me. You lead. => silke_cross_sub
+- Another time. => END
+
+~ silke_cross_dom
+Silke: Rope, then. My word's "red".
+set club/cross/silke_dom
+=> END
+
+~ silke_cross_sub
+Silke: Up you go. Your word's "red". I'll be listening for it.
+set club/cross/silke_sub
+=> END
+
+~ rivet
+# Talking to her also hands in seized contraband (levels/hub/hub.gd _hand_in): lures and upgrades.
+[if done/pier] Rivet: A walking prize hall. Laffer always did think small.
+Rivet: The muzzle's holding up? Good. I built it to outlast your bad decisions.
+Rivet: Bring me every one of Swyne's toys you seize. Gutted, they make good distractions.
+Rivet: And enough of them pays for better kit. Harder to knock down. Harder to rattle.
+- That's all. => END
+- The cross? => rivet_cross
+
+~ rivet_cross
+Rivet: The cross. Which of us is on it?
+- You. I'll lead. => rivet_cross_dom
+- Me. You lead. => rivet_cross_sub
+- Never mind. => END
+
+~ rivet_cross_dom
+Rivet: Cuffs. I'll inspect the buckles from the inside. My word's "red".
+set club/cross/rivet_dom
+=> END
+
+~ rivet_cross_sub
+Rivet: Your muzzle stays on; it's mine and it's good. Your word's "red".
+set club/cross/rivet_sub
+=> END
+
+~ dash
+Dash [grin]: Nobody books me. Can't think why.
+Dash: I hit the bag. The bag doesn't complain. It's the healthiest relationship in the building.
+- The cross? => dash_cross
+- Keep hitting it. => END
+
+~ dash_cross
+Dash [grin]: Ooh. Who's on it?
+- You. I'll lead. => dash_cross_dom
+- Me. You lead. => dash_cross_sub
+- Never mind. => END
+
+~ dash_cross_dom
+Dash: I'm going to wriggle. That's not a colour, that's just me. My word's "red". Probably won't need it. Might.
+set club/cross/dash_dom
+=> END
+
+~ dash_cross_sub
+Dash: Ha! Okay. Your word's "red". I'll be gentle. Mostly. I'll ask!
+set club/cross/dash_sub
+=> END
+
+~ lull
+Lull: Mm. Swyne took something gentle and made a weapon of it. I'd like it back.
+- The cross? => lull_cross
+- Rest well. => END
+
+~ lull_cross
+Lull: The cross. Mm. Which of us?
+- You. I'll lead. => lull_cross_dom
+- Me. You lead. => lull_cross_sub
+- Not tonight. => END
+
+~ lull_cross_dom
+Lull: Slowly, please. My word is "red". I'll say it if I need to; I always do.
+set club/cross/lull_dom
+=> END
+
+~ lull_cross_sub
+Lull: Come. Your word is "red". I'll be very quiet, and very close.
+set club/cross/lull_sub
+=> END
+
+~ grizelda
+[if done/pier] Grizelda: Primrose Close. Mine. Don't be late.
+Grizelda: Shoes. Wipe.
+- The cross? => grizelda_cross
+- Yes, Grizelda. => END
+
+~ grizelda_cross
+Grizelda: Hm. And who's on it?
+- You. I'll lead. => grizelda_cross_dom
+- Me. You lead. => grizelda_cross_sub
+- Never mind. => END
+
+~ grizelda_cross_dom
+Grizelda: You'll lead and I'll tell you how. My word is "red". I won't need it.
+set club/cross/grizelda_dom
+=> END
+
+~ grizelda_cross_sub
+Grizelda: Up. Your word is "red", and I'll respect it faster than you can say it.
+set club/cross/grizelda_sub
+=> END
+
+~ vesper
+# OWNER REVIEW
+[if not done/pier] Vesper [calm]: The Pier, Nim. East across the square, down Seafront Road. Dash is waiting.
+[if not done/pier] Vesper: Find me on the wheel if you need me. I'll be watching.
+[if done/pier] Vesper [warm]: Primrose Close next. Grizelda will meet you there.
+[if done/pier] Vesper: The Close won't open its gate to a beginner. A few more roses first.

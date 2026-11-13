@@ -1,0 +1,57 @@
+# Madame Pearl, the fortune teller (worlds/01_PIER.md, Key 5). She sells Swyne's toys under the table. In the suit,
+# Nim poses as a buyer for a club and has to stay in character: each "slip" flag costs Composure, and two slips or
+# naming the Rope lose the sale and blow her cover (levels/pier/keys/pearl.gd). Pearl's reading is right about the
+# ledger and wrong about everything else.
+
+~ start
+[if pier/pearl_sold] => after
+[if not pier/in_suit] => garb
+Pearl [mystic]: Sit, sit. Cross my palm and the spirits will speak.
+Pearl: Your palm, or your purse? The spirits take both.
+- I'm not here for the spirits. I'm here to buy. => buy
+- Ooh, could you do my palm first? => palm
+
+~ palm
+set pier/pearl_slip1
+Pearl: Hmm. A long life line. A short attention span. Do you want a reading, or do you want to buy something?
+- To buy. And don't waste my time again. => buy
+- Sorry! To buy, please. => buy_soft
+
+~ buy_soft
+set pier/pearl_slip2
+=> buy
+
+~ buy
+Pearl [sly]: Buy what, dear? I sell futures.
+- The prizes. The ones that hum. My club wants a crate. => crate
+- Um. The... humming ones? If that's all right? => crate_soft
+
+~ crate_soft
+[if pier/pearl_slip1 or pier/pearl_slip2] => refused
+set pier/pearl_slip3
+=> crate
+
+~ crate
+Pearl: A club, is it. And which club would that be?
+- The kind you don't ask about. => sold
+- The Velvet Rope. => refused
+
+~ refused
+Pearl [cold]: Oh, I don't think you're buying anything, dear. I think you're looking. HELP! THIEVES!
+set pier/pearl_refused
+=> END
+
+~ sold
+Pearl [sly]: Ooh. One of those. The order goes in Laffer's little book, and the crate comes in under the boards.
+Pearl [mystic]: And for you, a free reading. I see... a ledger. A little book of names, travelling somewhere it shouldn't. Somewhere with hedges.
+Pearl: And I see you settling down with a nice accountant. You'll never climb anything taller than a stepladder.
+Nim: One out of three.
+[narrator] Under the table, a boxed plushie with a spiral on its belly. Nim takes it as a sample. Pearl doesn't argue.
+set pier/pearl_sold
+=> END
+
+~ garb
+Pearl: The spirits don't speak to customers who come in dripping, dear. Come back dressed for business.
+
+~ after
+Pearl [mystic]: The spirits say you've had your reading. The spirits also say no refunds.

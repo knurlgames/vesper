@@ -69,8 +69,8 @@ func _check(who: String, outfit: String, path: String) -> void:
 				tail += 1
 			elif b.begins_with("ear."):
 				ears += 1
-	# Bastion's garb came from Meshy with no tail (HANDOFF); Swyne has neither.
-	var tail_min := 0 if (who == "swyne" or path.ends_with("bastion_garb.glb")) else 3
+	# Swyne has no tail. (Bastion's garb has her suit's, grafted: cast_build `graft`.)
+	var tail_min := 0 if who == "swyne" else 3
 	if who != "swyne" and (tail < tail_min or ears != 2):
 		_fail("%s chains: tail %d ears %d" % [tag, tail, ears])
 	var masks := root.find_children("*_Mask", "MeshInstance3D", true, false)
@@ -85,6 +85,15 @@ func _check(who: String, outfit: String, path: String) -> void:
 			tris += (mi.mesh as ArrayMesh).surface_get_array_len(s) / 3 if (mi.mesh as ArrayMesh).surface_get_format(s) & Mesh.ARRAY_FORMAT_INDEX == 0 else (mi.mesh as ArrayMesh).surface_get_array_index_len(s) / 3
 	if tris > 80000:
 		_fail("%s is %d triangles, over the cast budget (80k)" % [tag, tris])
+	# The face keys (cast_build `face`): on the body mesh, never the mask.
+	var keyed := false
+	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh and not mi.name.ends_with("_Mask"):
+			var have := [&"blink_L", &"blink_R", &"brow_up", &"brow_down"].all(
+				func(k: StringName) -> bool: return mi.find_blend_shape_by_name(k) >= 0)
+			keyed = keyed or have
+	if not keyed:
+		_fail("%s has no face keys (blink_L/R, brow_up, brow_down)" % tag)
 	root.free()
 	# Through CastModel, as the game uses it.
 	var cm := CastModel.new()

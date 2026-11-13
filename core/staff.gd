@@ -13,6 +13,11 @@ enum State { IDLE, KNEEL, FETCH_GO, FETCH_BRING, OPEN_GO, RETURN }
 ## The powerful (councillors, the Ball's guests): they answer to no Domme, until Augusta's signet (tier 0 without it).
 @export var powerful := false
 @export var colour := Color("e0d8c8")
+## An enemy body to wear ("weasel_goon", "meerkat_watch"...; assets/enemies) instead of the greybox capsule.
+@export var look_body := ""
+## Who the captions name ("Staff" or "Councillor" if empty), and what he says when told to kneel.
+@export var speaker := ""
+@export var kneel_line := "Yes, Mistress."   # OWNER REVIEW
 
 const WALK_SPEED := 2.6
 const TURN_SPEED := 8.0
@@ -32,6 +37,7 @@ var _home_yaw := 0.0
 var _nim: Node3D
 var _carrying: Node3D
 var _model: Node3D
+var _look: EnemyModel
 var _line: Label3D
 var _line_t := 0.0
 
@@ -66,7 +72,7 @@ func obey(word: StringName, by: Node3D) -> void:
 		&"kneel":
 			state = State.KNEEL
 			_t = KNEEL_TIME
-			_say("Yes, Mistress.")   # OWNER REVIEW
+			_say(kneel_line)
 		&"fetch":
 			state = State.FETCH_GO
 			_say("At once.")   # OWNER REVIEW
@@ -122,7 +128,11 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= GRAVITY * delta
 	move_and_slide()
-	_model.position.y = -0.6 if state == State.KNEEL else 0.0
+	if _look:
+		# Kneeling, he's down on the floor (the knocked-down pose, held); otherwise he stands or walks.
+		_look.show_state(7 if state == State.KNEEL else 0, 0.0, Vector2(velocity.x, velocity.z).length(), 0.0)
+	else:
+		_model.position.y = -0.6 if state == State.KNEEL else 0.0
 	if _line_t > 0.0:
 		_line_t -= delta
 		if _line_t <= 0.0:
@@ -146,7 +156,7 @@ func _say(text: String) -> void:
 	_line_t = 2.5
 	var hud := get_node_or_null(^"/root/Hud")
 	if hud:
-		hud.call(&"caption", "Councillor" if powerful else "Staff", text)
+		hud.call(&"caption", speaker if speaker != "" else ("Councillor" if powerful else "Staff"), text)
 
 
 func _build() -> void:
@@ -159,6 +169,12 @@ func _build() -> void:
 	add_child(col)
 	_model = Node3D.new()
 	add_child(_model)
+	if EnemyModel.exists(look_body):
+		_look = EnemyModel.new()
+		_look.body = look_body
+		_model.add_child(_look)
+		_build_line()
+		return
 	var body := MeshInstance3D.new()
 	var cap := CapsuleMesh.new()
 	cap.radius = RADIUS
@@ -174,6 +190,10 @@ func _build() -> void:
 	tie.position = Vector3(0, 1.45, -RADIUS)
 	tie.material_override = Look.toon(Look.INK)
 	_model.add_child(tie)
+	_build_line()
+
+
+func _build_line() -> void:
 	_line = Label3D.new()
 	_line.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_line.font_size = 32

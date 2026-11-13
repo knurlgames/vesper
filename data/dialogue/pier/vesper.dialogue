@@ -1,0 +1,45 @@
+# OWNER REVIEW
+# Vesper on the Pier: her lesson under the pier (the takedown from above; levels/pier/keys/vesper_lesson.gd), and her
+# night at the top of the Ferris wheel (levels/pier/keys/wheel_vesper.gd).
+
+~ lesson_watch
+Vesper [calm]: Stop there. Stay in the dark.
+Vesper: Four of them. Not one of them has looked up since he was born.
+Vesper: Watch the one under me.
+
+~ lesson_teach
+Vesper [calm]: Off the beam, onto him, and the knot's tied before he's finished being surprised. One move.
+Vesper: Three more under the boards. They're yours.
+Nim: All three?
+Vesper [warm]: Unless you'd like me to do it again. I'd rather watch you.
+
+~ lesson_done
+Vesper [warm]: Good. You landed light.
+Vesper: I'll be up on the wheel, where I can see the whole pier.
+
+~ wheel
+Vesper [calm]: The whole pier, from here. Every crate that comes in under the boards. Every goon on the Midway.
+Vesper: And Swyne's banner over the gate. "A clean seafront." Paid for with the same money as the crates.
+- Come down and help? => help
+- How long have you been up here? => long
+
+~ help
+Vesper [warm]: No. You don't need me down there. You need to know that you don't.
+
+~ long
+Vesper: Since sunset. Someone has to watch.
+
+~ adequate
+Vesper [calm]: The police are on their way. They'll find him gift-wrapped.
+Vesper: And a ledger full of tea parties in Primrose Close.
+Nim: Was that... all right?
+Vesper [warm]: Adequate.
+[narrator] From Vesper, that's warm.
+
+~ hall_after
+Vesper [warm]: Primrose Close next. Sleep first. You've earned that much.
+
+~ wheel_top
+Vesper [calm]: You took your time.
+Nim: It was moving.
+Vesper [warm]: So was I.
