@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b4avnkouhwthf"
-path="res://.godot/imported/vesper_garb_texture_0.png-df9b27d8e08e5b3b87455626a95fedb4.ctex"
+path.s3tc="res://.godot/imported/vesper_garb_texture_0.png-df9b27d8e08e5b3b87455626a95fedb4.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1a2ce2b64331ef8b633a81f647cd6ba7"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/vesper/vesper_garb_texture_0.png"
-dest_files=["res://.godot/imported/vesper_garb_texture_0.png-df9b27d8e08e5b3b87455626a95fedb4.ctex"]
+dest_files=["res://.godot/imported/vesper_garb_texture_0.png-df9b27d8e08e5b3b87455626a95fedb4.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=2048
 detect_3d/compress_to=1

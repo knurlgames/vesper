@@ -37,7 +37,7 @@
     {"n": 10, "id": "ball_10", "name": "Five guests woken", "where": "the Ballroom", "outfit": "either", "joke": "All five find partners on waking, the same ones."}
   ],
   "contraband": "100 contraband (the gift bags, the coat, the cake)",
-  "tin": "the League's collection tin in the receiving line, collected by Swyne himself",
+  "tin": "the Coalition's collection tin in the receiving line, collected by Swyne himself",
   "people_in_trances": "five guests who opened a bag early, dancing the same waltz with no partner. Nobody hurts them.",
   "enemies": [
     "Goons: goats in footmen's livery, the Council's own staff. They fight once her cover's blown.",
@@ -53,7 +53,7 @@
       "Every minute, cut to the crew: Silke lowers bags down through the dome, Rivet sorts in the cloakroom, Dash runs them through the kitchens, Lull wakes anyone who's already opened one, Grizelda keeps the waiters in line. Bastion holds the door.",
       "If the room's attention slips, the secretary heads for the cloakroom. Nim heads him off."
     ],
-    "punchline": "the new gift bags each hold one of the League's own pamphlets, blank, from the Press."
+    "punchline": "the new gift bags each hold one of the Coalition's own pamphlets, blank, from the Press."
   },
   "boss": {
     "name": "Mr. Horace Tupping",

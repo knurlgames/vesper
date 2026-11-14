@@ -20,5 +20,14 @@
   "Client": {"name": "A member's guest", "color": "#c8b8a0", "pitch": 1.0},
   "Smith": {"name": "\"Mr Smith\"", "color": "#d8c8a0", "pitch": 0.85},
   "Pip": {"name": "Pip", "color": "#a8c8d8", "pitch": 1.15},
+  "Ashby": {"name": "Mrs Ashby", "color": "#d0b8e0", "pitch": 1.1},
+  "Primm": {"name": "Mrs Primm", "color": "#e0c8a8", "pitch": 1.2},
+  "Fairweather": {"name": "Mrs Fairweather", "color": "#b8c8d8", "pitch": 1.0},
+  "Stallholder": {"name": "Stallholder", "color": "#c8b8a0", "pitch": 1.05},
+  "Vicar": {"name": "The Vicar", "color": "#9a9ab0", "pitch": 0.95},
+  "Captain": {"name": "Captain Pettigrew", "color": "#c8a878", "pitch": 1.1},
+  "Watchman": {"name": "Watchman", "color": "#c8a878", "pitch": 1.2},
+  "Driver": {"name": "Driver", "color": "#8a7a5a", "pitch": 0.8},
+  "Gander": {"name": "Mrs Marjorie Gander", "color": "#e8e0d0", "pitch": 1.15},
   "Narrator": {"name": "", "color": "#d8d0bc"}
 }

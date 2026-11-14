@@ -85,6 +85,8 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# The game's look (fonts, the menus' Theme): first thing, before any screen is built.
+	UiKit.apply(get_tree().root)
 	apply_saved.call_deferred()
 
 
@@ -94,6 +96,55 @@ func _input(event: InputEvent) -> void:
 	if (pad and not using_pad) or (keys and using_pad):
 		using_pad = pad
 		device_changed.emit(using_pad)
+	# In a menu, the left stick moves the focus one step per push (then repeats slowly while held), never once per
+	# motion event: the stick sends a stream of them, and each counted as a press, skipping options (owner, Deck
+	# review 5: "each press fires insanely fast which skips menu options and makes the joystick unusable").
+	if event is InputEventJoypadMotion and (event.axis == JOY_AXIS_LEFT_X or event.axis == JOY_AXIS_LEFT_Y) \
+			and get_viewport() and get_viewport().gui_get_focus_owner() != null:
+		get_viewport().set_input_as_handled()
+
+
+## The menu stick's state: which way it's pushed, and when it next repeats.
+const MENU_PUSH := 0.6
+const MENU_RELEASE := 0.35
+const MENU_FIRST_REPEAT := 0.45
+const MENU_REPEAT := 0.16
+var _menu_dir := Vector2i.ZERO
+var _menu_t := 0.0
+
+
+func _process(delta: float) -> void:
+	var vp := get_viewport()
+	if vp == null or vp.gui_get_focus_owner() == null:
+		_menu_dir = Vector2i.ZERO
+		return
+	var v := Vector2(Input.get_joy_axis(0, JOY_AXIS_LEFT_X), Input.get_joy_axis(0, JOY_AXIS_LEFT_Y))
+	var dir := Vector2i.ZERO
+	if v.length() > MENU_PUSH:
+		dir = Vector2i(signi(roundi(v.x)), 0) if absf(v.x) > absf(v.y) else Vector2i(0, signi(roundi(v.y)))
+	elif v.length() > MENU_RELEASE and _menu_dir != Vector2i.ZERO:
+		dir = _menu_dir   # still held, just eased off a little
+	if dir == Vector2i.ZERO:
+		_menu_dir = Vector2i.ZERO
+		return
+	if dir != _menu_dir:
+		_menu_dir = dir
+		_menu_t = MENU_FIRST_REPEAT
+		_menu_step(dir)
+		return
+	_menu_t -= delta
+	if _menu_t <= 0.0:
+		_menu_t = MENU_REPEAT
+		_menu_step(dir)
+
+
+func _menu_step(dir: Vector2i) -> void:
+	var action := &"ui_up" if dir.y < 0 else (&"ui_down" if dir.y > 0 else (&"ui_left" if dir.x < 0 else &"ui_right"))
+	for pressed in [true, false]:
+		var e := InputEventAction.new()
+		e.action = action
+		e.pressed = pressed
+		Input.parse_input_event(e)
 
 
 # --- remapping (the settings screen) ---------------------------------------------------------------------------------

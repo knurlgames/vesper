@@ -1,0 +1,49 @@
+# OWNER REVIEW
+# The demonstration party in Mrs Gander's Show Home (Key 9; levels/primrose/keys/party.gd). Tonight's consultant is held
+# up; Nim takes her place, in the suit. The rounds' lines are in party.gd's ROUNDS. Suggestive only: product names,
+# boxes, the ladies' faces.
+
+~ arrive
+[if not primrose/in_suit] => garb
+[if primrose/party_ready] => begin
+Gander: You must be the consultant. You're late. Marjorie Gander. You'll have heard of me.
+Gander: The men are still in my living room, and the kit cupboard's stuck. I can't demonstrate in front of husbands.
+Gander: And your bag's out on the step, where you left it. Deal with it, dear.
+Nim: Of course, Mrs Gander.
+[narrator] Fetch for the bag, Open for the cupboard. Someone here wants to be useful.
+
+~ begin
+Gander: The men are out from under our feet. The kit's open. Shall we begin, ladies?
+Ashby: Oh, I'm so excited. Are you excited?
+Primm: I'm not excited. I'm here for the cause.
+Fairweather: I've brought a big handbag.
+set primrose/party_go
+
+~ garb
+Gander: Ladies only tonight. Ladies dressed as ladies. Off you go.
+
+~ again
+[if not primrose/in_suit] => garb
+Gander: Well. Try again, then. And this time, dear, sell something.
+set primrose/party_go
+
+~ guest
+Ashby: Isn't this nice? Marjorie does the nicest parties.
+
+~ after
+Primm: Three more parties. I've booked her for all three. For the cause.
+
+~ punchline
+Ashby: That was the most useful party I've ever been to.
+Primm: She told us to ask our husbands. I've never asked my husband anything. I'm going to ask him something.
+Fairweather: I've got a password now.
+Ashby: You'll do mine on Tuesday. And Mrs Primm's on Thursday. And the church hall on Sunday, after the service.
+Nim: Three more parties. Lovely.
+[narrator] Every box that goes home tonight holds a dud. Every dud goes home with honest advice.
+Gander [cold]: Excuse me, ladies. I need some air. In my garden. Alone.
+[narrator] She sweeps out through the back door. It isn't locked any more.
+
+~ fail
+Gander [cold]: I think we'll call it a night, ladies. Our consultant's had a long day.
+Ashby: She was lovely, though.
+Gander: Was she.

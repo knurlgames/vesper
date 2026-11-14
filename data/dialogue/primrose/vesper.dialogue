@@ -1,0 +1,53 @@
+# OWNER REVIEW
+# Vesper in Primrose Close: her lesson at the Neighbourhood Watch hut (Fetch and Open, in the suit;
+# levels/primrose/keys/vesper_lesson.gd), and her night on the steeple (Key 4; levels/primrose/keys/steeple.gd).
+
+~ lesson_garb
+Vesper [calm]: Not in that. This lesson's for the suit.
+Vesper: Number 4 has a wardrobe in its porch. I'll wait.
+
+~ lesson_watch
+Vesper [calm]: The Neighbourhood Watch. They'll do anything for someone who sounds as if she's in charge.
+Vesper: Watch me ask him for the hut's key.
+Vesper: Fetch me the hut key, please.
+
+~ lesson_open
+Vesper: Thank you. And the door.
+Vesper: Open the hut for me.
+
+~ lesson_teach
+Vesper [warm]: Fetch, and Open. Asked, not barked. He wants to be useful. Let him.
+Vesper: Ask more of someone than they can give, and it costs you. Know who you're asking.
+Vesper: Your turn. His thermos, and the postbox.
+
+~ lesson_turn
+Vesper [calm]: The thermos, then the postbox. Fetch, then Open. I'm watching.
+
+~ lesson_done
+[narrator] Inside the postbox: forty party invitations on cream card. Every one is addressed to a councillor.
+Vesper [calm]: Forty. One street. Every one to someone with a vote.
+Vesper [warm]: Good. You asked as if you meant it, and you thanked him. Both matter.
+Vesper: I'll be on the steeple. I can see the whole Close from there.
+
+~ mind_the_bells
+Vesper [calm]: Mind the bells.
+Nim: What about the...
+
+~ after_bells
+Nim: ...Ow.
+Vesper [warm]: I did say.
+
+~ belfry
+Vesper [calm]: Every net curtain on the street, from up here. Every light that's on, and every one that went off when the van came.
+- Come down and help? => help
+- Aren't you cold? => cold
+
+~ help
+Vesper [warm]: You don't need me down there. You're already doing what I'd do.
+
+~ cold
+Vesper: Yes. Someone has to watch anyway.
+
+~ garden_after
+Vesper [calm]: Forty parties, every one in a councillor's house. It was never about the toys. It was about who was holding them.
+Vesper: And the Docks, next. Get some sleep first.

@@ -1,7 +1,7 @@
 extends SceneTree
 ## WO-010's UI screenshot probe (windowed; it needs a GPU): every screen, saved as a PNG.
 ##   godot --path . -s tools/ui_shots.gd -- <dir>
-## title_press, title_main, title_slots, title_content, settings_controls, settings_camera, settings_display,
+## title_press, title_files, title_extras, title_content, settings_controls, settings_camera, settings_display,
 ## settings_access, hud_garb, hud_suit, arrival, pause, pause_controls, paper.
 
 var dir := ""
@@ -21,14 +21,14 @@ func _initialize() -> void:
 	var title: Node = load("res://levels/title/title.tscn").instantiate()
 	root.add_child(title)
 	current_scene = title
-	await shot("title_press")
-	title.call(&"show_main")
-	await shot("title_main")
-	title.call(&"show_slots")
-	await shot("title_slots")
+	await shot("title_press", 40)
+	title.call(&"show_files")
+	await shot("title_files", 60)
+	title.call(&"show_extras")
+	await shot("title_extras")
 	title.call(&"show_content")
 	await shot("title_content")
-	title.call(&"show_main")
+	title.call(&"_back_to_files")
 	var menu: SettingsMenu = hud.call(&"open_settings")
 	for i in 4:
 		menu.show_page(i)

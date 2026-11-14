@@ -1,0 +1,72 @@
+# OWNER REVIEW
+# Tea with three Coalition ladies on the lawn of number 4: Grizelda's test (Key 1; levels/primrose/keys/grizelda_test.gd).
+# In the suit, Nim keeps her poise: each "slip" flag costs Composure, and two slips or naming the Rope and the ladies
+# close ranks (blown cover). They had Grizelda to tea twelve years ago, and they still talk about it.
+
+~ tea
+[if primrose/tea_done] => had
+[if not primrose/tea_set] => early
+[if not primrose/in_suit] => garb
+Ashby: Oh. A newcomer. Are you looking round number 4, dear?
+- I'm considering it. Do sit. => one
+- Um, sort of? I'm just here for the tea? => one_soft
+
+~ one_soft
+set primrose/tea_slip1
+=> one
+
+~ one
+Primm: The last woman who lived there had the most peculiar visitors. Boots. Coats. At all hours.
+Fairweather: We never said a word, of course.
+Primm: We said a great many words. Just not to her.
+- How tiresome for you. More tea? => two
+- Honestly, that sounds like a great house. => two_soft
+
+~ two_soft
+set primrose/tea_slip2
+=> two
+
+~ two
+Ashby: And what does your husband do, dear?
+- I don't keep one. They're so much upkeep. => three
+- I don't, um. I mean. There isn't. Is that bad? => three_soft
+- I work at the Velvet Rope, actually. => refused
+
+~ three_soft
+[if primrose/tea_slip1 or primrose/tea_slip2] => refused
+set primrose/tea_slip3
+=> three
+
+~ three
+Fairweather: You'll come to Marjorie's party tonight, of course. Everyone's going. For the cause.
+Primm: Decency doesn't fund itself.
+- I wouldn't miss it. I hear the products are educational. => done
+- What do they actually sell there? => done_soft
+
+~ done_soft
+set primrose/tea_slip3
+Fairweather: Oh, you'll see. Bring a big handbag.
+=> done
+
+~ done
+Ashby: Oh, she's lovely. Isn't she lovely?
+Primm: Much nicer than the last one.
+Fairweather: The last one made Mrs Primm cry with one look, across this very lawn.
+Primm: I was not crying. I had something in my eye. For a week.
+[narrator] Behind the For Sale sign, Grizelda's ears flatten, very slightly, with satisfaction.
+set primrose/tea_done
+
+~ refused
+Ashby [cold]: I think we've had quite enough tea, thank you. Mrs Fairweather, ring round.
+Fairweather: Ringing round.
+set primrose/tea_refused
+=> END
+
+~ early
+Primm: This is a private tea, dear. Residents and prospective residents only.
+
+~ garb
+Ashby: Are you the gardener? The hedges are round the back.
+
+~ had
+Ashby: Do come again, dear. Thursdays.

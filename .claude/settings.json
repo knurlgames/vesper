@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__meshy__meshy_image_to_image",
+      "mcp__meshy__meshy_image_to_3d"
+    ]
+  }
+}

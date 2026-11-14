@@ -52,7 +52,7 @@ func _ready() -> void:
 	coat.visible = model == null
 	add_child(coat)
 	var label := Label3D.new()
-	label.text = "VESPER  (Y)"
+	label.text = "VESPER"
 	label.font_size = 36
 	label.pixel_size = 0.006
 	label.outline_size = 8

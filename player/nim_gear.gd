@@ -2,7 +2,7 @@ class_name NimGear
 extends Node
 ## The sisters' gear (WO-007, DESIGN.md "Gear from each world's host"), as far as it isn't movement:
 ##
-##   - **LB** uses the selected gear; **D-pad left** (4) picks the next one she has:
+##   - **LB** (a tap) uses the selected gear; **LB held** opens the gear wheel to pick another (WHEEL_HOLD, below):
 ##     - **the Scold** (Grizelda): a shout that freezes every goon within SCOLD_RANGE for SCOLD_TIME. Frozen, he can be
 ##       bound.
 ##     - **the pendant** (Lull): wakes someone in a trance at range, if she's looking at them; otherwise it's the fake
@@ -45,16 +45,84 @@ func _ready() -> void:
 		lures = int(game.call(&"get_flag", "gear/lures", 0))
 
 
+## The gear wheel (owner, 2026-11-13: "go ahead with the wheel"): LB held past WHEEL_HOLD opens it, time slows to
+## WHEEL_TIME, the stick points at a piece of gear, and letting go of LB takes it. A tap of LB uses what's taken.
+## (It was D-pad left that cycled: the D-pad is the Commands' now.) While it's open the stick is the wheel's, not her
+## feet's (Nim._wish).
+const WHEEL_HOLD := 0.22
+const WHEEL_TIME := 0.25
+var wheel_open := false
+## The gear she has, in the wheel's order (clockwise from the top), and the one the stick points at (-1: none).
+var wheel_items: Array = []
+var wheel_pick := -1
+var _lb_from := -1.0   # how long LB's been down (game seconds), -1 if it's up
+
+
 func tick(delta: float) -> void:
 	_scold_cool -= delta
-	if Input.is_action_just_pressed(&"word_left"):
-		_pick(true)
-	elif selected == "" or not nim.knows(selected):
+	if selected == "" or not nim.knows(selected):
 		_pick(false)
+	# How long LB's been held, in game seconds unslowed by the wheel's own slow-down (not the wall clock: the probes run
+	# faster than real time).
 	if Input.is_action_just_pressed(&"gear"):
-		_use()
+		_lb_from = 0.0
+	elif _lb_from >= 0.0:
+		_lb_from += delta / maxf(Engine.time_scale, 0.01)
+	if _lb_from >= 0.0 and Input.is_action_pressed(&"gear"):
+		if not wheel_open and _lb_from >= WHEEL_HOLD:
+			_open_wheel()
+		if wheel_open:
+			_point_wheel()
+	elif _lb_from >= 0.0:
+		# Let go: a tap uses the gear; after a hold, the wheel's pick is taken.
+		_lb_from = -1.0
+		if wheel_open:
+			_close_wheel(true)
+		else:
+			_use()
 	if Input.is_action_just_pressed(&"rope") and nim.is_on_floor() and nim.knows(Lessons.ROPE) and not nim.combat.busy():
 		_rope_on_ground()
+
+
+func _open_wheel() -> void:
+	wheel_items = Lessons.LB_GEAR.filter(func(g: String) -> bool: return nim.knows(g))
+	if wheel_items.is_empty():
+		return
+	wheel_open = true
+	wheel_pick = wheel_items.find(selected)
+	Engine.time_scale = WHEEL_TIME
+
+
+## The stick's direction to the nearest piece of gear on the wheel (the first at the top, then clockwise).
+func _point_wheel() -> void:
+	var v := Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
+	if v.length() < 0.5 or wheel_items.is_empty():
+		return
+	var a := fposmod(atan2(v.x, -v.y), TAU)   # 0 at the top, clockwise
+	var step := TAU / wheel_items.size()
+	wheel_pick = int(round(a / step)) % wheel_items.size()
+
+
+func _close_wheel(take: bool) -> void:
+	wheel_open = false
+	Engine.time_scale = 1.0
+	if take and wheel_pick >= 0 and wheel_pick < wheel_items.size() and wheel_items[wheel_pick] != selected:
+		selected = wheel_items[wheel_pick]
+		gear_changed.emit(selected, lures)
+
+
+func _exit_tree() -> void:
+	if wheel_open:
+		Engine.time_scale = 1.0
+
+
+## A safety net, every rendered frame: if anything stops her ticking (a scene takes her, a pause) with the wheel open,
+## it closes, and time's back to normal.
+func _process(_delta: float) -> void:
+	# (Letting go of LB is tick's to handle, so the pick's taken; this is only for when she isn't ticking at all.)
+	if wheel_open and (not nim.is_physics_processing() or get_tree().paused):
+		_lb_from = -1.0
+		_close_wheel(false)
 
 
 ## The next LB gear she has (`cycle`), or just a valid one if what's selected isn't.

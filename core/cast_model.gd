@@ -6,8 +6,8 @@ extends Node3D
 ##
 ## - Idle by default; "talk" while a conversation shows one of their lines (Dialogue.current_speaker()).
 ## - walk / run by `speed` (m/s), for anyone a script moves.
-## - A garb's mask (`<body>_Mask` on the head bone) is worn while covert and off in conversation and cutscenes
-##   (ART_DIRECTION: "Off for dialogue and cutscenes. Worn with the night garb only").
+## - A garb's mask (`<body>_Mask` on the head bone) is worn with the garb, conversations and cutscenes included
+##   (owner, Deck review 3: popping it off and on to talk looked odd).
 ##
 ## Runs while the tree is paused (Dialogue pauses the world), so they still talk and breathe in a conversation.
 ## Reaches Dialogue at runtime with get_node_or_null: a probe compiles this before autoloads exist.
@@ -23,6 +23,8 @@ extends Node3D
 
 ## Feet speed in m/s at speed scale 1, so a moving clip matches the ground.
 const CLIP_SPEED := {&"walk": 1.3, &"run": 4.5}
+## Nim's own model, for her head and mask scale when she's worn here (it has no class_name).
+const NimModelScript := preload("res://player/nim_model.gd")
 const BLEND := 0.2
 const RIM := 0.12
 const OUTLINE_WIDTH := 0.008
@@ -89,9 +91,21 @@ func _ready() -> void:
 	add_child(_model)
 	_dress(_model)
 	_player = _model.find_child("AnimationPlayer", true, false)
+	# Nim, worn as a cast model (the title's cutscene and the file select): her head shrunk to sit with the cast's, her
+	# muzzle less so, as her own model does (player/nim_model.gd HEAD_SCALE, MASK_SCALE).
+	var nim_head := NimModelScript.HEAD_SCALE if who == "nim" else 1.0
+	if who == "nim":
+		for sk: Skeleton3D in _model.find_children("*", "Skeleton3D", true, false):
+			var hs := BoneScale.new()
+			hs.bone_name = &"head"
+			hs.factor = nim_head
+			sk.add_child(hs)
 	for mi: MeshInstance3D in _model.find_children("*", "MeshInstance3D", true, false):
 		if mi.name.ends_with("_Mask"):
 			_mask = mi
+			if who == "nim":
+				var k := NimModelScript.MASK_SCALE / nim_head
+				mi.transform = Transform3D(mi.transform.basis.scaled(Vector3.ONE * k), mi.transform.origin * k)
 		elif mi.mesh and mi.find_blend_shape_by_name(&"blink_L") >= 0:
 			_face = mi
 	if _face:
@@ -99,7 +113,7 @@ func _ready() -> void:
 			_keys[k] = _face.find_blend_shape_by_name(k)
 	_blink_in = randf_range(0.5, BLINK_EVERY.y)
 	if _player:
-		for clip in [&"idle", &"talk", &"walk", &"run"]:
+		for clip in [&"idle", &"idle_garb", &"idle_suit", &"talk", &"walk", &"run"]:
 			if _player.has_animation(clip):
 				_player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 	loaded = true
@@ -138,14 +152,22 @@ func hold(on: bool) -> void:
 	if _player == null:
 		return
 	if on:
-		_player.play(&"idle")
+		_player.play(_idle())
 		_player.seek(0.0, true)
 		_player.pause()
 	else:
 		var sk := skeleton()
 		if sk:
 			sk.reset_bone_poses()
-		_player.play(&"idle")
+		_player.play(_idle())
+
+
+## The idle clip: "idle", or the outfit's own (Nim's GLBs, worn as a cast model on the title: "idle_garb").
+func _idle() -> StringName:
+	if _player == null or _player.has_animation(&"idle"):
+		return &"idle"
+	var own := StringName("idle_" + outfit)
+	return own if _player.has_animation(own) else &"idle_garb"
 
 
 func skeleton() -> Skeleton3D:
@@ -156,7 +178,9 @@ func _update(_delta: float) -> void:
 	var dlg: Node = get_node_or_null(^"/root/Dialogue")
 	var in_talk: bool = dlg != null and dlg.call(&"is_active")
 	if _mask:
-		_mask.visible = masked and outfit == "garb" and not in_talk
+		# Worn through conversations too (owner, Deck review 3: "stop removing the masks during dialogues... have them
+		# talk and use the animation as is without removing the mask").
+		_mask.visible = masked and outfit == "garb"
 	if _player == null:
 		return
 	var want := &"idle"
@@ -166,8 +190,8 @@ func _update(_delta: float) -> void:
 		want = &"run"
 	elif speed > 0.2:
 		want = &"walk"
-	if not _player.has_animation(want):
-		want = &"idle"
+	if want == &"idle" or not _player.has_animation(want):
+		want = _idle()
 	if want != _clip or not _player.is_playing():
 		_clip = want
 		_player.play(want, BLEND)

@@ -3,6 +3,8 @@ extends Node3D
 ## middle mouse swings it back behind her. Click the window to capture the mouse; pausing frees it.
 
 const DISTANCE := 5.5
+## Under this far from her (a wall's pushed the camera in), it starts to rise over her shoulder.
+const CLOSE_FROM := 1.6
 const HEIGHT := 1.3
 const STICK_SPEED := 2.6
 const MOUSE_SPEED := 0.004
@@ -18,6 +20,7 @@ var yaw := 0.0
 var pitch := -0.32
 var _arm: SpringArm3D
 var _cam: Camera3D
+var _holder: Node3D
 var _recentring := false
 
 
@@ -36,7 +39,12 @@ func _ready() -> void:
 	_cam.near = 0.1
 	_cam.far = 600.0
 	_cam.fov = 62.0
-	_arm.add_child(_cam)
+	# The arm places its child at its length; the squeeze's crane moves the camera inside that child. Setting the
+	# camera's own position (it was the arm's child) wiped out the arm's placement whenever this ran after the arm:
+	# the camera sat at the pivot, inside Nim (owner, Deck clip 2026-11-13: "perma zoomed in on Nim's back").
+	_holder = Node3D.new()
+	_arm.add_child(_holder)
+	_holder.add_child(_cam)
 	_cam.make_current()
 	# The player moves on physics ticks and the project interpolates her between them. The camera moves every rendered
 	# frame, so it follows her interpolated position and opts out of interpolation itself. Chasing her raw tick position
@@ -72,6 +80,14 @@ func _process(delta: float) -> void:
 		global_position = at  # a reset or a scene start: cut, don't swoop
 	global_position = global_position.lerp(at, clampf(12.0 * delta, 0.0, 1.0))
 	rotation = Vector3(pitch, yaw, 0)
+	# Pushed in by a wall: rise and look down over her shoulder rather than press into her back, and at the very
+	# closest, drop her outline (owner, Deck review 5: close up she looked "all around cracked").
+	var squeeze := clampf((CLOSE_FROM - _arm.get_hit_length()) / CLOSE_FROM, 0.0, 1.0)
+	_cam.position = Vector3(0.0, squeeze * 0.85, 0.0)
+	_cam.rotation.x = -squeeze * 0.55
+	var model: Node = target.get(&"model")
+	if model and model.has_method(&"camera_close"):
+		model.call(&"camera_close", _arm.get_hit_length() < 0.75)
 
 
 ## The way "up" on the stick points, flat on the ground.

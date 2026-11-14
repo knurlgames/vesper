@@ -1,6 +1,6 @@
 extends "res://levels/pier/keys/pier_key.gd"
 ## Key 6: the back office safe (worlds/01_PIER.md). In through the roof vent (garb). The safe isn't even locked; inside
-## is Laffer's Decency League membership card. Opening it, she's heard: a goon outside counts to ten. Out of the office
+## is Laffer's Coalition membership card. Opening it, she's heard: a goon outside counts to ten. Out of the office
 ## before ten and the Key is hers; still inside at ten and they come in (the goons are alerted), and she can try again.
 
 ## Seconds the count takes.

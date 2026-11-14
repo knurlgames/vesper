@@ -31,17 +31,34 @@ const CLUB_DOOR := Vector3(0.0, 0.05, -12.5)
 const VAULT := -5.0
 const VAULT_TOP := -1.5
 ## The rooms off the vaults' hall: west x -12..-4, east 4..12, each 7 m along the hall. `at` is the room's middle
-## (where a client stands for a session), `sister` where she works, `door` the doorway on the hall.
+## (where a client stands for a session), `sister` whose it is, its doorway on the hall at `at.z`. `spot` (optional)
+## is where she stands, clear of the furniture; `far` (optional) is the outer wall's x, when the room's bigger.
 const ROOMS := [
 	{"id": &"parlour", "title": "THE PARLOUR", "sister": "Augusta", "at": Vector3(-8.0, VAULT, -51.5), "light": Color("ffb070"), "sessions": true},
-	{"id": &"rope", "title": "THE ROPE ROOM", "sister": "Silke", "at": Vector3(-8.0, VAULT, -58.5), "light": Color("ff4060"), "sessions": true},
+	{"id": &"rope", "title": "THE ROPE ROOM", "sister": "Silke", "at": Vector3(-8.0, VAULT, -58.5), "light": Color("ff4060"), "sessions": true,
+		"spot": Vector3(-8.4, VAULT, -60.6)},
 	{"id": &"throne", "title": "THE THRONE ROOM", "sister": "Grizelda", "at": Vector3(-8.0, VAULT, -65.5), "light": Color("c070ff"), "sessions": true},
-	{"id": &"quiet", "title": "THE QUIET ROOM", "sister": "Lull", "at": Vector3(8.0, VAULT, -51.5), "light": Color("80a0ff"), "sessions": false},
+	# Twice the size (owner, Deck review 3: "the quiet room needs more space and not have everyone in there all
+	# overlapping on the same couch"): it runs east under the street to x 20, a seat for everyone (QUIET_SEATS).
+	{"id": &"quiet", "title": "THE QUIET ROOM", "sister": "Lull", "at": Vector3(12.0, VAULT, -51.5), "light": Color("80a0ff"), "sessions": false,
+		"spot": Vector3(6.8, VAULT, -53.0), "far": 20.0},
 	{"id": &"dash", "title": "DASH'S", "sister": "Dash", "at": Vector3(8.0, VAULT, -58.5), "light": Color("ffa040"), "sessions": true},
 	{"id": &"workshop", "title": "WORKSHOP", "sister": "Rivet", "at": Vector3(8.0, VAULT, -65.5), "light": Color("e0e0ff"), "sessions": false},
 ]
+## The changing screen in the vaults' hall, by the cross, its front to the hall (+X).
+const SCREEN := Vector3(-3.15, VAULT, -68.4)
 ## The Backroom's middle (the map table), behind the end wall.
 const BACKROOM := Vector3(1.0, VAULT, -74.8)
+## The Quiet Room's seats (Meshy chaises, 2.0 x 0.89): [middle, the way it faces]. Four for clients' aftercare, one
+## each (club_life); the last, NOOK, is where a scene on the cross ends (CrossScene._aftercare).
+const QUIET_SEATS := [
+	[Vector3(9.5, VAULT, -48.65), Vector3(0, 0, -1)], [Vector3(12.6, VAULT, -48.65), Vector3(0, 0, -1)],
+	[Vector3(19.45, VAULT, -49.9), Vector3(-1, 0, 0)], [Vector3(19.45, VAULT, -53.1), Vector3(-1, 0, 0)],
+	[Vector3(16.0, VAULT, -54.4), Vector3(0, 0, 1)],
+]
+const NOOK := 4
+## How far in from a chaise's front edge someone sits (the sit-and-drink clip's hips land over the seat).
+const SEAT_IN := 0.24
 const SEAFRONT := Vector3(70.0, 0.05, 5.0)
 const PROLOGUE_AT := Vector3(-4.0, DUNGEON + 0.05, -34.0)
 
@@ -92,6 +109,7 @@ func _ready() -> void:
 	arrival("club_door", CLUB_DOOR, 0.0)
 	arrival("start", CLUB_DOOR, 0.0)
 	arrival("seafront", SEAFRONT, -PI / 2.0)
+	arrival("primrose", Vector3(-8.0, 0.05, 30.0), 0.0)   # back from Primrose Close: Primrose Lane, facing the square
 	arrival("prologue", PROLOGUE_AT, -PI / 2.0)
 	var first := not Game.has_flag("hub/prologue_done")
 	spawn_player(PROLOGUE_AT if first else CLUB_DOOR, -PI / 2.0 if first else 0.0)
@@ -236,31 +254,35 @@ func _club() -> void:
 	solid(Vector3(-2.3, (CEILING + DUNGEON) / 2.0, -30.3), Vector3(16.6, CEILING - DUNGEON, 0.3), _m.club_in)
 	solid(Vector3(9.8, (CEILING + DUNGEON) / 2.0, -30.3), Vector3(1.6, CEILING - DUNGEON, 0.3), _m.club_in)
 	solid(Vector3(7.5, (2.4 + CEILING) / 2.0, -30.3), Vector3(3.0, CEILING - 2.4, 0.3), _m.club_in)
-	# The lounge: the bar down the west wall, bottles, sofas, low tables, velvet drapes; warm light.
-	solid(Vector3(-9.6, 0.55, -23.5), Vector3(1.2, 1.1, 9.0), _m.wood)
-	deco(Vector3(-9.6, 1.12, -23.5), Vector3(1.3, 0.06, 9.1), _m.brass)
-	for i in 8:
-		deco(Vector3(-10.45, 1.6 + float(i % 2) * 0.5, -19.8 - i * 1.0), Vector3(0.15, 0.4, 0.15), _m.glass)
-	for s: Vector3 in [Vector3(-4, 0, -21), Vector3(3.5, 0, -22), Vector3(-4.5, 0, -27.5)]:
-		solid(s + Vector3(0, 0.25, 0), Vector3(2.6, 0.5, 1.0), _m.velvet)
-		deco(s + Vector3(0, 0.7, -0.4), Vector3(2.6, 0.5, 0.2), _m.velvet)
-		solid(s + Vector3(0, 0.25, 1.5), Vector3(1.2, 0.5, 0.8), _m.wood)
+	# The lounge: the bar down the west wall, bottles, sofas, low tables, velvet drapes; warm light. The Meshy
+	# furniture (owner, 2026-11-13: "the Velvet Rope also needs some art especially in the lobby where you enter")
+	# keeps to the greybox's footprints: the guest's seat at the bar (prologue GUEST_SEAT, x -6.6), the way from the
+	# door to the ramp (x 6..9), the changing screen (club_life SCREEN) all stay clear.
+	_lounge()
 	for x: float in [-8.5, -3.0, 3.0, 8.5]:
 		deco(Vector3(x, 2.2, -16.65), Vector3(1.6, 4.4, 0.1), _m.velvet)
-	for p: Vector3 in [Vector3(-5, 3.8, -20), Vector3(4, 3.8, -20), Vector3(0, 3.8, -27)]:
-		_light(p, Color("ff9070"), 2.2, 9.0)
 	_sign("THE VELVET ROPE", Vector3(0, 3.6, -29.95), 0.0, Color(2.2, 0.5, 0.8), 40)
 	wardrobe(Vector3(10.2, STREET, -20.0), PI / 2.0, "Wardrobe_club")
 	# The dungeon: brick and stone, red light, the Rope's tools on the walls (suggestive, never explicit).
 	for side: float in [-1.0, 1.0]:   # the brick facing, either side of the doorway to the vaults
 		deco(Vector3(side * 6.25, (CEILING + DUNGEON) / 2.0, -37.55), Vector3(9.4, CEILING - DUNGEON, 0.05), _m.dungeon)
-	solid(Vector3(-6.0, DUNGEON + 0.45, -35.5), Vector3(2.2, 0.9, 1.0), _m.leather)      # a padded bench
+	# A padded bench (the Meshy leather one over its box's collision); coiled rope hung on brass hooks.
+	if ResourceLoader.exists(PROP_PATH % "padded_bench"):
+		_col(Vector3(-6.0, DUNGEON + 0.45, -35.5), Vector3(2.2, 0.9, 1.0), 1)
+		props("padded_bench", [[Vector3(-6.0, DUNGEON, -35.5), 0.0, Vector3(2.2, 0.95, 0.9)]], false)
+	else:
+		solid(Vector3(-6.0, DUNGEON + 0.45, -35.5), Vector3(2.2, 0.9, 1.0), _m.leather)
+	var coils := []
 	for i in 6:
 		var x := -9.0 + i * 3.2
 		if absf(x) < 2.0:
 			continue   # the doorway
-		deco(Vector3(x, DUNGEON + 2.2, -37.3), Vector3(0.6, 0.6, 0.1), _m.velvet)       # coiled rope, hung up
-		deco(Vector3(x, DUNGEON + 3.0, -37.3), Vector3(0.12, 0.12, 0.12), _m.brass)      # its hook
+		coils.append([Vector3(x, DUNGEON + 1.9, -37.42), 0.0, Vector3(0.6, 1.0, 0.3)])
+	if not props("rope_coil", coils, false):
+		for c: Array in coils:
+			var x: float = (c[0] as Vector3).x
+			deco(Vector3(x, DUNGEON + 2.2, -37.3), Vector3(0.6, 0.6, 0.1), _m.velvet)       # coiled rope, hung up
+			deco(Vector3(x, DUNGEON + 3.0, -37.3), Vector3(0.12, 0.12, 0.12), _m.brass)      # its hook
 	for p: Vector3 in [Vector3(-5, DUNGEON + 3.5, -34), Vector3(4, DUNGEON + 3.5, -34)]:
 		_light(p, Color("ff4060"), 2.0, 8.0)
 	# The door outside: velvet in brass, a canopy, the name, the rope across on its posts, the plaque, red light.
@@ -268,11 +290,81 @@ func _club() -> void:
 	solid(Vector3(0, 3.25, -15.1), Vector3(3.6, 0.35, 1.8), _m.velvet)
 	_sign("THE VELVET ROPE", Vector3(0, 3.25, -14.18), 0.0, Color("f2c56a"), 30, false)
 	_sign("Members.\nAnd those who ask nicely.", Vector3(1.9, 1.7, -15.95), 0.0, Color("e8d7c0"), 16, false)   # OWNER REVIEW
-	for x: float in [-1.9, 1.9]:
-		solid(Vector3(x, 0.5, -14.6), Vector3(0.18, 1.0, 0.18), _m.brass)
-	deco(Vector3(-2.6, 0.85, -14.6), Vector3(1.4, 0.07, 0.07), _m.velvet)
-	deco(Vector3(2.6, 0.85, -14.6), Vector3(1.4, 0.07, 0.07), _m.velvet)
+	# The Meshy posts carry their own rope, swagged toward +X: the left pair's ropes run outward from the door, the
+	# right pair turned round to match (the way in, between x -1.9 and 1.9, stays open).
+	if not props("rope_stanchion", [[Vector3(-3.4, STREET, -14.6), PI], [Vector3(-2.3, STREET, -14.6), PI],
+			[Vector3(2.3, STREET, -14.6), 0.0], [Vector3(3.4, STREET, -14.6), 0.0]]):
+		for x: float in [-1.9, 1.9]:
+			solid(Vector3(x, 0.5, -14.6), Vector3(0.18, 1.0, 0.18), _m.brass)
+		deco(Vector3(-2.6, 0.85, -14.6), Vector3(1.4, 0.07, 0.07), _m.velvet)
+		deco(Vector3(2.6, 0.85, -14.6), Vector3(1.4, 0.07, 0.07), _m.velvet)
+	# Potted palms either side of the door, under the canopy's light.
+	props("potted_palm", [[Vector3(-4.6, STREET, -15.3), 0.4], [Vector3(4.9, STREET, -15.3), -0.8]], true, 0.012)
 	_light(Vector3(0, 2.8, -14.8), Color("ff4060"), 2.2, 5.0)
+
+
+## The lounge inside the door (x -10.6..10.6, z -16.4..-30): the bar and its back shelf down the west wall with
+## stools, three Chesterfields round cocktail tables, chandeliers, the host's podium by the door, palms in the corners.
+## Each prop falls back to the greybox if its GLB isn't built. Collision is the greybox's (bar, sofas, tables): the
+## routes through the room were tuned round those.
+func _lounge() -> void:
+	# The bar: two 3 m counters end to end (x -9.6, z -19..-28), their fronts to the room (+X).
+	if ResourceLoader.exists(PROP_PATH % "lounge_bar"):
+		_col(Vector3(-9.6, 0.55, -23.5), Vector3(1.2, 1.1, 9.0), 1)
+	else:
+		solid(Vector3(-9.6, 0.55, -23.5), Vector3(1.2, 1.1, 9.0), _m.wood)
+	# (A prop's front is its +Z: a yaw of +PI/2 turns it to +X, the room.)
+	if not props("lounge_bar", [[Vector3(-9.6, 0, -20.5), PI / 2.0, Vector3(3.0, 1.1, 1.2)],
+			[Vector3(-9.6, 0, -23.5), PI / 2.0, Vector3(3.0, 1.1, 1.2)], [Vector3(-9.6, 0, -26.5), PI / 2.0,
+			Vector3(3.0, 1.1, 1.2)]], false):
+		deco(Vector3(-9.6, 1.12, -23.5), Vector3(1.3, 0.06, 9.1), _m.brass)
+	# The back shelf against the west wall behind it, bottles lit from above.
+	if not props("bar_backshelf", [[Vector3(-10.35, 0, -20.6), PI / 2.0, Vector3(1.7, 2.6, 0.45)],
+			[Vector3(-10.35, 0, -23.5), PI / 2.0, Vector3(1.7, 2.6, 0.45)], [Vector3(-10.35, 0, -26.4), PI / 2.0,
+			Vector3(1.7, 2.6, 0.45)]], false):
+		for i in 8:
+			deco(Vector3(-10.45, 1.6 + float(i % 2) * 0.5, -19.8 - i * 1.0), Vector3(0.15, 0.4, 0.15), _m.glass)
+	# Stools along the bar's front, leaving a gap where the guest waits for his tea (z -23.4).
+	var stools := []
+	for z: float in [-19.6, -20.8, -22.0, -24.8, -26.0, -27.2]:
+		stools.append([Vector3(-8.55, 0, z), 0.0])
+	props("bar_stool", stools, false)
+	# Sofas round low tables: [where, which way it faces]. The greybox's seat and back stay as the collision.
+	var groups := [[Vector3(-4, 0, -21), 0.0], [Vector3(3.5, 0, -22), 0.0], [Vector3(-4.5, 0, -27.5), 0.0]]
+	var sofas := []
+	var tables := []
+	var have_sofa := ResourceLoader.exists(PROP_PATH % "lounge_sofa")
+	var have_table := ResourceLoader.exists(PROP_PATH % "cocktail_table")
+	for g: Array in groups:
+		var s: Vector3 = g[0]
+		if have_sofa:
+			_col(s + Vector3(0, 0.25, 0), Vector3(2.6, 0.5, 1.0), 1)
+			sofas.append([s + Vector3(0, 0, -0.1), 0.0, Vector3(2.6, 0.95, 1.0)])   # faces +Z (the table, the door)
+		else:
+			solid(s + Vector3(0, 0.25, 0), Vector3(2.6, 0.5, 1.0), _m.velvet)
+			deco(s + Vector3(0, 0.7, -0.4), Vector3(2.6, 0.5, 0.2), _m.velvet)
+		if have_table:
+			_col(s + Vector3(0, 0.25, 1.5), Vector3(1.0, 0.5, 1.0), 1)
+			tables.append([s + Vector3(0, 0, 1.5), 0.6, Vector3(1.0, 0.6, 1.0)])
+		else:
+			solid(s + Vector3(0, 0.25, 1.5), Vector3(1.2, 0.5, 0.8), _m.wood)
+	props("lounge_sofa", sofas, false)
+	props("cocktail_table", tables, false)
+	# The host's podium just inside the door, east of it: the guest book (Bastion's, when he's in).
+	props("door_podium", [[Vector3(2.4, 0, -17.4), PI]])
+	# Palms in the corners by the windows.
+	props("potted_palm", [[Vector3(9.6, 0, -17.4), 0.5], [Vector3(-9.6, 0, -29.2), 1.2], [Vector3(4.6, 0, -29.3), 2.0]])
+	# Chandeliers over the sofas, each with its light; the room's warm fill as before if they're not built.
+	var lamps := [Vector3(-4, CEILING, -22), Vector3(3.5, CEILING, -23), Vector3(-4.5, CEILING, -28.2)]
+	var hung := []
+	for p: Vector3 in lamps:
+		hung.append([p - Vector3(0, 1.3, 0), 0.0])
+	if props("chandelier", hung, false, 0.01, 1.4):
+		for p: Vector3 in lamps:
+			_light(p - Vector3(0, 1.0, 0), Color("ff9070"), 2.2, 9.0)
+	else:
+		for p: Vector3 in [Vector3(-5, 3.8, -20), Vector3(4, 3.8, -20), Vector3(0, 3.8, -27)]:
+			_light(p, Color("ff9070"), 2.2, 9.0)
 
 
 # --- the vaults (WO-014b, DESIGN.md "The Velvet Rope's house") -------------------------------------------------------
@@ -298,9 +390,19 @@ func _vaults() -> void:
 	# The vaults' shell: floor, ceiling, outer walls (the south one open where the annex comes in).
 	solid(Vector3(0, VAULT - 0.5, -63.1), Vector3(24.8, 1.0, 33.4), floor_mat)        # z -46.4..-79.8
 	solid(Vector3(0, VAULT_TOP + 0.2, -64.0), Vector3(24.8, 0.4, 32.0), vault)        # z -48..-80
+	var vh := VAULT_TOP - VAULT
+	var vm := (VAULT + VAULT_TOP) / 2.0
+	solid(Vector3(-12.2, vm, -63.1), Vector3(0.4, vh, 33.4), vault)
+	# East, the outer wall's open where the Quiet Room runs on under the street (z -48.2..-54.85, to x 20).
+	solid(Vector3(12.2, vm, -47.3), Vector3(0.4, vh, 1.8), vault)
+	solid(Vector3(12.2, vm, -67.325), Vector3(0.4, vh, 24.95), vault)
 	for side: float in [-1.0, 1.0]:
-		solid(Vector3(side * 12.2, (VAULT + VAULT_TOP) / 2.0, -63.1), Vector3(0.4, VAULT_TOP - VAULT, 33.4), vault)
-		solid(Vector3(side * 7.2, (VAULT + VAULT_TOP) / 2.0, -48.0), Vector3(10.4, VAULT_TOP - VAULT, 0.4), vault)
+		solid(Vector3(side * 7.2, vm, -48.0), Vector3(10.4, vh, 0.4), vault)
+	solid(Vector3(16.4, VAULT - 0.5, -51.475), Vector3(8.0, 1.0, 7.35), floor_mat)
+	solid(Vector3(16.4, VAULT_TOP + 0.2, -51.475), Vector3(8.0, 0.4, 7.35), vault)
+	solid(Vector3(16.4, vm, -48.0), Vector3(8.0, vh, 0.4), vault)
+	solid(Vector3(16.4, vm, -55.0), Vector3(8.0, vh, 0.3), vault)
+	solid(Vector3(20.2, vm, -51.475), Vector3(0.4, vh, 7.35), vault)
 	solid(Vector3(0, (VAULT + VAULT_TOP) / 2.0, -79.8), Vector3(24.8, VAULT_TOP - VAULT, 0.4), vault)
 	# The hall's walls (x ±4) with a doorway into each room, the rooms' dividers, and the wall across the end.
 	for side: float in [-1.0, 1.0]:
@@ -342,6 +444,12 @@ func _vaults() -> void:
 	for r: Dictionary in ROOMS:
 		_room(r)
 	_backroom()
+	# The changing screen, by the cross (owner, Deck review 5): her two-piece to be the sub, her suit to lead.
+	var screen := wardrobe(SCREEN, -PI / 2.0, "ChangingScreen")
+	screen.set_meta(&"club_screen", true)
+	for c in screen.get_children():
+		if c is Label3D:
+			(c as Label3D).text = "CHANGING SCREEN"
 
 
 ## A room off the hall: its plaque over the door, its light, its furniture (a Meshy prop when there is one, boxes
@@ -351,13 +459,89 @@ func _room(r: Dictionary) -> void:
 	var side := signf(at.x)
 	_sign(r.title, Vector3(side * 3.84, VAULT + 2.85, at.z), -side * PI / 2.0, Color("f2c56a"), 13, false)
 	_light(Vector3(at.x, VAULT + 2.1, at.z), r.light, 1.4, 7.0)
-	var back := Vector3(side * 11.0, VAULT, at.z)   # against its outer wall
+	var back := Vector3(side * (float(r.get("far", 12.0)) - 1.0), VAULT, at.z)   # against its outer wall
 	var face := -side * PI / 2.0                    # facing the hall
 	match r.id:
 		&"parlour":
-			solid(back + Vector3(0, 1.1, 2.4), Vector3(0.5, 2.2, 1.8), _m.wood)          # a bookcase
-			solid(back + Vector3(-side * 1.0, 0.45, -1.0), Vector3(1.0, 0.9, 1.0), _m.velvet)   # her armchair
-			deco(at + Vector3(0, 0.06, 0.6), Vector3(0.7, 0.12, 0.7), _m.velvet)       # the kneeling cushion
+			# Augusta's posture-and-protocol parlour (Deck review 3): her wingback armchair in the south-west corner, a
+			# tea table beside it, a full-length mirror on its stand behind the posture spot, a bookcase and a standard
+			# lamp north of it, a rug and the kneeling cushion. Each is a Meshy prop (`assets/props/parlour_*.glb`), the
+			# boxes its fallback. All face the room. `wx(d)` is d metres in from the outer wall (its inner face is at
+			# x = side * 12).
+			var wx := func(d: float) -> float: return side * (12.0 - d)
+			var y0 := VAULT
+			var bz := -49.4
+			var lz := -50.75
+			var mz := -51.7
+			var cz := -53.85
+			var tz := -52.95
+			var tx: float = wx.call(0.45)
+			var on_floor := func(d: float, z: float) -> Vector3: return Vector3(wx.call(d), y0, z)
+			var has_bookcase := props("parlour_bookcase", [[on_floor.call(0.27, bz), face]])
+			var has_lamp := props("parlour_lamp", [[on_floor.call(0.32, lz), face]])
+			var has_mirror := props("parlour_mirror", [[on_floor.call(0.36, mz), face]])
+			var has_chair := props("parlour_armchair", [[on_floor.call(0.42, cz), face]])
+			var has_table := props("parlour_tea_table", [[Vector3(tx, y0, tz), face]])
+			var has_cushion := props("parlour_cushion", [[at + Vector3(0, 0.01, 0.6), face]], false)
+			deco(at + Vector3(0, 0.005, 0), Vector3(3.2, 0.01, 2.6), Look.toon(Color("3a1620")))   # the rug
+			if not has_bookcase:
+				# Back, sides, top and plinth solid; shelves and books drawn (fronts inset, so no face meets a face of
+				# another material in its plane).
+				solid(Vector3(wx.call(0.02), y0 + 1.15, bz), Vector3(0.04, 2.3, 1.8), _m.wood)
+				for s: float in [-1.0, 1.0]:
+					solid(Vector3(wx.call(0.2), y0 + 1.15, bz + s * 0.875), Vector3(0.4, 2.3, 0.05), _m.wood)
+				deco(Vector3(wx.call(0.22), y0 + 2.325, bz), Vector3(0.44, 0.05, 1.86), _m.wood)
+				solid(Vector3(wx.call(0.21), y0 + 0.05, bz), Vector3(0.38, 0.1, 1.7), _m.wood)
+				var book_mats: Array = [Look.toon(Color("5a1420")), Look.toon(Color("1e3a2c")), Look.toon(Color("1c2440")),
+					Look.toon(Color("4a3020")), Look.toon(Color("8a6a30"))]
+				var brng := RandomNumberGenerator.new()
+				brng.seed = 31
+				for shelf: float in [0.1, 0.55, 1.0, 1.45, 1.9]:
+					if shelf > 0.1:
+						deco(Vector3(wx.call(0.21), y0 + shelf - 0.015, bz), Vector3(0.34, 0.03, 1.7), _m.wood)
+					var z := bz - 0.84
+					while z < bz + 0.78:
+						var w := brng.randf_range(0.035, 0.07)
+						var h := brng.randf_range(0.22, 0.35)
+						if brng.randf() > 0.12:   # a gap here and there
+							deco(Vector3(wx.call(0.18), y0 + shelf + h / 2.0, z + w / 2.0), Vector3(0.26, h, w - 0.004),
+								book_mats[brng.randi() % book_mats.size()])
+						z += w
+			if not has_lamp:
+				deco(Vector3(wx.call(0.32), y0 + 0.025, lz), Vector3(0.26, 0.05, 0.26), _m.brass)
+				deco(Vector3(wx.call(0.32), y0 + 0.825, lz), Vector3(0.04, 1.55, 0.04), _m.brass)
+				deco(Vector3(wx.call(0.32), y0 + 1.54, lz), Vector3(0.12, 0.08, 0.12), _m.lit)
+				deco(Vector3(wx.call(0.32), y0 + 1.69, lz), Vector3(0.36, 0.28, 0.36), _m.velvet)
+			if not has_mirror:
+				solid(Vector3(wx.call(0.35), y0 + 1.035, mz), Vector3(0.06, 1.83, 0.8), _m.brass)
+				deco(Vector3(wx.call(0.39), y0 + 1.035, mz), Vector3(0.02, 1.67, 0.66), Look.toon(Color("28344a"), 0.95, 0.35))
+				for s: float in [-1.0, 1.0]:
+					deco(Vector3(wx.call(0.35), y0 + 0.03, mz + s * 0.32), Vector3(0.42, 0.06, 0.06), _m.brass)
+					deco(Vector3(wx.call(0.35), y0 + 0.12, mz + s * 0.32), Vector3(0.03, 0.14, 0.03), _m.brass)
+			if not has_chair:
+				# Seat, back and arms solid; wings, brass trim and feet drawn.
+				solid(Vector3(wx.call(0.57), y0 + 0.28, cz), Vector3(0.62, 0.36, 0.56), _m.velvet)
+				solid(Vector3(wx.call(0.2), y0 + 0.7, cz), Vector3(0.2, 1.2, 0.8), _m.velvet)
+				for s: float in [-1.0, 1.0]:
+					solid(Vector3(wx.call(0.57), y0 + 0.38, cz + s * 0.34), Vector3(0.62, 0.56, 0.12), _m.velvet)
+					deco(Vector3(wx.call(0.38), y0 + 1.0, cz + s * 0.35), Vector3(0.24, 0.5, 0.1), _m.velvet)
+					deco(Vector3(wx.call(0.885), y0 + 0.38, cz + s * 0.34), Vector3(0.01, 0.5, 0.1), _m.brass)
+					for d: float in [0.14, 0.84]:
+						deco(Vector3(wx.call(d), y0 + 0.05, cz + s * 0.34), Vector3(0.06, 0.1, 0.06), _m.brass)
+			if not has_table:
+				# A brass tray, the pot, two cups.
+				deco(Vector3(tx, y0 + 0.04, tz), Vector3(0.34, 0.08, 0.34), _m.wood)
+				solid(Vector3(tx, y0 + 0.36, tz), Vector3(0.06, 0.56, 0.06), _m.wood)
+				solid(Vector3(tx, y0 + 0.66, tz), Vector3(0.5, 0.04, 0.5), _m.wood)
+				deco(Vector3(tx, y0 + 0.6875, tz), Vector3(0.34, 0.015, 0.24), _m.brass)
+				deco(Vector3(tx, y0 + 0.75, tz - 0.04), Vector3(0.12, 0.11, 0.12), _m.brass)
+				deco(Vector3(tx - side * 0.08, y0 + 0.77, tz - 0.04), Vector3(0.06, 0.025, 0.025), _m.brass)
+				for dz: float in [0.06, 0.1]:
+					deco(Vector3(tx + side * (dz - 0.08) * 1.4, y0 + 0.72, tz + 0.07), Vector3(0.05, 0.05, 0.05),
+						Look.toon(Color("f4f1ea")))
+			if not has_cushion:
+				deco(at + Vector3(0, 0.025, 0.6), Vector3(0.76, 0.03, 0.76), _m.brass)   # on the rug, not in its plane
+				deco(at + Vector3(0, 0.1, 0.6), Vector3(0.7, 0.12, 0.7), _m.velvet)
 		&"rope":
 			if not props("rope_frame", [[back + Vector3(-side * 1.6, 0, 0), face]]):
 				for dz: float in [-1.0, 1.0]:
@@ -371,11 +555,21 @@ func _room(r: Dictionary) -> void:
 				deco(back + Vector3(side * 0.55, 1.4, 0), Vector3(0.2, 1.8, 1.26), _m.wood)
 			deco(at + Vector3(-side * 0.6, 0.2, 0.0), Vector3(0.5, 0.4, 0.5), _m.wood)   # the boot-black stool
 		&"quiet":
-			if not props("chaise", [[back + Vector3(-side * 0.6, 0, -1.4), face]]):
-				solid(back + Vector3(-side * 0.6, 0.3, -1.4), Vector3(0.9, 0.6, 2.2), _m.velvet)
-			for dz: float in [0.8, 2.0]:
-				deco(Vector3(at.x + side * 1.4, VAULT + 0.15, at.z + dz), Vector3(0.8, 0.3, 0.8), _m.velvet)   # cushions
-			deco(at + Vector3(0, 0.25, 0.6), Vector3(0.8, 0.5, 0.8), _m.wood)            # a low table, tea
+			# A chaise each (QUIET_SEATS), a rug down the middle, Lull's tea table by the door, soft light.
+			var seats := []
+			for s: Array in QUIET_SEATS:
+				var f: Vector3 = s[1]
+				seats.append([s[0], atan2(f.x, f.z)])
+			if not props("chaise", seats):
+				for s: Array in QUIET_SEATS:
+					var f: Vector3 = s[1]
+					var c: Vector3 = s[0]
+					solid(c + Vector3(0, 0.3, 0), Vector3(absf(f.x) * 0.9 + absf(f.z) * 2.0, 0.6, absf(f.z) * 0.9 + absf(f.x) * 2.0), _m.velvet)
+			deco(Vector3(13.0, VAULT + 0.01, -51.5), Vector3(10.0, 0.02, 2.6), Look.toon(Color("3a2a50")))   # the rug
+			solid(Vector3(6.6, VAULT + 0.25, -54.0), Vector3(1.0, 0.5, 0.8), _m.wood)           # the tea table
+			for p: Vector3 in [Vector3(14.6, VAULT + 0.15, -54.3), Vector3(18.5, VAULT + 0.15, -54.4), Vector3(16.0, VAULT + 0.15, -48.7)]:
+				deco(p, Vector3(0.7, 0.3, 0.7), _m.velvet)                                       # floor cushions
+			_light(Vector3(17.0, VAULT + 2.1, -51.5), r.light, 1.2, 7.0)
 		&"dash":
 			if not props("punch_bag", [[at + Vector3(side * 2.0, 0, 1.6), face]]):
 				solid(at + Vector3(side * 2.0, 1.2, 1.6), Vector3(0.6, 1.4, 0.6), _m.leather)
@@ -403,6 +597,40 @@ func _backroom() -> void:
 			_strut(Vector3(x - 1.0, VAULT + 1.5 + (0.5 if (i - 1) % 2 == 0 else 0.0), -79.46), Vector3(x, y, -79.46),
 				0.02, _m.velvet, false)
 	_sign("SWYNE", Vector3(c.x, VAULT + 3.2, -79.5), 0.0, Color("e8e0d0"), 30, false)
+	# Each card names its world, and says where she's at with it: a green OPEN, a red DONE across it, or its roses.
+	for i in Game.WORLDS.size():
+		var w: StringName = Game.WORLDS[i]
+		var at := Vector3(c.x - 3.0 + i * 1.0, VAULT + 1.5 + (0.5 if i % 2 == 0 else 0.0), -79.46)
+		var tag := Label3D.new()
+		tag.text = Game.NAMES.get(w, String(w)).trim_prefix("The ")
+		tag.font_size = 22
+		tag.pixel_size = 0.0035
+		tag.modulate = Color("2a1a14")
+		tag.outline_size = 0
+		tag.position = at + Vector3(0, 0.07, 0.01)
+		tag.width = 150.0
+		tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		add_child(tag)
+		if w == &"hub":
+			continue
+		var state := Label3D.new()
+		var done := Game.has_flag("done/%s" % w)
+		var open := Game.world_open(w)
+		state.text = "DONE" if done else ("OPEN" if open else "%d roses" % Game.RANK_KEYS[Game.RANK_WORLDS.find(w)])
+		state.font_size = 26 if done or open else 18
+		state.pixel_size = 0.0035
+		state.modulate = Color("b01830") if done else (Color("1f7a3a") if open else Color("6a5a50"))
+		state.outline_size = 0
+		state.rotation.z = -0.25 if done else 0.0
+		state.position = at + Vector3(0, -0.11, 0.012)
+		add_child(state)
+	# The board itself: Y at it briefs every world and takes her to an open one (levels/hub/backroom_board.gd).
+	var board: Talker = (load("res://levels/hub/backroom_board.gd") as GDScript).new()
+	board.name = "Board"
+	board.display_name = "The board"
+	board.reach = 2.4
+	board.position = Vector3(c.x, VAULT, -78.4)
+	add_child(board)
 	# Vesper's desk, west; chairs round the table.
 	solid(Vector3(-8.5, VAULT + 0.4, -75.0), Vector3(1.0, 0.8, 2.4), _m.wood)
 	for p: Vector3 in [c + Vector3(-1.9, 0, 0), c + Vector3(1.9, 0, 0), c + Vector3(0, 0, 1.4)]:
@@ -429,15 +657,16 @@ func _seafront() -> void:
 	var walls := [_m.brick, _m.plaster, _m.plaster_blue, _m.brick]
 	for i in north.size():
 		var r: Array = north[i]
-		_house(Vector2(r[0], -10.0), Vector2(r[1], -2.0), r[2], walls[i], true)
+		_house(Vector2(r[0], -10.0), Vector2(r[1], -2.0), r[2], walls[i], true, ROAD)
 		_shop(Vector3((r[0] + r[1]) / 2.0, 0, -2.0), 0.0, ["CHANDLER", "OYSTERS", "ROOMS", "SHIPWRIGHT"][i])
 	for r: Array in [[20.0, 34.0, 10.0], [36.0, 50.0, 9.0], [52.0, 64.0, 11.0], [66.0, 74.0, 8.0]]:
-		_house(Vector2(r[0], 12.0), Vector2(r[1], 20.0), r[2], _m.brick_dark)
-	_house(Vector2(28.0, -24.0), Vector2(80.0, -10.0), 13.0, _m.brick_dark)
-	_house(Vector2(20.0, 20.0), Vector2(80.0, 30.0), 13.0, _m.brick_dark)
+		_house(Vector2(r[0], 12.0), Vector2(r[1], 20.0), r[2], _m.brick_dark, false, ROAD)
+	# The blocks behind face the rows' backs; seen over the rooftops, the near side is what matters.
+	_house(Vector2(28.0, -24.0), Vector2(80.0, -10.0), 13.0, _m.brick_dark, false, ROAD)
+	_house(Vector2(20.0, 20.0), Vector2(80.0, 30.0), 13.0, _m.brick_dark, false, ROAD)
 	for a: float in [30.0, 44.0, 58.0]:
 		solid(Vector3(a + 1.0, 6.0, -10.2), Vector3(2.0, 12.0, 0.4), _m.brick_dark)   # the alley's back
-	_house(Vector2(74.0, 12.0), Vector2(80.0, 20.0), 8.0, _m.brick_dark)
+	_house(Vector2(74.0, 12.0), Vector2(80.0, 20.0), 8.0, _m.brick_dark, false, ROAD)
 	# Lamps down the road.
 	for x: float in [30.0, 46.0, 62.0]:
 		_lamp(Vector3(x, 0, 11.3))
@@ -489,9 +718,10 @@ func _seafront() -> void:
 ## A shop's front on a terrace whose face is at z `at.z`, facing -Z... or +Z by `yaw`: a lit window, a door, a sign.
 func _shop(at: Vector3, yaw: float, name_text: String) -> void:
 	var n := 1.0 if yaw == 0.0 else -1.0
-	deco(at + Vector3(-2.0, 1.4, 0.04 * n), Vector3(4.0, 1.8, 0.06), _m.lit)
-	deco(at + Vector3(2.5, 1.2, 0.04 * n), Vector3(1.2, 2.4, 0.06), _m.wood)
-	_sign(name_text, at + Vector3(0, 3.0, 0.08 * n), yaw, Color(2.0, 1.6, 0.9), 36)
+	if not ResourceLoader.exists(PROP_PATH % "hub_facade_shop"):   # (the Meshy shopfronts have their own)
+		deco(at + Vector3(-2.0, 1.4, 0.04 * n), Vector3(4.0, 1.8, 0.06), _m.lit)
+		deco(at + Vector3(2.5, 1.2, 0.04 * n), Vector3(1.2, 2.4, 0.06), _m.wood)
+	_sign(name_text, at + Vector3(0, 3.6, 0.3 * n), yaw, Color(2.0, 1.6, 0.9), 36)
 
 
 # --- the later worlds' streets ---------------------------------------------------------------------------------------
@@ -508,11 +738,11 @@ func _stub(world: StringName, title: String, mouth: Vector3, dir: Vector3) -> vo
 		var size := Vector3(absf(dir.x) * length + absf(side.x) * 2.0, 10.0, absf(dir.z) * length + absf(side.z) * 2.0)
 		var a := Vector2(c.x - size.x / 2.0, c.z - size.z / 2.0)
 		var b := Vector2(c.x + size.x / 2.0, c.z + size.z / 2.0)
-		_house(a, b, 10.0 + s, _m.brick if s < 0.0 else _m.plaster)
+		_house(a, b, 10.0 + s, _m.brick if s < 0.0 else _m.plaster, false, mouth + dir * (length / 2.0))
 	var end := mouth + dir * (length + 2.0)
 	var ea := Vector2(end.x - absf(side.x) * (half + 1.0) - absf(dir.x) * 2.0, end.z - absf(side.z) * (half + 1.0) - absf(dir.z) * 2.0)
 	var eb := Vector2(end.x + absf(side.x) * (half + 1.0) + absf(dir.x) * 2.0, end.z + absf(side.z) * (half + 1.0) + absf(dir.z) * 2.0)
-	_house(ea, eb, 12.0, _m.brick_dark)
+	_house(ea, eb, 12.0, _m.brick_dark, false, mouth)
 	var door_at := mouth + dir * (length - 1.0)
 	var yaw := atan2(dir.x, dir.z)
 	_gate(world, door_at, yaw, half * 2.0, 4.5)
@@ -548,7 +778,58 @@ func _gate(world: StringName, at: Vector3, yaw: float, width: float, height: flo
 ## in one plane facing the same way fight (owner's Deck clips: whole faces shimmered). So each house grows by its own
 ## few millimetres (6 mm a side and 1 cm up per step), a step no house it touches has: no two share a plane.
 ## tools/zfight_check.gd checks it.
-func _house(a: Vector2, b: Vector2, h: float, wall: Material, flat := false) -> void:
+## The Meshy buildings for the street blocks: [wall material -> prop]. A flat-roofed terrace (shops below) is the shop.
+## Each block becomes a row of them, about FACADE_BAY wide, fronts to its street.
+const FACADE_BAY := 7.0
+## Seafront Road's middle: its rows front it.
+const ROAD := Vector3(49, 0, 5)
+var _facades := {}
+
+
+func _facade_prop(wall: Material, flat: bool) -> String:
+	if flat:
+		return "hub_facade_shop"
+	return "hub_facade_plaster" if wall == _m.plaster or wall == _m.plaster_blue else "hub_facade_brick"
+
+
+## `toward`: a point on the street the block fronts (its front is the long side facing it).
+func _house(a: Vector2, b: Vector2, h: float, wall: Material, flat := false, toward := Vector3(0, 0, 2)) -> void:
+	var prop := _facade_prop(wall, flat)
+	if ResourceLoader.exists(PROP_PATH % prop):
+		_house_model(a, b, h, prop, toward)
+		return
+	_house_box(a, b, h, wall, flat)
+
+
+func _house_model(a: Vector2, b: Vector2, h: float, prop: String, toward: Vector3) -> void:
+	var size := Vector3(b.x - a.x, h, b.y - a.y)
+	var c := Vector3((a.x + b.x) / 2.0, 0.0, (a.y + b.y) / 2.0)
+	_col(c + Vector3(0, h / 2.0, 0), size, 1)
+	_houses.append(AABB(c - Vector3(size.x, 0, size.z) / 2.0, size))
+	_steps.append(0)
+	# The front: the side the street point lies beyond (judged against the block's own half-sizes).
+	var rel := toward - c
+	var front := Vector3(signf(rel.x), 0, 0) if absf(rel.x) / size.x > absf(rel.z) / size.z else Vector3(0, 0, signf(rel.z))
+	if front == Vector3.ZERO:
+		front = Vector3(0, 0, 1)
+	var along := Vector3(absf(front.z), 0, absf(front.x))
+	var length := size.x if along.x > 0.5 else size.z
+	var depth := size.z if along.x > 0.5 else size.x
+	var n := maxi(1, roundi(length / FACADE_BAY))
+	var bay := length / n
+	var yaw := atan2(front.x, front.z)
+	var list: Array = _facades.get_or_add(prop, [])
+	for i in n:
+		list.append([c + along * (-length / 2.0 + bay * (i + 0.5)), yaw, Vector3(bay, h, depth)])
+
+
+func _place_facades() -> void:
+	for p: String in _facades:
+		props(p, _facades[p], false)
+	_facades.clear()
+
+
+func _house_box(a: Vector2, b: Vector2, h: float, wall: Material, flat := false) -> void:
 	# The smallest step no house it touches has taken.
 	var footprint := AABB(Vector3(a.x, 0.0, a.y), Vector3(b.x - a.x, h, b.y - a.y)).grow(0.1)
 	var taken := {}
@@ -599,6 +880,7 @@ func _house(a: Vector2, b: Vector2, h: float, wall: Material, flat := false) -> 
 
 ## The lit windows, once every house is up: none on a face buried in a neighbour (its edge fought that wall).
 func _place_windows() -> void:
+	_place_facades()
 	for w: Array in _windows:
 		var p: Vector3 = w[0]
 		var hidden := false
@@ -641,9 +923,9 @@ func _people() -> void:
 		t.file = "res://data/dialogue/hub/club.dialogue"
 		t.label = who
 		t.who = who
-		# Downstairs is swimwear (the dress code, DESIGN "The Velvet Rope's house"; owner, 2026-11-12: "separate
-		# models for the Sisters in bikinis"). Their suits until a swim body is built.
-		t.outfit = "swim" if CastModel.exists(who, "swim") else ("suit" if who != "dash" else "garb")
+		# Always the Domme suit in the club (owner, Deck review 3); her swimwear only on the cross as the sub
+		# (CrossScene._dress).
+		t.outfit = "suit" if CastModel.exists(who, "suit") else "garb"
 		t.display_name = r.sister
 		t.position = sister_spot(r)
 		var to: Vector3 = r.at - t.position
@@ -653,10 +935,53 @@ func _people() -> void:
 			t.talked.connect(_hand_in)
 
 
-## Where a room's sister stands: by her furniture, toward the outer wall, a little up the room.
+## Where a room's sister stands: her `spot`, or by her furniture, toward the outer wall, a little up the room.
 static func sister_spot(r: Dictionary) -> Vector3:
+	if r.has("spot"):
+		return r.spot
 	var at: Vector3 = r.at
 	return at + Vector3(signf(at.x) * 1.8, 0.0, -1.4)
+
+
+## Where someone sits on the Quiet Room's seat `i` (over its seat, facing out), and a point in front to face.
+static func seat_spot(i: int) -> Vector3:
+	var s: Array = QUIET_SEATS[i]
+	return (s[0] as Vector3) + (s[1] as Vector3) * (0.443 - SEAT_IN)
+
+
+static func seat_facing(i: int) -> Vector3:
+	var s: Array = QUIET_SEATS[i]
+	return seat_spot(i) + (s[1] as Vector3) * 2.0
+
+
+## The room (a ROOMS entry) a point in the vaults is in, or {} in the hall or elsewhere.
+static func room_at(p: Vector3) -> Dictionary:
+	if p.y > VAULT + 1.0 or absf(p.x) < 4.15:
+		return {}
+	for r: Dictionary in ROOMS:
+		if signf(float(r.at.x)) == signf(p.x) and absf(p.z - float(r.at.z)) < 3.4:
+			return r
+	return {}
+
+
+## A walk from one place in the vaults to another that keeps to the floor: out through a room's doorway into the hall,
+## along it, and in through the other's (owner, Deck review 3: a sister walking back from the Quiet Room went through
+## its wall). The points carry the floor's height; `from` itself isn't in it.
+static func route(from: Vector3, to: Vector3) -> Array:
+	var a := room_at(from)
+	var b := room_at(to)
+	var pts: Array = []
+	if not a.is_empty() and a == b:
+		return [to]
+	for r: Dictionary in [a, b]:
+		if r.is_empty():
+			continue
+		var side := signf(float(r.at.x))
+		var inside := Vector3(side * 4.9, VAULT, float(r.at.z))
+		var hall := Vector3(side * 2.6, VAULT, float(r.at.z))
+		pts.append_array([inside, hall] if r == a else [hall, inside])
+	pts.append(to)
+	return pts
 
 
 ## Seized contraband, handed to Rivet (owner, 2026-11-12: "Rivet turns it into gear"). Talking to her hands in all of
@@ -704,10 +1029,10 @@ func _places() -> void:
 	zone("The Dungeon", Vector3(0, DUNGEON - 0.2, -34.0), Vector3(21, 5.6, 7.2))
 	zone("The Vaults", Vector3(0, VAULT - 0.2, -58.8), Vector3(24, 3.4, 21.6))
 	zone("The Backroom", Vector3(0, VAULT - 0.2, -74.7), Vector3(24, 3.4, 9.6))
-	checkpoint_at(Vector3(-2.6, VAULT, -48.8), PI)   # at the foot of the stair, out of the hall's way
 	zone("Seafront Road", Vector3(50, -0.2, 5), Vector3(60, 14, 14))
+	# None inside the club (owner, Deck review 3: the flags in the dungeon and the vaults "look odd and misplaced"):
+	# nothing in there can down her, and the door's is a short walk up.
 	checkpoint_at(CLUB_DOOR, 0.0)
-	checkpoint_at(Vector3(0, DUNGEON, -34.0), 0.0)
 	checkpoint_at(Vector3(66, STREET, 5.0), -PI / 2.0)
 	# Beside the ways everyone walks (they're found within 3 m): just out of the club's door, and the road's sea end.
 	travel_point(&"club", "The Velvet Rope", Vector3(-2.4, STREET, -12.4))

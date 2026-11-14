@@ -5,7 +5,7 @@ extends SceneTree
 ##   godot --headless --path . -s tools/zfight_check.gd [-- <scene> ...]
 ## Prints each overlap (where, its size, which materials) and a count per scene; exits 1 if there are any.
 
-const SCENES := ["res://levels/hub/hub.tscn", "res://levels/pier/pier.tscn"]
+const SCENES := ["res://levels/hub/hub.tscn", "res://levels/pier/pier.tscn", "res://levels/primrose/primrose.tscn"]
 ## Faces closer than this count as the same plane (depth precision at 50 m is a few millimetres).
 const PLANE_EPS := 0.004
 ## Overlaps smaller than this on either side are ignored (touching edges).

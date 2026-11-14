@@ -1,0 +1,19 @@
+# OWNER REVIEW
+# The prize marrows at the Allotments (Key 5; levels/primrose/keys/stash.gd). The toys are under them: lift them, and
+# get out unseen. The marrows win first prize at the show anyway.
+
+~ marrows
+[if primrose/in_suit] => suit
+[if primrose/stash_lifted] => lifted
+[narrator] Under the prize marrows, under the tarpaulin: boxes. DECENCY LEAGUE: LITERATURE.
+[narrator] Nim takes the lot. Now out of the Allotments, without a soul seeing her.
+set primrose/stash_lifted
+
+~ suit
+Nim: On my knees in a vegetable bed, in the suit? Grizelda would hear about it from the Watch by morning.
+
+~ lifted
+[narrator] She's got them. Out, quietly.
+
+~ after
+[narrator] The marrows sit on an empty bed, looking pleased with themselves.

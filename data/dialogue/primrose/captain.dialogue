@@ -1,0 +1,46 @@
+# OWNER REVIEW
+# The Neighbourhood Watch's captain, by his hut, with the logbook (Key 7; levels/primrose/keys/logbook.gd). In the
+# suit, Nim passes for head office: each "slip" flag costs Composure, and two slips or naming the Rope and he blows
+# his whistle. The logbook records every visit to every party, and eleven visits to the Watch hut by his wife.
+
+~ start
+[if primrose/logbook] => after
+[if not primrose/in_suit] => garb
+Captain: Evening. Neighbourhood Watch. Nobody comes into the Close without it going in the book.
+Captain: And who might you be?
+- Head office. The Coalition sent me for the book. => one
+- Oh, I'm, um, a friend? Of the street? => one_soft
+
+~ one_soft
+set primrose/log_slip1
+=> one
+
+~ one
+Captain: Head office? Nobody told me about head office.
+- Nobody tells you anything, Captain. That's what I'm here to fix. => two
+- Sorry! Shall I come back with a letter? => two_soft
+- The Velvet Rope sent me. => refused
+
+~ two_soft
+[if primrose/log_slip1] => refused
+set primrose/log_slip2
+=> two
+
+~ two
+Captain: Well. If it's for the cause.
+[narrator] The logbook: every visit to every party on the Close, in a careful hand. Dates, times, and who went home with a carrier bag.
+[narrator] And every Tuesday for eleven weeks: "Visit to the Watch hut by Mrs Pettigrew. Brought sandwiches. Stayed one hour."
+Captain: My wife. She brings me sandwiches. It's the Watch. She's watching me. It's allowed.
+set primrose/logbook
+
+~ refused
+Captain [cold]: Head office, my whiskers.
+[narrator] He blows his whistle, long and loud. Up and down the Close, porch lights come on.
+set primrose/log_refused
+=> END
+
+~ garb
+Captain: Off the lawn, please. This is a Watch lawn.
+
+~ after
+Captain: I've started a new book. It's going to be a quieter book.

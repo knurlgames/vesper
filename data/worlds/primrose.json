@@ -5,12 +5,12 @@
   "host": "Grizelda (Pallas's cat)",
   "gear": "the Scold",
   "lesson": "the commands Fetch and Open",
-  "link": "Swyne's toys are sold at home \"demonstration parties\", hosted by the Decency League's own ladies and aimed at councillors' homes.",
+  "link": "Swyne's toys are sold at home \"demonstration parties\", hosted by the Coalition's own ladies and aimed at councillors' homes.",
   "target_length": "60–80 minutes on a first visit",
   "areas": [
     {"name": "The Close", "what": "the street: lawns, driveways, the postbox, the Neighbourhood Watch hut", "mostly": "blend in"},
     {"name": "The Back Gardens", "what": "fences, sheds, washing lines, greenhouses, a paddling pool", "mostly": "covert"},
-    {"name": "St. Prudence's Hall", "what": "the League's church hall: bake sale, raffle, a stage, the vicarage behind", "mostly": "blend in"},
+    {"name": "St. Prudence's Hall", "what": "the Coalition's church hall: bake sale, raffle, a stage, the vicarage behind", "mostly": "blend in"},
     {"name": "The Allotments", "what": "sheds and polytunnels, where the stock is hidden under the marrows", "mostly": "covert"},
     {"name": "The Show Home", "what": "Mrs. Gander's house at the head of the Close, where tonight's big party is", "mostly": "both, the set piece"},
     {"name": "The Conservatory and Garden", "what": "her glass conservatory and topiary garden", "mostly": "the boss"}
@@ -25,19 +25,19 @@
     "the church's bell rope down from the steeple into the hall"
   ],
   "keys": [
-    {"n": 1, "id": "primrose_01", "name": "Grizelda's test: take tea with three League ladies without losing Composure", "where": "number 4", "outfit": "suit", "joke": "Grizelda had the same three ladies to tea twelve years ago. They still talk about it."},
+    {"n": 1, "id": "primrose_01", "name": "Grizelda's test: take tea with three Coalition ladies without losing Composure", "where": "number 4", "outfit": "suit", "joke": "Grizelda had the same three ladies to tea twelve years ago. They still talk about it."},
     {"n": 2, "id": "primrose_02", "name": "The bake sale: command the stallholder to fetch the cake from under the counter", "where": "the Hall", "outfit": "suit", "joke": "The cake is a box of toys with icing on it."},
     {"n": 3, "id": "primrose_03", "name": "The raffle: the first prize is a hypnotic toy. Win it by fixing the draw", "where": "the Hall", "outfit": "either", "joke": "Nim wins. The vicar's never been so relieved."},
     {"n": 4, "id": "primrose_04", "name": "The steeple: climb it in the rain", "where": "the church", "outfit": "garb", "joke": "Vesper, in the bell chamber: \"Mind the bells.\" The bells go off."},
     {"n": 5, "id": "primrose_05", "name": "The allotment stash: the toys are under the prize marrows; get in and out unseen", "where": "the Allotments", "outfit": "garb", "joke": "The marrows win first prize at the show anyway."},
-    {"n": 6, "id": "primrose_06", "name": "The washing lines: cross every garden on the lines and fences, never touching a lawn", "where": "the Back Gardens", "outfit": "garb", "joke": "The last line holds the League chairwoman's corset. Nim doesn't comment."},
+    {"n": 6, "id": "primrose_06", "name": "The washing lines: cross every garden on the lines and fences, never touching a lawn", "where": "the Back Gardens", "outfit": "garb", "joke": "The last line holds the Coalition chairwoman's corset. Nim doesn't comment."},
     {"n": 7, "id": "primrose_07", "name": "The Neighbourhood Watch: take their logbook. It records every visit to every party", "where": "the Watch hut", "outfit": "suit", "joke": "Their logbook also records eleven visits to the Watch hut by the Watch captain's wife."},
     {"n": 8, "id": "primrose_08", "name": "The paddling pool: a delivery van's stuck in a garden; Open its doors with a goon's own hands", "where": "the Back Gardens", "outfit": "suit", "joke": "He opens it, and then he apologises to the van."},
     {"n": 9, "id": "primrose_09", "name": "The demonstration party (the set piece)", "where": "the Show Home", "outfit": "suit", "joke": "See below."},
     {"n": 10, "id": "primrose_10", "name": "Five neighbours woken", "where": "everywhere", "outfit": "either", "joke": "The last one looks at his lawn, now striped in every direction, and says it's the best it's ever looked."}
   ],
   "contraband": "100 contraband (boxes of \"literature\", party kits, the stash in the allotments)",
-  "tin": "the League's collection tin on the church porch",
+  "tin": "the Coalition's collection tin on the church porch",
   "people_in_trances": "five neighbours who bought early, mowing the same strip of lawn over and over. Nobody hurts them.",
   "enemies": [
     "Goons: bulldog delivery men in brown overalls, carrying boxes marked DECENCY LEAGUE: LITERATURE.",
@@ -48,7 +48,7 @@
     "name": "The demonstration party",
     "summary": "The saleswoman's consultant for tonight is held up. Nim takes her place, in the suit.",
     "beats": [
-      "She hosts a living room of League ladies. Each round she presents a toy from the kit and answers a question (dialogue choices), while swapping each hypnotic toy for a dud from her bag when nobody's looking.",
+      "She hosts a living room of Coalition ladies. Each round she presents a toy from the kit and answers a question (dialogue choices), while swapping each hypnotic toy for a dud from her bag when nobody's looking.",
       "Composure is the meter. A wrong answer costs it, a good one earns it back, and a swap seen costs a lot.",
       "Fetch and Open get the ladies' husbands out of the room and the kit cupboard open."
     ],
@@ -57,7 +57,7 @@
   "boss": {
     "name": "Mrs. Marjorie Gander",
     "species": "goose",
-    "summary": "A goose, the League's top saleswoman and Swyne's most loyal supporter in public. In private, his best customer. She fights in her conservatory and topiary garden.",
+    "summary": "A goose, the Coalition's top saleswoman and Swyne's most loyal supporter in public. In private, his best customer. She fights in her conservatory and topiary garden.",
     "phases": [
       "The garden party. Her guests are in trances and wander the lawns. Nim mustn't hurt them, and Gander hides among them throwing teacups. The pendant isn't hers yet, so she tracks Gander by the honking.",
       "The sprinklers. Gander floods the garden from her control box. Nim climbs the topiary out of the water, and the crop knocks out each sprinkler head.",
@@ -74,7 +74,7 @@
   "status": "proposal",
   "story": [
     "Coming in: the Pier's ledger lists 40 party orders on one street. Grizelda lived there once. \"Twelve years. I still dream about the hedges.\"",
-    "The Close: identical houses, identical lawns, net curtains, a church hall with a bake sale for the Decency League. Every house has a SWYNE FOR DECENCY sign on its lawn, and a party booked for tonight.",
+    "The Close: identical houses, identical lawns, net curtains, a church hall with a bake sale for the Coalition. Every house has a SWYNE FOR DECENCY sign on its lawn, and a party booked for tonight.",
     "Going out: the top saleswoman's order book shows the parties are booked into councillors' homes, on purpose. Next morning's parish newsletter thanks Mrs. Gander for \"a record year\".",
     "Vesper sits on the church's steeple, watching."
   ],

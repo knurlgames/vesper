@@ -48,11 +48,25 @@ func _goon(id: String) -> Enemy:
 	return course.get_node("Goon_%s" % id) as Enemy
 
 
+## The gear wheel: hold LB till it opens (time slows), point the stick at `gear`, let go.
 func _select(gear: String) -> void:
-	for i in 4:
-		if d.nim.gear.selected == gear:
-			return
-		await d.tap(JOY_BUTTON_DPAD_LEFT)
+	if d.nim.gear.selected == gear:
+		return
+	d.button(JOY_BUTTON_LEFT_SHOULDER, true)
+	await d.until(func() -> bool: return d.nim.gear.wheel_open, 2.0)
+	var items: Array = d.nim.gear.wheel_items
+	var k := items.find(gear)
+	var a := k * TAU / maxi(items.size(), 1)
+	d.stick(sin(a), -cos(a))   # 0 at the top, clockwise
+	await d.frames(6)
+	if OS.get_environment("PROBE_TRACE") != "":
+		print("  wheel: items %s pick %d (want %s at %d)" % [items, d.nim.gear.wheel_pick, gear, k])
+	d.button(JOY_BUTTON_LEFT_SHOULDER, false)
+	d.stick(0, 0)
+	await d.frames(4)
+	if OS.get_environment("PROBE_TRACE") != "":
+		print("  wheel: selected %s" % d.nim.gear.selected)
+	d.check(Engine.time_scale == 1.0 and not d.nim.gear.wheel_open, "the wheel closes, and time's back to normal")
 
 
 func _ceiling() -> void:
@@ -215,7 +229,7 @@ func _scold() -> void:
 	var a := _goon("k_scold1")
 	var b := _goon("k_scold2")
 	await _select(Lessons.SCOLD)
-	d.check(d.nim.gear.selected == Lessons.SCOLD, "D-pad left picks the Scold")
+	d.check(d.nim.gear.selected == Lessons.SCOLD, "the gear wheel (LB held, the stick, let go) picks the Scold")
 	# Stand where they can see her; when they're on their way and close, Scold.
 	await d.place(Vector3(X - 5.0, 0.05, -46.0), PI)
 	await d.until(func() -> bool:
@@ -260,6 +274,7 @@ func _lure() -> void:
 	var left: int = d.nim.gear.lures
 	await d.place(Vector3(X + 8.0, 0.05, -67.0), PI)   # south of him, out of his view, facing north
 	await d.tap(JOY_BUTTON_LEFT_SHOULDER)
+	await d.frames(3)   # (LB acts as it's let go: a hold is the wheel)
 	d.check(d.nim.gear.lures == left - 1, "a lure (LB) is thrown (%d left)" % d.nim.gear.lures)
 	var drawn := await d.until(func() -> bool:
 		return g.state == Enemy.State.SEARCH and g.global_position.distance_to(home) > 2.0, 6.0)

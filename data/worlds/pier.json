@@ -30,14 +30,14 @@
     {"n": 3, "id": "pier_03", "name": "The shooting gallery: crop every target, though the gallery's rigged", "where": "the Midway", "outfit": "suit", "joke": "The prize is one of Swyne's toys. Nim confiscates it."},
     {"n": 4, "id": "pier_04", "name": "The high striker: it's rigged too; climb the tower and ring the bell with the crop", "where": "the Midway", "outfit": "garb", "joke": "The bell rings. The goon on the mallet takes the credit."},
     {"n": 5, "id": "pier_05", "name": "The fortune teller: Madame Pearl (a parrot) sells toys under the table. Pose as a buyer, haggle, keep your Composure", "where": "the Midway", "outfit": "suit", "joke": "Pearl predicts Nim's future. She's right about the ledger, wrong about everything else."},
-    {"n": 6, "id": "pier_06", "name": "The back office safe: in through the roof vents, out before the goons count to ten", "where": "the Fun Palace", "outfit": "garb", "joke": "The safe holds Laffer's Decency League membership card."},
+    {"n": 6, "id": "pier_06", "name": "The back office safe: in through the roof vents, out before the goons count to ten", "where": "the Fun Palace", "outfit": "garb", "joke": "The safe holds Laffer's Coalition membership card."},
     {"n": 7, "id": "pier_07", "name": "The prize counter: command the clerk to kneel, then take the Key off the top shelf", "where": "the Fun Palace", "outfit": "suit", "joke": "He's been waiting all his life for someone to tell him to."},
     {"n": 8, "id": "pier_08", "name": "The top of the Ferris wheel, climbed while it turns", "where": "the wheel", "outfit": "garb", "joke": "Vesper's in the car next to it. \"You took your time.\""},
     {"n": 9, "id": "pier_09", "name": "The Big Dipper chase (the set piece)", "where": "the coaster", "outfit": "garb", "joke": "See below."},
     {"n": 10, "id": "pier_10", "name": "Five people woken: break each plushie's device", "where": "everywhere", "outfit": "either", "joke": "The last one wakes holding a stranger's hand. They decide to keep holding it."}
   ],
   "contraband": "100 contraband (crates under the pier, prizes on the stalls, a stash in the Prize Hall)",
-  "tin": "the League's collection tin on the gate (one per world): smash it and a Key appears back in the Old Quarter",
+  "tin": "the Coalition's collection tin on the gate (one per world): smash it and a Key appears back in the Old Quarter",
   "people_in_trances": "five prize winners wandering the pier, humming along with their plushies. Nobody hurts them.",
   "enemies": [
     "Goons: weasels in Laffer's striped staff waistcoats. They fight, and they can be bound.",

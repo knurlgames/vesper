@@ -1,6 +1,6 @@
 class_name Pickup
 extends Area3D
-## A collectible (WO-008): a Key, a piece of contraband, or the Decency League's collection tin. Touch it and it's
+## A collectible (WO-008): a Key, a piece of contraband, or the Coalition's collection tin. Touch it and it's
 ## Game's (`collect(kind, world, id)`), gone for good; if it was already had when the level loads, it isn't there.
 ## Keys (Velvet Roses on screen: a crimson velvet rose) turn slowly; contraband is a boxed toy with a spiral glow (never shown in use); the tin is cream and navy,
 ## and it has to be smashed (a strike), not walked into.

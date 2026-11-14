@@ -5,8 +5,9 @@
 [if pier/safe_opened] => again
 [narrator] The safe isn't locked. Laffer trusts his goons not to look, and they never have.
 [narrator] Inside: petty cash, a stack of WINNER rosettes, and a laminated card.
-Nim: "The Decency League. Member in good standing: L. Laffer."
-Nim: The man handing out hypnotic toys as prizes is a paid-up member of the Decency League. Of course he is.
+Nim: "The Decency and Integrity Coalition of Kindness. Member in good standing: L. Laffer."
+Nim: Decency. Integrity. Coalition. Kindness. ...Nobody on that committee read it downwards. Or somebody did, and laughed for a week.
+Nim: The man handing out hypnotic toys as prizes is a paid-up member of the Coalition. Of course he is.
 Goon: Oi! Who's in the office? Right! I'm counting to ten, and then I'm coming in!
 set pier/safe_opened
 => END

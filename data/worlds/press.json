@@ -5,10 +5,10 @@
   "host": "Rivet (caracal)",
   "gear": "lures",
   "lesson": null,
-  "link": "the Decency League's pamphlet printers out front, the toy factory behind.",
+  "link": "the Coalition's pamphlet printers out front, the toy factory behind.",
   "target_length": "70–90 minutes on a first visit",
   "areas": [
-    {"name": "The Reading Room", "what": "the shopfront: pamphlets, a counter, a League volunteer", "mostly": "blend in"},
+    {"name": "The Reading Room", "what": "the shopfront: pamphlets, a counter, a Coalition volunteer", "mostly": "blend in"},
     {"name": "The Print Floor", "what": "presses, paper rolls, drying racks overhead", "mostly": "covert"},
     {"name": "The Line", "what": "the toy assembly line: conveyors, stamps, a paint shop, a testing booth", "mostly": "covert, the set piece"},
     {"name": "The Loading Yard", "what": "vans, a weighbridge, a gatehouse with dogs", "mostly": "covert"},
@@ -37,7 +37,7 @@
     {"n": 10, "id": "press_10", "name": "Five testers woken", "where": "everywhere", "outfit": "either", "joke": "They give the product one star, all five of them."}
   ],
   "contraband": "100 contraband (toys off the line, crates in the vans)",
-  "tin": "the League's collection tin in the Reading Room",
+  "tin": "the Coalition's collection tin in the Reading Room",
   "people_in_trances": "five testers who tried the products, still sitting in the testing booth. Nobody hurts them.",
   "enemies": [
     "Goons: moles in overalls and goggles, who work the line and fight. They're poor-sighted, so lures work twice as well on them.",
@@ -74,7 +74,7 @@
   "owner_review": "Every joke in the Key table, the names Foreman Grubb and the Decency Engine, Vesper's note, and Rivet's lines. The hearing on the radio (Swyne's lines).",
   "status": "proposal",
   "story": [
-    "Coming in: the Retreat's order forms come from the Decency Press, the League's printers in the industrial quarter. Rivet has a schematic of the building already. She drew it from memory after a tour. \"They gave me a pamphlet. I gave them nothing.\"",
+    "Coming in: the Retreat's order forms come from the Decency Press, the Coalition's printers in the industrial quarter. Rivet has a schematic of the building already. She drew it from memory after a tour. \"They gave me a pamphlet. I gave them nothing.\"",
     "The same night: Vesper is called before the Council's Decency Committee. She goes, in her coat, calm. Nim hears it on the radio as she works: Swyne names \"a certain club in the Old Quarter\" in public, and Vesper doesn't deny it. The bell tower in this world is empty.",
     "The Press: a red-brick works with a chimney. Out front, a reading room full of pamphlets: DECENCY: A GUIDE FOR THE FAMILY. Behind it, the line, making toys.",
     "Going out: the foreman's office holds the broadcast schedule: midnight, City Hall's clock tower, the night of the Decency Act vote. And an order for six hundred gift bags for the Council's Decency Ball."

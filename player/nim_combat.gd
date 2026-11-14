@@ -136,13 +136,14 @@ func tick(delta: float) -> void:
 	# crop, not a fight: it cracks at targets, bells, switches and gulls, never at a goon (_strike_now).
 	if Input.is_action_pressed(&"strike"):
 		_x_held += delta
-		if _x_held >= CROP_HOLD and not _crop_done and nim.knows(Lessons.CROP):
+		# In the suit X is only ever the crop, tapped or held (a Domme with a crop isn't brawling): a tap was a refused
+		# strike that cost Composure, and nothing said the crop wanted holding (owner, Deck clip 2026-11-13). In her
+		# garb a tap's a strike, and held past CROP_HOLD it's the crop.
+		var crop_now := refuses and Input.is_action_just_pressed(&"strike")
+		if (_x_held >= CROP_HOLD or crop_now) and not _crop_done and nim.knows(Lessons.CROP):
 			_crop_done = true
 			_crop_pending = true
 	else:
-		# In the suit, with the crop: a tap (let go before the crop's hold) is the refused strike.
-		if refuses and nim.knows(Lessons.CROP) and _x_held > 0.0 and _x_held < CROP_HOLD:
-			nim.suit.refused()
 		_x_held = 0.0
 		_crop_done = false
 	if _crop_pending and _hit == 0:
@@ -211,6 +212,10 @@ func _tick_strike(delta: float) -> void:
 func _strike_now() -> void:
 	var power := 2 if _hit == 3 else 1
 	var crop := _hit == CROP_HIT
+	if crop:
+		var model: Node = nim.get(&"model")
+		if model and model.has_method(&"crack_flash"):
+			model.call(&"crack_flash")
 	var reach_max := CROP_RANGE if crop else STRIKE_RANGE
 	var arc := CROP_HALF_ARC if crop else STRIKE_HALF_ARC
 	var tall := CROP_HEIGHT if crop else 1.8

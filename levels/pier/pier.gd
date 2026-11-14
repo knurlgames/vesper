@@ -44,6 +44,19 @@ var _m := {}
 var _contraband := 0
 
 
+## The audit's Meshy buildings (2026-11-13): [prop -> items], placed at the end of _ready. Each stands over the
+## greybox's own collision; `_have` says whether its GLB is built (else the greybox is drawn as before).
+var _dressing := {}
+
+
+func _have(prop: String) -> bool:
+	return ResourceLoader.exists(PROP_PATH % prop)
+
+
+func _dress(prop: String, item: Array) -> void:
+	(_dressing.get_or_add(prop, []) as Array).append(item)
+
+
 func _ready() -> void:
 	world_id = &"pier"
 	load_data()
@@ -61,6 +74,8 @@ func _ready() -> void:
 	_places()
 	_keys()
 	_rain()
+	for p: String in _dressing:   # the Meshy buildings and railings, a MultiMesh each (the shells have no collision)
+		props(p, _dressing[p], false)
 	_flush()
 	arrival("start", SPAWN, 0.0)
 	arrival("hub", Vector3(-64.0, 0.05, 17.0), -PI / 2.0)   # in from the Old Quarter's arch, facing the pier
@@ -178,10 +193,16 @@ func _promenade() -> void:
 	_sign("DASH'S", Vector3(62, 3.0, 12.05), 0.0, Color(2.2, 1.2, 0.4), 40)
 	wardrobe(Vector3(60.0, DECK, 12.8), PI, "Wardrobe_hut")
 	# The gate: two pillars and a crossbar over the neck, with Swyne's banner.
-	for sx: float in [-7.5, 7.5]:
-		solid(Vector3(sx, 3.5, 2.0), Vector3(1.2, 7.0, 1.2), _m.white)
-		deco(Vector3(sx, 7.3, 2.0), Vector3(1.6, 0.6, 1.6), _m.velvet)
-	deco(Vector3(0, 6.2, 2.0), Vector3(15.8, 1.8, 0.5), Look.toon(Look.DECENCY_NAVY))   # its ends inside the pillars
+	if _have("pier_gate"):
+		# The pink ironwork arch, its towers over the pillars' collision; Swyne's banner hung across under its span.
+		for sx: float in [-7.5, 7.5]:
+			_col(Vector3(sx, 3.5, 2.0), Vector3(1.2, 7.0, 1.2), 1)
+		_dress("pier_gate", [Vector3(0, DECK, 2.0), 0.0, Vector3(17.0, 9.6, 1.4)])
+	else:
+		for sx: float in [-7.5, 7.5]:
+			solid(Vector3(sx, 3.5, 2.0), Vector3(1.2, 7.0, 1.2), _m.white)
+			deco(Vector3(sx, 7.3, 2.0), Vector3(1.6, 0.6, 1.6), _m.velvet)
+	deco(Vector3(0, 6.2, 2.0), Vector3(13.6, 1.8, 0.5), Look.toon(Look.DECENCY_NAVY))   # between the pillars
 	_sign("COUNCILLOR SWYNE:", Vector3(0, 6.6, 2.27), 0.0, Look.DECENCY_CREAM, 52, false)
 	_sign("A CLEAN SEAFRONT FOR DECENT FAMILIES", Vector3(0, 5.85, 2.27), 0.0, Look.DECENCY_CREAM, 52, false)
 	_sign("THE  PIER", Vector3(0, 8.0, 2.0), 0.0, Color(2.4, 0.6, 1.0), 72)
@@ -230,6 +251,11 @@ func _shopfront(a: Vector2, b: Vector2, h: float, wall: Material, name_text: Str
 
 
 func _beach_hut(at: Vector3, colour: Color) -> void:
+	if _have("beach_hut"):
+		# The Meshy hut (candy stripes, a step), its doors to the promenade (+Z), over the box's collision.
+		_col(at + Vector3(0, 1.5, 0), Vector3(3.2, 3.0, 3.0), 1)
+		_dress("beach_hut", [at, 0.0, Vector3(3.2, 3.8, 3.2)])
+		return
 	var wall := Look.toon(colour)
 	solid(at + Vector3(0, 1.5, 0), Vector3(3.2, 3.0, 3.0), wall)
 	deco(at + Vector3(0, 3.1, 0), Vector3(3.5, 0.2, 3.3), _m.white)
@@ -270,6 +296,13 @@ func _railing(a: Vector3, b: Vector3) -> void:
 	var along_x := absf(b.x - a.x) > absf(b.z - a.z)
 	var size := Vector3(length, 1.1, 0.12) if along_x else Vector3(0.12, 1.1, length)
 	_col(mid + Vector3(0, 0.55, 0), size, 1)
+	if _have("sea_railing"):
+		# The Victorian ironwork, in sections of about 2 m along it.
+		var n := maxi(1, roundi(length / 2.0))
+		var yaw := 0.0 if along_x else PI / 2.0
+		for i in n:
+			_dress("sea_railing", [a.lerp(b, (i + 0.5) / n), yaw, Vector3(length / n, 1.15, 0.16)])
+		return
 	var top := Vector3(length, 0.08, 0.1) if along_x else Vector3(0.1, 0.08, length)
 	deco(mid + Vector3(0, 1.05, 0), top, _m.rail)
 	deco(mid + Vector3(0, 0.55, 0), top, _m.rail)
@@ -324,6 +357,18 @@ func _stall(side: int, z0: float, z1: float, name_text: String, stripe: Color, c
 	var length := z0 - z1
 	var wall := Look.toon(stripe.darkened(0.35))
 	var stripes := [Look.toon(stripe), Look.toon(cream)]
+	if _have("pier_booth"):
+		# The Meshy booth (striped awning, bulbs, counter), its open front to the avenue, over the same walls and
+		# counter (the Keys and the gallery use them).
+		_col(Vector3(back, 1.5, cz), Vector3(0.3, 3.0, length), 1)
+		for z: float in [z0, z1]:
+			_col(Vector3((back + front) / 2.0, 1.5, z), Vector3(depth - 0.2, 3.0, 0.3), 1)
+		_col(Vector3(front + side * 0.3, 0.5, cz), Vector3(0.6, 1.0, length - 0.3), 1)
+		_dress("pier_booth", [Vector3((back + front) / 2.0 + side * 0.4, DECK, cz), -side * PI / 2.0,
+			Vector3(length, 4.2, depth + 0.8)])
+		_sign(name_text, Vector3(front - side * 0.6, 4.4, cz), -PI / 2.0 * side, Color(2.2, 1.5, 0.8), 40)
+		_light(Vector3(front + side * 1.5, 2.6, cz), Color("ffb070"), 1.6, 6.0)
+		return
 	solid(Vector3(back, 1.5, cz), Vector3(0.3, 3.0, length), wall)
 	for z: float in [z0, z1]:
 		solid(Vector3((back + front) / 2.0, 1.5, z), Vector3(depth - 0.2, 3.0, 0.3), wall)
@@ -361,6 +406,15 @@ func _tent(at: Vector3) -> void:
 ## The high striker: a 10.2 m marked tower, its top flush (a cap that overhung stopped the climb under its lip), the
 ## bell hung off its west face (levels/pier/keys/striker.gd), the mallet's base.
 func _striker(at: Vector3) -> void:
+	if _have("high_striker"):
+		# The red-and-gold tower, its scale and bell, over the climbable column (still marked up its back, the
+		# climber's side, so it reads as a climb).
+		_col(at + Vector3(0, 5.1, 0), Vector3(1.4, 10.2, 1.4), 1 | 2)
+		deco(at + Vector3(0.72, 5.1, 0), Vector3(0.04, 10.2, 1.2), _m.climb)
+		_dress("high_striker", [at + Vector3(-0.4, DECK, 0), -PI / 2.0, Vector3(2.4, 10.6, 2.0)])
+		_sign("TEST YOUR STRENGTH", Vector3(at.x - 1.3, 3.0, at.z), -PI / 2.0, Color(2.2, 0.8, 0.6), 36)
+		_light(at + Vector3(-2.5, 3.0, 0), Color("ffb070"), 1.6, 7.0)
+		return
 	solid(at + Vector3(0, 5.1, 0), Vector3(1.4, 10.2, 1.4), _m.climb, 1 | 2)
 	deco(at + Vector3(0, 10.22, 0), Vector3(1.44, 0.06, 1.44), _m.brass)
 	solid(at + Vector3(-1.5, 0.3, 0), Vector3(1.4, 0.6, 1.4), _m.counter)
@@ -375,12 +429,21 @@ func _striker(at: Vector3) -> void:
 ## opened on the way up from under the pier.
 func _tackle_hut() -> void:
 	var wall := Look.toon(Color("5a6a5a"))
-	solid(Vector3(13.5, 1.5, -56.1), Vector3(5.0, 3.0, 0.2), wall)
-	solid(Vector3(13.5, 1.5, -61.9), Vector3(5.0, 3.0, 0.2), wall)
-	solid(Vector3(11.1, 1.5, -57.1), Vector3(0.2, 3.0, 1.8), wall)
-	solid(Vector3(11.1, 1.5, -60.9), Vector3(0.2, 3.0, 1.8), wall)
-	solid(Vector3(11.1, 2.8, -59.0), Vector3(0.2, 0.4, 2.2), wall)
-	solid(Vector3(13.5, 3.1, -59.0), Vector3(5.0, 0.2, 6.0), _m.roof)
+	var pieces := [[Vector3(13.5, 1.5, -56.1), Vector3(5.0, 3.0, 0.2)], [Vector3(13.5, 1.5, -61.9), Vector3(5.0, 3.0, 0.2)],
+		[Vector3(11.1, 1.5, -57.1), Vector3(0.2, 3.0, 1.8)], [Vector3(11.1, 1.5, -60.9), Vector3(0.2, 3.0, 1.8)],
+		[Vector3(11.1, 2.8, -59.0), Vector3(0.2, 0.4, 2.2)]]
+	if _have("tackle_hut"):
+		# The weathered hut, rods and nets on its walls, its door west to the avenue: the walls are collision, the
+		# hut's inside (the hatch) lined, the model with its door cut (props.py tackle_hut).
+		for p: Array in pieces:
+			_col(p[0], p[1], 1)
+		_col(Vector3(13.5, 3.1, -59.0), Vector3(5.0, 0.2, 6.0), 1)
+		_dress("tackle_hut", [Vector3(13.5, DECK, -59.0), -PI / 2.0, Vector3(6.0, 3.6, 5.0)])
+		lining(Rect2(11.2, -61.8, 4.6, 5.6), 0.0, 3.0, wall, [["w", -60.0, -58.0, 2.6]])
+	else:
+		for p: Array in pieces:
+			solid(p[0], p[1], wall)
+		solid(Vector3(13.5, 3.1, -59.0), Vector3(5.0, 0.2, 6.0), _m.roof)
 	_sign("BAIT & TACKLE", Vector3(10.95, 3.5, -59.0), -PI / 2.0, Color(1.2, 2.0, 1.4), 32)
 	shortcut(&"trapdoor", Vector3(11.1, DECK, -59.0), PI / 2.0)
 
@@ -465,13 +528,58 @@ func _palace() -> void:
 	_railing(Vector3(20, DECK, -108), Vector3(20, DECK, -152))
 	# The walkway down the east side ends at a tall fence; the west side is fenced off at the front.
 	solid(Vector3(19.0, 2.0, -150.0), Vector3(2.0, 4.0, 0.2), _m.timber)
-	solid(Vector3(-19.0, 2.0, -112.3), Vector3(2.0, 4.0, 0.2), _m.timber)
+	_west_fence()
 	_railing(Vector3(-20, DECK, -112), Vector3(-20, DECK, -152))
-	var h := PALACE_H
-	# The front wall (z -112.3) with the door (x -1.5..1.5, 3.2 tall).
-	solid(Vector3(-9.75, h / 2.0, -112.3), Vector3(16.5, h, 0.6), _m.palace)
-	solid(Vector3(9.75, h / 2.0, -112.3), Vector3(16.5, h, 0.6), _m.palace)
-	solid(Vector3(0, (3.2 + h) / 2.0, -112.3), Vector3(3.0, h - 3.2, 0.6), _m.palace)
+	_palace_body(PALACE_H)
+
+
+## The west walkway's way in, Dash's cheat in the race (Key 1): a strip of deck over the Midway's west rail, with
+## stacked crates up to the staff fence. Owner, Deck review 3: how she got over wasn't clear, and Nim could barely
+## follow. Now it's a readable stair she can take too: hop the rail, onto the crate (1 m), the stack (2 m), the
+## fence's capped top (3 m; the cap is deep enough to catch and stand on), and down onto the walkway.
+const FENCE_TOP := 3.0
+const CRATE_LOW := Vector3(-18.5, 0.0, -110.5)
+const CRATE_HIGH := Vector3(-18.5, 0.0, -111.5)
+
+
+func _west_fence() -> void:
+	solid(Vector3(-18.0, -DECK_T / 2.0, -110.0), Vector3(4.0, DECK_T, 4.0), _m.planks)
+	_railing(Vector3(-20, DECK, -108), Vector3(-16, DECK, -108))
+	_railing(Vector3(-20, DECK, -108), Vector3(-20, DECK, -112))
+	# The hoarding, and its cap: a beam 0.56 deep along the top (inside the palace's front wall's faces).
+	solid(Vector3(-19.0, (FENCE_TOP - 0.2) / 2.0, -112.3), Vector3(2.0, FENCE_TOP - 0.2, 0.2), _m.timber)
+	solid(Vector3(-19.0, FENCE_TOP - 0.1, -112.3), Vector3(2.0, 0.2, 0.56), _m.timber)
+	_sign("STAFF\nONLY", Vector3(-19.5, 1.6, -112.19), 0.0, Look.DECENCY_CREAM, 20, false)   # beside the stack
+	var crates := [[CRATE_LOW, 0.0, Vector3.ONE], [CRATE_HIGH, 0.0, Vector3.ONE],
+		[CRATE_HIGH + Vector3(0, 1.0, 0), PI / 2.0, Vector3.ONE]]
+	if not props("crate", crates):
+		for c: Array in crates:
+			solid((c[0] as Vector3) + Vector3(0, 0.5, 0), Vector3.ONE, _m.timber)
+	_light(Vector3(-17.2, 3.4, -109.6), Color("ffb060"), 1.6, 6.0)
+
+
+## The arcade itself: walls, roof, signs, the inside.
+func _palace_body(h: float) -> void:
+	# The front wall (z -112.3) with the door (x -1.5..1.5, 3.2 tall). With the Meshy jester front, it's collision
+	# (the arcade's inside face lined), the front in front of it, its grinning mouth the door.
+	var front := [[Vector3(-9.75, h / 2.0, -112.3), Vector3(16.5, h, 0.6)], [Vector3(9.75, h / 2.0, -112.3), Vector3(16.5, h, 0.6)],
+		[Vector3(0, (3.2 + h) / 2.0, -112.3), Vector3(3.0, h - 3.2, 0.6)]]
+	if _have("funhouse_front"):
+		for p: Array in front:
+			_col(p[0], p[1], 1)
+		_dress("funhouse_front", [Vector3(0, DECK, -111.3), 0.0, Vector3(36.4, 13.0, 1.4)])
+		for seg: Array in [[-9.75, 16.5, 0.0, h], [9.75, 16.5, 0.0, h], [0.0, 3.0, 3.2, h - 3.2]]:   # its inside face
+			var q := MeshInstance3D.new()
+			var qm := QuadMesh.new()
+			qm.size = Vector2(seg[1], seg[3])
+			q.mesh = qm
+			q.material_override = _m.palace
+			q.rotation.y = PI   # facing -Z, into the arcade
+			q.position = Vector3(seg[0], seg[2] + seg[3] / 2.0, -112.61)
+			add_child(q)
+	else:
+		for p: Array in front:
+			solid(p[0], p[1], _m.palace)
 	# The side walls; the east one's marked from outside, for the climb to the roof.
 	solid(Vector3(-17.7, h / 2.0, -132.0), Vector3(0.6, h, 40.0), _m.palace)
 	solid(Vector3(17.7, h / 2.0, -132.0), Vector3(0.6, h, 40.0), _m.palace)
@@ -493,9 +601,12 @@ func _palace() -> void:
 		solid(Vector3(v.x, h + 0.4 + 0.6, v.z), Vector3(1.6, 1.2, 1.6), _m.white)
 	deco(Vector3(VENT.position.x + 0.6, h + 0.4 + 0.5, VENT.position.y + 0.6 - 1.2), Vector3(1.4, 1.0, 0.12), _m.white)
 	# The neon over the door.
-	_sign("LAFFER'S", Vector3(0, 6.4, -111.95), 0.0, Color(2.4, 1.0, 0.4), 64)
-	_sign("FUN PALACE", Vector3(0, 5.2, -111.95), 0.0, Color(2.4, 0.5, 1.2), 72)
-	_sign("ha ha ha ha ha", Vector3(0, 4.2, -111.95), 0.0, Color(1.0, 2.2, 1.2), 28)
+	# (Over the jester's head, in front of the Meshy front; where they always were without it.)
+	var nz := -110.5 if _have("funhouse_front") else -111.95
+	var ny := 6.0 if _have("funhouse_front") else 0.0
+	_sign("LAFFER'S", Vector3(0, 6.4 + ny, nz), 0.0, Color(2.4, 1.0, 0.4), 64)
+	_sign("FUN PALACE", Vector3(0, 5.2 + ny, nz), 0.0, Color(2.4, 0.5, 1.2), 72)
+	_sign("ha ha ha ha ha", Vector3(0, 4.2 + (ny if ny == 0.0 else -1.4), nz), 0.0, Color(1.0, 2.2, 1.2), 28)
 	_light(Vector3(0, 4.5, -110.0), Color("ff70b0"), 3.0, 10.0)
 	# Inside: rows of cabinets, their screens lit, facing east (stretched to the old boxes' 1.0 x 1.9 x 0.9, whose tops
 	# the contraband and the routes use).
@@ -749,7 +860,7 @@ func _gull(at: Vector3, watch: float) -> Lookout:
 # --- collectibles ----------------------------------------------------------------------------------------------------
 
 func _collectibles() -> void:
-	# The League's collection tin, on the gate.
+	# The Coalition's collection tin, on the gate.
 	tin(Vector3(5.5, DECK, 3.2), 0.0)
 	# Keys placed in step 1: the prize counter's top shelf (7) and the wheel's crown (8). The rest come from their
 	# scripts in step 2; Key 10 is paid by the five sleepers.

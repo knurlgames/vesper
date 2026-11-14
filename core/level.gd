@@ -44,6 +44,9 @@ func spawn_player(at: Vector3, yaw := 0.0) -> void:
 		yaw = arrivals[come][1]
 	spawn_at = at
 	spawn_yaw = yaw
+	# Been here: the pause menu's Level Totals pages each world she's set foot in.
+	if world_id in Game.WORLDS:
+		Game.set_flag("visited/%s" % world_id)
 	nim = Nim.new()
 	nim.name = "Nim"
 	add_child(nim)

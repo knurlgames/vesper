@@ -203,6 +203,37 @@ def bake(src, low, outfit):
     return images
 
 
+## Her head, made smaller in the sculpt itself (owner, 2026-11-13: "make it smaller in the model too it will save
+## scaling issues"), so the game needs no head BoneScale. v15's concept head came out only ~10% smaller once the model
+## was scaled to her height (0.54 m wide with the ears, against the restyle's 0.59); the owner approved her in game at
+## about 0.40 m. Everything above the neck scales about the neck's centre, blended in over NECK_BLEND.
+HEAD_SHRINK = 0.75
+NECK_BLEND = (1.33, 1.40)     # z: from no change (below) to the full shrink (above); her chin is at about 1.42
+
+
+def _head_pivot(vs):
+    ring = [v for v in vs if NECK_BLEND[0] < v.z < NECK_BLEND[1] and abs(v.x) < 0.08]
+    c = _centre(ring)
+    return Vector((0.0, c.y, NECK_BLEND[1]))
+
+
+def head_map(p, pivot):
+    """Where a point of the unshrunk sculpt lands once the head is shrunk (also used for the FACE measurements)."""
+    w = float(_smooth(NECK_BLEND[0], NECK_BLEND[1], p[2]))
+    k = 1.0 - (1.0 - HEAD_SHRINK) * w
+    return Vector((pivot.x + (p[0] - pivot.x) * k, pivot.y + (p[1] - pivot.y) * k, pivot.z + (p[2] - pivot.z) * k))
+
+
+def shrink_head(obj):
+    vs = [v.co.copy() for v in obj.data.vertices]
+    pivot = _head_pivot(vs)
+    for v, p in zip(obj.data.vertices, vs):
+        if p.z > NECK_BLEND[0]:
+            v.co = head_map(p, pivot)
+    obj.data.update()
+    return pivot
+
+
 def clean(outfits=None):
     os.makedirs(WIP, exist_ok=True)
     report = {}
@@ -210,6 +241,8 @@ def clean(outfits=None):
         clear()
         src = import_raw(outfit)
         scale_to_height(src)
+        pivot = shrink_head(src)
+        print("NIM head pivot", outfit, tuple(round(c, 3) for c in pivot))
         low, remeshed = make_low(src, outfit)
         bake(src, low, outfit)
         report[outfit] = {"remeshed_tris": remeshed, **stats(low)}
@@ -236,9 +269,13 @@ STATURE = 1.76
 ## A-pose landmarks as fractions of her stature, refined by measuring the mesh where it can. Measured off the cartoon
 ## restyle's front render (owner, 2026-11-11: about 4.5 heads, so the head starts low, at 0.79 of her height).
 ## The seven-head sculpt's were ankle .055, knee .285, hip .52, spine .60, chest .70, shoulder .815, neck .845, head .885.
-PROPORTION = {"ankle": 0.051, "knee": 0.25, "hip": 0.466, "spine": 0.557, "chest": 0.653, "shoulder": 0.739,
-              "neck": 0.756, "head": 0.79, "crown": 1.0}
-SHOULDER_X = 0.17
+## v15 (2026-11-13, the T-pose remake with the smaller head and fuller bust), measured off low_garb_front.png. The
+## restyle's A-pose ones were ankle .051, knee .25, hip .466, spine .557, chest .653, shoulder .739, neck .756,
+## head .79; SHOULDER_X 0.17.
+## head and crown are after the clean stage's head shrink (HEAD_SHRINK, about the neck at z 1.40).
+PROPORTION = {"ankle": 0.057, "knee": 0.256, "hip": 0.489, "spine": 0.585, "chest": 0.665, "shoulder": 0.730,
+              "neck": 0.770, "head": 0.804, "crown": 0.966}
+SHOULDER_X = 0.145
 HAND_LEN = 0.14
 TAIL_BONES = 7
 
@@ -287,8 +324,10 @@ def landmarks(obj):
         L["ball." + side].z = 0.035
         # Arms: the fingertip is the furthest point out; the wrist a hand's length back toward the shoulder.
         sh = Vector((sx * SHOULDER_X, torso_y(z["shoulder"]), z["shoulder"]))
-        # Only at hand height: a curled tail can reach further out than her fingers.
-        out = max((v for v in vs if v.x * sx > 0 and z["hip"] - 0.15 < v.z < z["shoulder"]), key=lambda v: v.x * sx)
+        # Only from hip to just over the shoulder (hands hang in an A-pose, reach out level in a T): a curled tail can
+        # reach further out than her fingers lower down.
+        out = max((v for v in vs if v.x * sx > 0 and z["hip"] - 0.15 < v.z < z["shoulder"] + 0.12),
+                  key=lambda v: v.x * sx)
         wrist = out + (sh - out).normalized() * HAND_LEN
         elbow = sh.lerp(wrist, 0.5) + Vector((0, 0.025, 0))
         L["clavicle." + side] = Vector((sx * 0.025, sh.y - 0.01, z["shoulder"] - 0.02))
@@ -319,7 +358,8 @@ def recentre(obj):
 
 
 ## Roughly where each outfit's tail tip is (x, z), read off the inspect renders. The script snaps it to the mesh.
-TAIL_TIP = {"Nim_garb": (0.56, 0.31), "Nim_suit": (0.53, 0.43)}   # cartoon restyle: tails sweep out to her left
+## v15 garb, off low_garb_front.png (the A-pose restyle's were garb (0.56, 0.31), suit (0.53, 0.43), swim (0.56, 0.31)).
+TAIL_TIP = {"Nim_garb": (0.6, 0.35), "Nim_suit": (0.62, 0.33), "Nim_swim": (0.6, 0.33)}
 TAIL_RING = 0.025      # geodesic step between tail cross-sections
 TAIL_WIDEN = 1.6       # a cross-section this much wider than the tail so far is her body
 
@@ -399,8 +439,16 @@ def tail_curve(obj, vs, L):
     return out
 
 
+## Where the tail's root bone hangs from, when it isn't the hips. The two-piece's sculpt (WO-014b) has the tail running
+## down the back of her left leg, fused to it by the voxel remesh, and hanging free only from the calf: rooted at the
+## hips, the free tail stayed put while the leg it sat on moved, and stretched. Hung from the shin, it went with it.
+## The v15 two-piece's tail hangs free of her legs, so it roots at the hips like the others.
+TAIL_PARENT = {}
+_TAIL_ROOT = "hips"
+
+
 ## The skeleton: name, parent, head landmark, tail landmark (all bones deform).
-def bone_specs(L):
+def bone_specs(L, outfit=""):
     b = [("root", None, Vector((0, 0, 0)), Vector((0, 0, 0.2))),
          ("hips", "root", L["hip"], L["spine"]),
          ("spine", "hips", L["spine"], L["chest"]),
@@ -419,7 +467,7 @@ def bone_specs(L):
               ("ear." + s, "head", L["ear_base." + s], L["ear_tip." + s])]
     tail = L["tail"]
     for i in range(TAIL_BONES):
-        b.append(("tail.%d" % (i + 1), "hips" if i == 0 else "tail.%d" % i, tail[i], tail[i + 1]))
+        b.append(("tail.%d" % (i + 1), TAIL_PARENT.get(outfit, "hips") if i == 0 else "tail.%d" % i, tail[i], tail[i + 1]))
     return b
 
 
@@ -430,7 +478,7 @@ def build_armature(obj, outfit):
     bpy.context.scene.collection.objects.link(rig)
     bpy.context.view_layer.objects.active = rig
     bpy.ops.object.mode_set(mode="EDIT")
-    for name, parent, head, tail in bone_specs(L):
+    for name, parent, head, tail in bone_specs(L, outfit):
         eb = arm.edit_bones.new(name)
         eb.head = head
         eb.tail = tail if (tail - head).length > 0.005 else head + Vector((0, 0, 0.02))
@@ -513,7 +561,7 @@ def _seg_dist(p, a, b):
 def _allowed_bones(i, v, L, regions):
     """The bones vertex i may follow."""
     if i in L["tail_verts"]:
-        return ["hips"] + ["tail.%d" % (k + 1) for k in range(TAIL_BONES)]
+        return [_TAIL_ROOT] + ["tail.%d" % (k + 1) for k in range(TAIL_BONES)]
     for s in ("L", "R"):
         if i in regions["arm." + s]:
             return ["chest", "shoulder." + s, "upper_arm." + s, "forearm." + s, "hand." + s]
@@ -598,7 +646,8 @@ def test_pose(rig_obj, on=True):
 ## Head close-ups: orthographic, so a pixel (px, py) is x = (px - 450) / PX_PER_M (front), y = HEAD_FRAME y + (px - 450) /
 ## PX_PER_M (side, her front to the left), and
 ## z = HEAD_FRAME z - (py - 450) / PX_PER_M. Used to measure the eyes, brows and mouth for the face keys.
-HEAD_FRAME = (-0.07, 1.58, 0.5)     # y centre (x is 0), z centre, ortho scale (metres across): the cartoon head
+HEAD_FRAME = (-0.17, 1.53, 0.4)    # y centre (x is 0), z centre, ortho scale (metres across): the v15 head, shrunk
+                                    # (the restyle's was (-0.07, 1.58, 0.5))
 PX_PER_M = 900 / HEAD_FRAME[2]
 
 
@@ -635,14 +684,26 @@ def headshots(outfits=None, key=None):
 ## the mouth line (z) and half-width; the chin's bottom; the jaw's hinge (y, z).
 ## Cartoon restyle (2026-11-11), re-measured after `rig` recentred the meshes (HEAD_FRAME: 1800 px/m).
 FACE = {
-    "garb": {"eyes": {"L": (0.111, 0.056), "R": (-0.117, 0.060)}, "eye_top": 1.586, "eye_bottom": 1.533,
-             "brow": (1.645, 1.678), "face_y": (-0.40, -0.17), "mouth_z": 1.441, "mouth_half": 0.060,
-             "chin": 1.391, "hinge": (-0.22, 1.451)},
-    "suit": {"eyes": {"L": (0.100, 0.049), "R": (-0.103, 0.051)}, "eye_top": 1.597, "eye_bottom": 1.541,
-             "brow": (1.650, 1.682), "face_y": (-0.36, -0.12), "mouth_z": 1.452, "mouth_half": 0.065,
-             "chin": 1.408, "hinge": (-0.17, 1.462)},
+    # v15 (the T-pose remake), measured off head_garb_front/side.png before the head shrink, then put through it
+    # (x 0.75; y and z 0.75 about the neck pivot (y -0.164, z 1.40)). Unshrunk: eyes L (0.119, 0.058) R (-0.118,
+    # 0.057), lids 1.611/1.561, brow (1.663, 1.694), face_y (-0.46, -0.22), mouth 1.463/0.062, chin 1.420, hinge
+    # (-0.25, 1.475). The restyle's garb was eyes L (0.111, 0.056) R (-0.117, 0.060), lids 1.586/1.533, brow
+    # (1.645, 1.678), face_y (-0.40, -0.17), mouth 1.441/0.060, chin 1.391, hinge (-0.22, 1.451).
+    "garb": {"eyes": {"L": (0.089, 0.0435), "R": (-0.0885, 0.043)}, "eye_top": 1.558, "eye_bottom": 1.521,
+             "brow": (1.597, 1.621), "face_y": (-0.386, -0.206), "mouth_z": 1.447, "mouth_half": 0.0465,
+             "chin": 1.415, "hinge": (-0.2285, 1.456)},
+    # v15 suit and two-piece: measured straight off their shrunk heads (head_<outfit>_front/side.png at the v15
+    # HEAD_FRAME, 2250 px/m). The restyle's were suit eyes L (0.100, 0.049) R (-0.103, 0.051), lids 1.597/1.541,
+    # brow (1.650, 1.682), face_y (-0.36, -0.12), mouth 1.452/0.065, chin 1.408, hinge (-0.17, 1.462); swim as the
+    # restyle's garb with the eyes 6 mm to her right.
+    "suit": {"eyes": {"L": (0.084, 0.044), "R": (-0.088, 0.046)}, "eye_top": 1.559, "eye_bottom": 1.521,
+             "brow": (1.597, 1.621), "face_y": (-0.40, -0.21), "mouth_z": 1.452, "mouth_half": 0.047,
+             "chin": 1.419, "hinge": (-0.23, 1.456)},
+    "swim": {"eyes": {"L": (0.083, 0.043), "R": (-0.084, 0.044)}, "eye_top": 1.563, "eye_bottom": 1.523,
+             "brow": (1.597, 1.619), "face_y": (-0.37, -0.18), "mouth_z": 1.446, "mouth_half": 0.047,
+             "chin": 1.412, "hinge": (-0.20, 1.452)},
 }
-LID = 0.035        # the fur above the lid line that slides down with it (the cartoon eyes are twice the size)
+LID = 0.026        # the fur above the lid line that slides down with it (0.035 before v15's head shrink)
 BROW = 0.018       # how far a brow travels: big, so it reads masked at gameplay distance (owner: strong brows)
 
 
@@ -773,7 +834,9 @@ def _hand_frame(rig_obj, side):
     tip = rig_obj.matrix_world @ b.tail_local
     f = (tip - wrist).normalized()
     sx = 1.0 if side == "L" else -1.0
-    n = Vector((-sx, 0.0, 0.0))                 # A-pose: palms face her thighs
+    # A-pose: palms face her thighs. T-pose (v15): the hand runs out level and the palm faces down; her inward
+    # direction would lie along the hand there.
+    n = Vector((-sx, 0.0, 0.0)) if abs(f.z) > 0.7 else Vector((0.0, 0.0, -1.0))
     n = (n - f * n.dot(f)).normalized()
     w = f.cross(n).normalized()
     if w.y > 0:                                  # the thumb is on her front (-Y) side
@@ -1676,11 +1739,13 @@ def mask(outfits=None):
 
 
 def weights(outfits=None):
+    global _TAIL_ROOT
     report = {}
     for outfit in outfits or OUTFITS:
         bpy.ops.wm.open_mainfile(filepath=os.path.join(WIP, "nim_%s.blend" % outfit))
         obj = bpy.data.objects["Nim_%s" % outfit]
         rig_obj = bpy.data.objects["Nim_%s_Rig" % outfit]
+        _TAIL_ROOT = TAIL_PARENT.get(outfit, "hips")
         L = landmarks(obj)
         report[outfit] = skin(obj, rig_obj, L)
         test_pose(rig_obj, True)
@@ -1794,10 +1859,143 @@ def export(outfits=None):
     print("NIM MB", report)
 
 
+# --- underarms: the torso's side and chest let go of the arm ----------------------------------------------------------
+## She was skinned arms down, so the arm's surface region (skin()) ran on round the armpit into her side and chest:
+## upper_arm.L had weight 3 cm from her midline. Arms up, her sides stretched up with them (owner, from the cross:
+## "the same stretching under the arms that the other models did too"). A vertex medial of the upper arm's bone by
+## more than the arm's radius is torso: its arm weight goes to the chest (or spine, lower down), blended over a band.
+UNDERARM_R = 0.045     # the upper arm's radius, from the bone to its skin
+UNDERARM_BAND = 0.04   # the blend from arm to torso, past that
+
+
+def _arms_up(rig_obj, up=True):
+    """Both upper arms straight up and a little out (the cross, the X), forearms in line; or back to rest."""
+    ad = rig_obj.animation_data
+    if ad:
+        ad.action = None
+        for t in ad.nla_tracks:
+            t.mute = up
+    for pb in rig_obj.pose.bones:
+        pb.rotation_mode = "QUATERNION"
+        pb.rotation_quaternion = (1, 0, 0, 0)
+    bpy.context.view_layer.update()
+    if not up:
+        return
+    for s, sx in (("L", 1.0), ("R", -1.0)):
+        pb = rig_obj.pose.bones["upper_arm." + s]
+        now = (pb.tail - pb.head).normalized()
+        want = Vector((0.35 * sx, 0.0, 1.0)).normalized()
+        q = now.rotation_difference(want)
+        m = pb.matrix.copy()
+        pb.matrix = Matrix.Translation(pb.head) @ q.to_matrix().to_4x4() @ Matrix.Translation(-pb.head) @ m
+        bpy.context.view_layer.update()
+
+
+def _chest_render(obj, name):
+    sc = bpy.context.scene
+    sc.render.engine = "BLENDER_EEVEE"
+    sc.render.resolution_x = sc.render.resolution_y = 700
+    world = sc.world or bpy.data.worlds.new("w")
+    sc.world = world
+    world.use_nodes = True
+    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.55, 0.53, 0.5, 1)
+    cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
+    cam.data.type = "ORTHO"
+    cam.data.ortho_scale = 0.9
+    sc.collection.objects.link(cam)
+    sc.camera = cam
+    sun = bpy.data.objects.new("sun", bpy.data.lights.new("sun", "SUN"))
+    sun.data.energy = 2.5
+    sc.collection.objects.link(sun)
+    for view, d in (("front", Vector((0, -1, 0))), ("side", Vector((1, 0, 0)))):
+        cam.location = Vector((0, -0.12, 1.3)) + d * 3
+        cam.rotation_euler = (-d).to_track_quat("-Z", "Y").to_euler()
+        sun.rotation_euler = (-d + Vector((0, 0, -0.6))).to_track_quat("-Z", "Z").to_euler()
+        sc.render.filepath = os.path.join(WIP, "%s_%s.png" % (name, view))
+        bpy.ops.render.render(write_still=True)
+    bpy.data.objects.remove(cam)
+    bpy.data.objects.remove(sun)
+
+
+def underarms(outfits=None):
+    report = {}
+    for outfit in outfits or OUTFITS:
+        bpy.ops.wm.open_mainfile(filepath=os.path.join(WIP, "nim_%s.blend" % outfit))
+        obj = bpy.data.objects["Nim_%s" % outfit]
+        rig_obj = bpy.data.objects["Nim_%s_Rig" % outfit]
+        ad = rig_obj.animation_data
+        keep = (ad.action, [t.mute for t in ad.nla_tracks]) if ad else None
+        _arms_up(rig_obj, True)
+        _chest_render(obj, "underarms_%s_before" % outfit)
+        _arms_up(rig_obj, False)
+        groups = {g.name: g for g in obj.vertex_groups}
+        idx = {g.index: g.name for g in obj.vertex_groups}
+        segs = {b: (rig_obj.matrix_world @ rig_obj.data.bones[b].head_local,
+                    rig_obj.matrix_world @ rig_obj.data.bones[b].tail_local)
+                for b in ("upper_arm.L", "upper_arm.R", "chest", "spine")}
+        mw = obj.matrix_world
+        moved = 0
+        for v in obj.data.vertices:
+            p = mw @ v.co
+            ws = {idx[g.group]: g.weight for g in v.groups}
+            for s, sx in (("L", 1.0), ("R", -1.0)):
+                arm = sum(ws.get(b + "." + s, 0.0) for b in ("upper_arm", "forearm", "hand"))
+                if arm <= 0.0:
+                    continue
+                a, b = segs["upper_arm." + s]
+                ab = b - a
+                t = (p - a).dot(ab) / ab.length_squared
+                if t < 0.0:
+                    continue   # above and in from the shoulder joint: the shoulder's own business
+                # In toward her midline from the upper arm's bone, or (her back and chest beside the armpit) behind or
+                # ahead of it, by more than the arm's radius. Never outward of it: that's the arm's own outer skin, and
+                # past the elbow the hand hangs outward of it too, so the hand and fingers keep theirs.
+                c = a + ab * min(t, 1.0)
+                medial = (c.x - p.x) * sx
+                if medial < 0.0:
+                    continue
+                k = _smooth(UNDERARM_R, UNDERARM_R + UNDERARM_BAND, max(medial, abs(p.y - c.y)))
+                if t < 0.2:
+                    k *= _smooth(0.0, 0.2, t)   # ease in under the shoulder joint itself
+                if k <= 0.0:
+                    continue
+                give = 0.0
+                for bn in ("upper_arm", "forearm", "hand"):
+                    w = ws.get(bn + "." + s, 0.0)
+                    if w > 0.0:
+                        groups[bn + "." + s].add([v.index], w * (1.0 - k), "REPLACE")
+                        give += w * k
+                # The chest above its root, the spine below, blended across the join.
+                up = _smooth(segs["spine"][0].z + 0.06, segs["chest"][0].z + 0.04, p.z)
+                for bn, share in (("chest", up), ("spine", 1.0 - up)):
+                    if share > 0.0:
+                        groups[bn].add([v.index], ws.get(bn, 0.0) + give * share, "REPLACE")
+                moved += 1
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.mode_set(mode="WEIGHT_PAINT")
+        bpy.ops.object.vertex_group_limit_total(group_select_mode="ALL", limit=MAX_INFLUENCE)
+        bpy.ops.object.vertex_group_normalize_all(group_select_mode="ALL", lock_active=False)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        _arms_up(rig_obj, True)
+        _chest_render(obj, "underarms_%s_after" % outfit)
+        _arms_up(rig_obj, False)
+        if ad:
+            ad.action = keep[0]
+            for t, mu in zip(ad.nla_tracks, keep[1]):
+                t.mute = mu
+        report[outfit] = moved
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(WIP, "nim_%s.blend" % outfit))
+    print("NIM underarms", report)
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     stage = argv[0] if argv else "inspect"
-    if stage == "clips":
+    if stage == "underarms":
+        underarms(argv[1:] or None)
+    elif stage == "clips":
         clips(argv[1:] or None)
     elif stage == "export":
         export(argv[1:] or None)

@@ -1,13 +1,14 @@
 class_name Menu
 extends RefCounted
-## Builds the game's menus the same way everywhere (WO-010): a dark panel, a column of focusable controls. Every
-## control works on a pad (D-pad or left stick to move, A to press, left and right on sliders and choices), on the
-## keyboard (arrows or Tab, Enter or Space) and with the mouse. Settings controls read and write Game's settings
-## directly, so a screen built from them needs no save code.
+## Builds the game's menus the same way everywhere (WO-010; restyled 2026-11-13 on core/ui_kit.gd's Theme): a velvet card,
+## a column of focusable controls. Every control works on a pad (D-pad or left stick to move, A to press, left and right
+## on sliders and choices), on the keyboard (arrows or Tab, Enter or Space) and with the mouse. Settings controls read
+## and write Game's settings directly, so a screen built from them needs no save code. Headings, buttons and settings'
+## names are put in Title Case here (owner: "Keep all menu items and text as title cased").
 
-const INK := Color("f2e6c8")
-const DIM := Color("bdb5a4")
-const GOLD := Color("e8c27a")
+const INK := UiKit.CREAM
+const DIM := UiKit.DIM
+const GOLD := UiKit.GOLD
 
 
 ## The Game autoload, found at run time: a probe that names Menu compiles before autoloads exist.
@@ -15,34 +16,33 @@ static func _game() -> Node:
 	return (Engine.get_main_loop() as SceneTree).root.get_node(^"/root/Game")
 
 
-## A centred panel; returns its column to fill.
+## A centred card; returns its column to fill.
 static func panel(parent: Control, width := 660.0) -> VBoxContainer:
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	parent.add_child(center)
 	var p := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.05, 0.1, 0.94)
-	sb.border_color = Look.VELVET.lightened(0.1)
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(8)
-	sb.set_content_margin_all(28)
-	p.add_theme_stylebox_override(&"panel", sb)
+	p.add_theme_stylebox_override(&"panel", UiKit.card(18))
 	center.add_child(p)
 	var col := VBoxContainer.new()
 	col.custom_minimum_size = Vector2(width, 0)
-	col.add_theme_constant_override(&"separation", 10)
+	col.add_theme_constant_override(&"separation", 12)
 	p.add_child(col)
 	return col
 
 
-static func heading(col: Control, text: String, size := 36) -> Label:
+static func heading(col: Control, text: String, size := 40) -> Label:
 	var l := Label.new()
-	l.text = text
+	l.text = UiKit.title_case(text)
+	l.theme_type_variation = &"Heading"
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.add_theme_font_size_override(&"font_size", size)
-	l.add_theme_color_override(&"font_color", GOLD)
 	col.add_child(l)
+	# A thin gold rule under it.
+	var rule := ColorRect.new()
+	rule.color = Color(UiKit.GOLD_DEEP, 0.7)
+	rule.custom_minimum_size = Vector2(0, 2)
+	col.add_child(rule)
 	return l
 
 
@@ -56,11 +56,10 @@ static func text(col: Control, body: String, size := 18, colour := DIM) -> Label
 	return l
 
 
-static func button(col: Control, label: String, on_press: Callable, height := 44.0) -> Button:
+static func button(col: Control, label: String, on_press: Callable, height := 50.0) -> Button:
 	var b := Button.new()
-	b.text = label
+	b.text = UiKit.title_case(label)
 	b.custom_minimum_size = Vector2(0, height)
-	b.add_theme_font_size_override(&"font_size", 20)
 	b.pressed.connect(on_press)
 	col.add_child(b)
 	return b
@@ -69,8 +68,8 @@ static func button(col: Control, label: String, on_press: Callable, height := 44
 ## An on/off setting.
 static func toggle(col: Control, label: String, key: String) -> CheckButton:
 	var c := CheckButton.new()
-	c.text = label
-	c.custom_minimum_size = Vector2(0, 40)
+	c.text = UiKit.title_case(label)
+	c.custom_minimum_size = Vector2(0, 46)
 	c.add_theme_font_size_override(&"font_size", 20)
 	c.button_pressed = bool(_game().get_setting(key))
 	c.toggled.connect(func(on: bool) -> void: _game().set_setting(key, on))
@@ -84,8 +83,9 @@ static func slider(col: Control, label: String, key: String, lo: float, hi: floa
 	row.add_theme_constant_override(&"separation", 16)
 	col.add_child(row)
 	var l := Label.new()
-	l.text = label
+	l.text = UiKit.title_case(label)
 	l.custom_minimum_size = Vector2(260, 0)
+	l.add_theme_font_override(&"font", UiKit.bold())
 	l.add_theme_font_size_override(&"font_size", 20)
 	row.add_child(l)
 	var s := HSlider.new()
@@ -94,11 +94,14 @@ static func slider(col: Control, label: String, key: String, lo: float, hi: floa
 	s.step = step
 	s.value = float(_game().get_setting(key))
 	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	s.custom_minimum_size = Vector2(0, 32)
 	s.focus_mode = Control.FOCUS_ALL
 	row.add_child(s)
 	var v := Label.new()
 	v.custom_minimum_size = Vector2(60, 0)
+	v.add_theme_font_override(&"font", UiKit.display())
+	v.add_theme_color_override(&"font_color", GOLD)
 	v.text = "%.1f" % s.value
 	row.add_child(v)
 	s.value_changed.connect(func(x: float) -> void:
@@ -110,10 +113,11 @@ static func slider(col: Control, label: String, key: String, lo: float, hi: floa
 ## A setting with a few named values: A, or left and right, cycle through them.
 static func choice(col: Control, label: String, key: String, names: Array[String]) -> Button:
 	var b := Button.new()
-	b.custom_minimum_size = Vector2(0, 40)
+	b.custom_minimum_size = Vector2(0, 46)
 	b.add_theme_font_size_override(&"font_size", 20)
+	var shown := UiKit.title_case(label)
 	var paint := func() -> void:
-		b.text = "%s:  %s" % [label, names[clampi(int(_game().get_setting(key)), 0, names.size() - 1)]]
+		b.text = "%s:   ‹ %s ›" % [shown, names[clampi(int(_game().get_setting(key)), 0, names.size() - 1)]]
 	paint.call()
 	var step := func(d: int) -> void:
 		_game().set_setting(key, posmod(int(_game().get_setting(key)) + d, names.size()))

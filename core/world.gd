@@ -106,7 +106,7 @@ func contraband(id: StringName, at: Vector3) -> Pickup:
 	return _pickup(&"contraband", id, at)
 
 
-## The Decency League's collection tin (one per world): a strike smashes it, and it pays a Key in the hub.
+## The Coalition's collection tin (one per world): a strike smashes it, and it pays a Key in the hub.
 func tin(at: Vector3, yaw := 0.0) -> Pickup:
 	var p := _pickup(&"tin", &"tin", at)
 	p.rotation.y = yaw

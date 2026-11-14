@@ -34,6 +34,7 @@ func _initialize() -> void:
 	await s.lesson()
 	await s.landing()
 	await s.race()
+	await s.fence()
 	await s.striker()
 	await s.hush_a_gull()
 	await s.safe()

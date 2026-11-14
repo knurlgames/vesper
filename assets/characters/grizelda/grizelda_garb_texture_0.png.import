@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h0qurafxt7oo"
-path="res://.godot/imported/grizelda_garb_texture_0.png-fbd69d7d14be371cbb147155ddc06708.ctex"
+path.s3tc="res://.godot/imported/grizelda_garb_texture_0.png-fbd69d7d14be371cbb147155ddc06708.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f4880f285de9c6460b4ac808102eed6f"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/grizelda/grizelda_garb_texture_0.png"
-dest_files=["res://.godot/imported/grizelda_garb_texture_0.png-fbd69d7d14be371cbb147155ddc06708.ctex"]
+dest_files=["res://.godot/imported/grizelda_garb_texture_0.png-fbd69d7d14be371cbb147155ddc06708.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=2048
 detect_3d/compress_to=1

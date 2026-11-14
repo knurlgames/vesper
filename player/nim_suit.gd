@@ -142,6 +142,7 @@ func set_outfit(o: Outfit) -> void:
 
 func tick(delta: float) -> void:
 	interact_used = false
+	slip_t = maxf(slip_t - delta, 0.0)
 	if _change_t > 0.0:
 		_change_t -= delta
 		if _change_t <= 0.0:
@@ -191,11 +192,11 @@ func act(what: StringName) -> void:
 		return
 	match what:
 		&"jump":
-			_spend(COST_JUMP)
+			_spend(COST_JUMP, "Jumping")
 		&"pounce":
-			_spend(COST_POUNCE)
+			_spend(COST_POUNCE, "Pouncing")
 		&"refused":
-			_spend(COST_REFUSED)
+			_spend(COST_REFUSED, "Refusing a Fight")
 
 
 ## Staff hand her what she sent them to Fetch.
@@ -238,17 +239,32 @@ func _composure(delta: float) -> void:
 	var before := composure
 	if nim.state == Nim.State.CLIMB or nim.state == Nim.State.HANG or nim.state == Nim.State.MANTLE:
 		composure -= DRAIN_CLIMB * delta / _steadiness()
+		_slipped("Climbing", 0.5)
 	elif nim.crouching:
 		composure -= DRAIN_CROUCH * delta / _steadiness()
+		_slipped("Crouching", 0.5)
 	elif nim.is_on_floor() and speed > STRUT_SPEED + 0.6:
 		composure -= DRAIN_RUN * delta / _steadiness()
+		_slipped("Running", 0.5)
 	elif strutting():
 		composure = minf(1.0, composure + GAIN_STRUT * delta)
 	if composure != before:
 		_settle()
 
 
-func _spend(amount: float) -> void:
+## What just cost her Composure, for the HUD ("Running", "Jumping"...), and how long it's shown. (Owner, Deck clip
+## 2026-11-13: her cover blew at the shooting gallery and nothing said why.)
+var slip := ""
+var slip_t := 0.0
+
+
+func _slipped(why: String, secs: float) -> void:
+	slip = why
+	slip_t = maxf(slip_t, secs)
+
+
+func _spend(amount: float, why := "Seen") -> void:
+	_slipped(why, 2.0)
 	composure -= amount / _steadiness()
 	_teach("taught/composure", "Someone saw that: Composure down. Strut where people can see you, and it comes back.")
 	_settle()
@@ -380,6 +396,10 @@ func _interact_input(delta: float) -> void:
 			if _hunter_within(CHANGE_CLEAR):
 				said.emit("Not with him on her heels.")
 				return
+			# The club's changing screen: any of her three (the garb, the suit, her two-piece for a scene as the sub).
+			if robe.has_meta(&"club_screen"):
+				_club_screen()
+				return
 			# Garb to suit and back; a blown suit is swapped for a fresh one (a new mask, a different coat).
 			_change_to = Outfit.SUIT if not in_suit() or cover_blown else Outfit.GARB
 			_change_t = CHANGE_TIME
@@ -393,6 +413,32 @@ func _interact_input(delta: float) -> void:
 		_hold_y = -INF   # once per hold
 		interact_used = true
 		_hold_the_room()
+
+
+## The Velvet Rope's changing screen (owner, Deck review 5: "Nim should be directed to change into her undergarments
+## at a wardrobe to begin a scene"): the garb, the Domme suit (to lead a scene), or her two-piece (to be the sub; no
+## muzzle, so her face, and any blindfold, show).
+func _club_screen() -> void:
+	var hud := nim.get_node_or_null(^"/root/Hud")
+	if hud == null:
+		return
+	var options: Array[String] = ["The garb", "The Domme suit (to lead a scene)", "The two-piece (to be the sub)"]
+	hud.call(&"choose", "The changing screen", options, func(i: int) -> void:
+		var m: Node = nim.get(&"model")
+		if i == 2:
+			if m and m.has_method(&"wear_swim"):
+				m.call(&"wear_swim", true)
+		else:
+			if m and m.has_method(&"wear_swim"):
+				m.call(&"wear_swim", false)
+			set_outfit(Outfit.GARB if i == 0 else Outfit.SUIT)
+		said.emit(["Garb on.", "The suit.", "The two-piece. No muzzle tonight."][i]))
+
+
+## In her two-piece (the club's changing screen), not her garb or suit.
+func in_two_piece() -> bool:
+	var m: Node = nim.get(&"model")
+	return m != null and m.has_method(&"wearing_swim") and m.call(&"wearing_swim")
 
 
 func _hunter_within(r: float) -> bool:
@@ -434,10 +480,15 @@ func y_prompt() -> String:
 
 ## Someone to talk to, in their reach, with something to say.
 func _near_talker() -> Node3D:
+	# The nearest of those in reach (two in reach at once: the raffle's drum and its vicar, across one table).
+	var best: Node3D = null
+	var best_d := INF
 	for t: Node3D in nim.get_tree().get_nodes_in_group(&"talker"):
-		if t.global_position.distance_to(nim.global_position) <= float(t.get(&"reach")) and t.call(&"next_label") != "":
-			return t
-	return null
+		var dist := t.global_position.distance_to(nim.global_position)
+		if dist <= float(t.get(&"reach")) and dist < best_d and t.call(&"next_label") != "":
+			best = t
+			best_d = dist
+	return best
 
 
 func _near(group: StringName, reach: float) -> Node3D:
@@ -468,7 +519,7 @@ func _command() -> void:
 		tier = 2
 	if WORD_LEVEL[word] > tier or not who.call(&"can_obey", word):
 		said.emit("They don't move.")
-		_spend(COST_FAILED)
+		_spend(COST_FAILED, "A Command That Failed")
 		return
 	who.call(&"obey", word, nim)
 	composure = minf(1.0, composure + GAIN_COMMAND)

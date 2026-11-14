@@ -142,7 +142,7 @@ six worlds to City Hall, where Vesper dies on her own terms.
 ## WO-008: Worlds, collectibles and saving (built 2026-11-11; the probe world passes all three acceptance checks)
 - `World` base: building helpers, arrivals, checkpoints, zones, wardrobes, fast travel points, distance culling.
 - **Collectibles:** Keys (10 per world, 10 in the hub), contraband (100 per world), five entranced people per world
-  (all five pay a Key), and the League's collection tin per world (pays a hub Key).
+  (all five pay a Key), and the Coalition's collection tin per world (pays a hub Key).
 - **Ranks:** cumulative Keys, never spent, open worlds. Thresholds: proposal 1, 6, 14, 22, 32, 42, and 58 for City
   Hall, tuned at WO-014.
 - Bosses, the set piece and every Key as data, per world.
@@ -315,8 +315,24 @@ any other cast member.**
   - **The cross** (2026-11-12, HANDOFF): a session on the vaults' cross, either way round, with any client or any
     sister. The form covers gag, blindfold, collar, cuffs and gentle or firm; then a tray of tools and aftercare.
     Client sessions now go there, and every sister has it both ways. Probed in `club_probe`.
-  - **To do:** the four other sisters' signature scenes (beyond the cross); Nim's two-piece (her own pipeline);
-    Augusta's parlour props; a Deck push.
+  - **Deck review 3** (2026-11-13, HANDOFF):
+    - Every scene is redrawn on one UI kit (`SceneHud`) and staged on the bodies (`RigGear`): tools in hand, rope on
+      the frame, faults on the body.
+    - The sisters wear their suits in the club, and swimwear only as the sub.
+    - The Quiet Room is twice the size, with a seat each.
+    - No checkpoints inside the club, and walks go through doorways.
+    - Masks stay on in conversation.
+  - **2026-11-13 (HANDOFF):**
+    - All six sisters now have their own scenes, both ways round (Grizelda, Lull, Dash and Rivet are new).
+    - Pip's and Mr Smith's four-visit stories are in.
+    - The parlour is furnished from boxes.
+  - **Deck review 4 (2026-11-13, HANDOFF):**
+    - Nim's two-piece is built; she wears it whenever she's the sub.
+    - All six parlour props are in.
+    - The Backroom board is built, alongside the gates.
+    - Aftercare sits on the nook's chaise, and the sister lingers.
+    - The Coalition rename.
+  - **Done, bar the owner's notes.**
 DESIGN.md "The Velvet Rope's house". The club grows into a place to wander between worlds. Build order:
 1. **The layout:** the Dungeon hall and six sisters' rooms, and the Backroom behind Rivet's shelf.
    - Sized to "Sizing": everything within about 30 s of the door. `zfight_check` clean, `hub_probe` routes.
@@ -338,12 +354,31 @@ DESIGN.md "The Velvet Rope's house". The club grows into a place to wander betwe
 7. **A Deck push, and stop** for the owner's notes.
 - **Writing:** every line in these scenes is marked for owner review. Consent and aftercare are on screen; nothing
   is explicit.
-- **Answered (DESIGN):** the clients filter in and out; Switch and Domme are opt-in with any sister. Still open: the
-  Backroom board versus the gates (recommendation: alongside).
+- **Answered (DESIGN):** the clients filter in and out; Switch and Domme are opt-in with any sister; the Backroom
+  board goes alongside the gates (built).
+8. **Richer scenes** (DESIGN, "Richer scenes"; Deck review 5): three acts, Headspace and Connection, gags.
+   - **Built (2026-11-13):** Silke and Augusta, both ways (`core/rich_scene.gd`); gags on the cross; the cuddle
+     aftercare.
+   - **Built (2026-11-13):** Grizelda, Lull, Dash and Rivet, both ways (`core/rich_scenes_later.gd`). Every sister's
+     scene is now rich.
 
-## WO-015: Primrose Close
+## WO-015: Primrose Close (started 2026-11-13: "start Primrose Close"; HANDOFF)
 - worlds/02_PRIMROSE_CLOSE.md. The demonstration party set piece, Gander.
 - **Depends on:** WO-014 and its playtest notes.
+- **Build order (proposal, 2026-11-13, the Pier's):**
+  1. **The layout** (`levels/primrose/primrose.gd`): all six areas in code, at night.
+     - Everything placed: traversal (fences and washing lines as beams, the steeple), wardrobes, shortcuts,
+       checkpoints, zones, fast travel, bulldog goons, meerkat lookouts, the five sleepers, 100 contraband, the tin.
+     - The gate from Primrose Lane, and the way back. `primrose_probe` walks the routes.
+  2. **The Keys** (built 2026-11-13; HANDOFF): each Key's script and its lines, and Vesper's lesson (Fetch and Open
+     at the Watch hut). Grizelda's test pays the Scold. The curtain twitchers. `primrose_keys_probe` plays them.
+  3. **The set piece** (built 2026-11-13; HANDOFF): the demonstration party (host it in the suit; swap the toys
+     unseen; Composure is the meter). `levels/primrose/keys/party.gd`, played in `primrose_keys_probe`.
+  4. **The boss** (built 2026-11-13; HANDOFF): Mrs. Marjorie Gander's three phases (the garden party, the sprinklers,
+     the tantrum and the Scold). `levels/primrose/keys/gander.gd`, played in `primrose_boss_probe`.
+  5. **Art** (built 2026-11-13; HANDOFF): 25 Meshy props for the Close, the Hall, the allotments, the party and
+     Gander's garden, and the Velvet Rope's lounge and door (600 credits). The people already had bodies (WO-013).
+  6. **`primrose_flow`:** every Key and the boss with real inputs. Then a Deck push, and stop for the owner.
 
 ## WO-016: The Docks
 - worlds/03_DOCKS.md. The storm set piece, Tusk.

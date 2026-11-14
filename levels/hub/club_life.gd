@@ -8,7 +8,10 @@ extends Node
 ## check-in (hub/sessions.dialogue), and "club/session_go" starts the game (core/club_game.gd). The scenes with the
 ## sisters (Switch or Domme) start the same way, from their own conversations ("club/scene/<sister>_<way>").
 
-const ClubGame := preload("res://core/club_game.gd")
+## Every sister's scene is three acts with Headspace and Connection (DESIGN "Richer scenes"): Silke's and Augusta's in
+## core/rich_scene.gd, the other four in core/rich_scenes_later.gd (built on it). core/club_game.gd is their base.
+const RichScene := preload("res://core/rich_scene.gd")
+const LaterScenes := preload("res://core/rich_scenes_later.gd")
 const SESSIONS := "res://data/dialogue/hub/sessions.dialogue"
 
 ## How many clients in the club at once, and how often a new one comes in.
@@ -30,8 +33,15 @@ const DOWN := [Vector3(1.0, 0.0, -18.0), Vector3(6.6, 0.0, -18.6), Vector3(7.5, 
 ## Where clients wait in the hall, between the doorways, facing across it.
 const WAITS := [Vector3(-3.1, -5.0, -55.0), Vector3(3.1, -5.0, -55.0), Vector3(-3.1, -5.0, -62.0),
 	Vector3(3.1, -5.0, -62.0), Vector3(-3.1, -5.0, -49.4), Vector3(3.1, -5.0, -49.4)]
-## Lull's room: two places on the chaise (its seat's front edge; it stands against the east wall), facing the hall.
-const AFTERCARE_SPOTS := [Vector3(10.1, -5.0, -53.4), Vector3(10.1, -5.0, -52.3)]
+## Lull's room: a chaise each (Hub.QUIET_SEATS, all but the nook). Everyone on the one chaise overlapped (owner,
+## Deck review 3); with the seats full, a session runs on a little.
+const AFTERCARE_SEATS := 4
+## How long a sister sits on in the nook after a scene on the cross, before she gets up.
+const LINGER := 10.0
+## The regulars' stories run over this many good sessions with Nim (hub/sessions.dialogue).
+const STORY_VISITS := 4
+const STORY_ENDS := {&"smith": "Mr Smith's gift: the Coalition's committee roll, Swyne's name beside the Chairman's. Vesper will want it.",
+	&"pip": "Pip's teacup. Lull's put it on her shelf, with the important things."}
 
 ## The four bodies, street and swimwear, and tints for a crowd.
 const BODIES := [["otter_civilian", "otter_swim"], ["hare_civilian", "hare_swim"], ["fox_civilian", "fox_swim"],
@@ -80,6 +90,8 @@ func _setup() -> void:
 func _process(delta: float) -> void:
 	if _game:
 		return
+	_check_pending()
+	_two_piece_upstairs()
 	_arrive_t -= delta
 	if _arrive_t <= 0.0:
 		_arrive_t = randf_range(ARRIVE_EVERY.x, ARRIVE_EVERY.y)
@@ -103,6 +115,11 @@ func _spawn() -> ClubClient:
 	if not reg.is_empty() and randf() < 0.35:
 		c.regular = reg[0]
 		c.display = reg[1]
+		var v := visits(reg[0])
+		if reg[0] == &"pip" and v >= 1:
+			c.display = "Pip" if v < STORY_VISITS else "Pip (member)"
+		elif reg[0] == &"smith" and v >= STORY_VISITS:
+			c.display = "Mr Smith (no moustache)"
 		c.street_body = reg[2][0]
 		c.swim_body = reg[2][1]
 		c.talk_as = reg[3]
@@ -163,12 +180,16 @@ func _tick(c: ClubClient, delta: float) -> void:
 		&"session":
 			c.t -= delta
 			if c.t <= 0.0:
-				_to_aftercare(c)
+				if _free_seat(c) < 0:
+					c.t = 6.0
+				else:
+					_to_aftercare(c)
 		&"to_aftercare":
 			if not c.walking():
 				c.phase = &"aftercare"
 				c.t = randf_range(AFTERCARE.x, AFTERCARE.y)
-				c.face_toward = c.spot + Vector3(-1.0, 0.0, 0.0)   # sat on the chaise, facing the hall, tea in hand
+				c.global_position = c.spot
+				c.face_toward = Hub.seat_facing(int(c.get_meta(&"seat", 0)))   # sat on their own chaise, tea in hand
 				c.pose(&"drink")
 		&"aftercare":
 			c.t -= delta
@@ -176,7 +197,8 @@ func _tick(c: ClubClient, delta: float) -> void:
 				c.phase = &"leaving"
 				var up: Array = DOWN.duplicate()
 				up.reverse()
-				c.go(_out_of(c.global_position) + up + [SCREEN, DOOR])
+				c.remove_meta(&"seat")
+				c.go(Hub.route(c.global_position, up[0]) + up + [SCREEN, DOOR])
 		&"leaving":
 			if not c.walking():
 				c.queue_free()
@@ -193,6 +215,7 @@ func _to_wait(c: ClubClient, now := false) -> void:
 	c.face_toward = Vector3(0.0, -5.0, c.spot.z)
 	if now:
 		c.dress(c.swim_body)
+		c.go([])   # set down: whatever walk they had (from spawning, to the screen) is over
 		c.global_position = c.spot
 	else:
 		c.go([Vector3(0.0, -5.0, c.spot.z), c.spot])
@@ -208,39 +231,45 @@ func _start_session(c: ClubClient, now := false) -> void:
 	c.phase = &"to_session"
 	if now:
 		c.dress(c.swim_body)
+		c.go([])
 		c.global_position = at
 	else:
-		c.go(_out_of(c.global_position) + [Vector3(0.0, -5.0, at.z), Vector3(signf(at.x) * 4.6, -5.0, at.z), at])
+		c.go(Hub.route(c.global_position, at))
+
+
+## A Quiet Room seat nobody has (or is on the way to), or -1.
+func _free_seat(c: ClubClient) -> int:
+	for i in AFTERCARE_SEATS:
+		if not _clients.any(func(o: Variant) -> bool:
+				return is_instance_valid(o) and o != c and int(o.get_meta(&"seat", -1)) == i):
+			return i
+	return -1
 
 
 func _to_aftercare(c: ClubClient, now := false) -> void:
-	var taken := _clients.filter(func(o: Variant) -> bool:
-		return is_instance_valid(o) and o != c and o.phase in [&"to_aftercare", &"aftercare"]).map(
-			func(o: Variant) -> Vector3: return o.spot)
-	var free := AFTERCARE_SPOTS.filter(func(p: Vector3) -> bool: return not p in taken)
-	c.spot = free[0] if not free.is_empty() else AFTERCARE_SPOTS[0]
+	var seat := _free_seat(c)
+	if seat < 0:
+		# Every seat's taken: they had theirs with Nim, and head home.
+		c.phase = &"aftercare"
+		c.t = 0.0
+		return
+	if c.has_meta(&"seat"):
+		c.remove_meta(&"seat")
+	c.set_meta(&"seat", seat)
+	c.spot = Hub.seat_spot(seat)
 	c.room = {}
 	c.phase = &"to_aftercare"
 	c.face_toward = Vector3.INF
 	if now:
 		c.dress(c.swim_body)
+		c.go([])
 		c.global_position = c.spot
 	else:
-		c.go(_out_of(c.global_position) + [Vector3(0.0, -5.0, -51.5), Vector3(4.6, -5.0, -51.5), c.spot])
-
-
-## From a room, back out through its doorway to the hall first.
-func _out_of(p: Vector3) -> Array:
-	if p.y > -4.0 or absf(p.x) < 4.2:
-		return []
-	return [Vector3(signf(p.x) * 4.6, -5.0, _room_z(p.z)), Vector3(0.0, -5.0, _room_z(p.z))]
-
-
-func _room_z(z: float) -> float:
-	for r: Dictionary in Hub.ROOMS:
-		if absf(z - float(r.at.z)) < 3.6:
-			return r.at.z
-	return z
+		# In through the doorway to the rug's middle, then to the seat (the rug's clear; the seats are round it).
+		var path := Hub.route(c.global_position, Vector3(13.0, Hub.VAULT, -51.5))
+		path.append(c.spot + (Hub.seat_facing(seat) - c.spot).normalized() * 0.5)
+		path.append(c.spot)
+		c.go(path)
 
 
 ## A sister's room with nobody in it (or on the way), whose sister is there. Dash's, rarely: nobody books Dash.
@@ -268,8 +297,20 @@ func _keep_talker(c: ClubClient) -> void:
 		t.display_name = c.display if c.display != "" else "A member's guest"
 		c.add_child(t)
 	var nim: Node = hub.get(&"nim")
-	var suit: bool = nim != null and nim.suit.in_suit()
-	t.label = c.talk_as + ("_suit" if suit else "_garb")
+	var suit: bool = nim != null and nim.suit.in_suit() and not nim.suit.in_two_piece()
+	if not suit:
+		t.label = c.talk_as + "_garb"
+	elif c.regular != &"":
+		# A regular's check-in moves on with their story: "smith_2_suit", then "smith_done_suit".
+		var v := visits(c.regular)
+		t.label = "%s_%s_suit" % [c.talk_as, str(v) if v < STORY_VISITS else "done"]
+	else:
+		t.label = c.talk_as + "_suit"
+
+
+## How many good sessions a regular's had with Nim (their story's step).
+func visits(regular: StringName) -> int:
+	return int(Game.get_flag("regular/%s" % regular, 0))
 
 
 func _drop_talker(c: ClubClient) -> void:
@@ -304,18 +345,77 @@ func _on_flag(key: StringName) -> void:
 		var c := _nearest_waiting()
 		if c:
 			_cross("dom", c, c.talk_as)
-	elif k.begins_with("club/cross/"):
-		# A sister on the cross, or Nim on it for her: "club/cross/<sister>_<dom|sub>".
+	elif k.begins_with("club/cross/") or k.begins_with("club/scene/"):
+		# A sister's scene: on the cross ("club/cross/<sister>_<dom|sub>") or her own ("club/scene/<sister>_<way>").
+		# Nim dresses for it first (owner, Deck review 5): her two-piece to be the sub, her suit to lead. If she isn't,
+		# the sister sends her to the changing screen and waits; back in the right thing and near her, it begins.
 		Game.set_flag(k, false)
-		var what := k.trim_prefix("club/cross/")
+		var cross := k.begins_with("club/cross/")
+		var what := k.trim_prefix("club/cross/" if cross else "club/scene/")
 		var sister := what.get_slice("_", 0)
-		var s := hub.get_node_or_null(NodePath(sister.capitalize())) as Node3D
+		var way := what.get_slice("_", 1)
+		var p := {"cross": cross, "sister": sister, "way": way, "sub": way in ["sub", "switch"]}
+		if _dressed_for(p):
+			_begin(p)
+		else:
+			_pending = p
+			_ask_to_change.call_deferred(p)
+
+
+## The two-piece is for the vaults: up the stair in it, she pulls her garb back on.
+func _two_piece_upstairs() -> void:
+	var nim: Node3D = hub.get(&"nim")
+	if nim and nim.global_position.y > -1.0 and nim.suit.in_two_piece():
+		nim.model.call(&"wear_swim", false)
+		Hud.note("Nim pulls her garb back on before the stairs.", 3.0)
+
+
+## A scene waiting for Nim to change: {cross, sister, way, sub}.
+var _pending := {}
+
+
+## In the right thing for it: the two-piece to be the sub, the suit (not the two-piece) to lead.
+func _dressed_for(p: Dictionary) -> bool:
+	var nim: Node = hub.get(&"nim")
+	if nim == null:
+		return true
+	var two: bool = nim.suit.in_two_piece()
+	return two if p.sub else (nim.suit.in_suit() and not two)
+
+
+func _begin(p: Dictionary) -> void:
+	_pending = {}
+	if p.cross:
+		var s := hub.get_node_or_null(NodePath(String(p.sister).capitalize())) as Node3D
 		if s:
-			_cross(what.get_slice("_", 1), s, sister)
-	elif k.begins_with("club/scene/"):
-		Game.set_flag(k, false)
-		var what := k.trim_prefix("club/scene/")   # e.g. "silke_switch"
-		_play(StringName(what.get_slice("_", 1)), null, what.get_slice("_", 0))
+			_cross(p.way, s, p.sister)
+	else:
+		_play(StringName(p.way), p.sister)
+
+
+func _ask_to_change(p: Dictionary) -> void:
+	while Dialogue.is_active():
+		await get_tree().process_frame
+	var who := String(p.sister).capitalize()
+	if p.sub:
+		Hud.caption(who, "Change first. Your two-piece; the screen's by the cross. I'll wait here.", 4.0)   # OWNER REVIEW
+	else:
+		Hud.caption(who, "Your suit, then, if you're leading. The screen's by the cross. I'll wait.", 4.0)   # OWNER REVIEW
+	Hud.note("Change at the screen by the cross (Y): the %s. Then come back to %s." % [
+		"two-piece" if p.sub else "Domme suit", who], 6.0)
+
+
+## Back near her, dressed right: the waiting scene begins.
+func _check_pending() -> void:
+	if _pending.is_empty() or Dialogue.is_active():
+		return
+	var nim: Node3D = hub.get(&"nim")
+	var s := hub.get_node_or_null(NodePath(String(_pending.sister).capitalize())) as Node3D
+	if nim == null or s == null or not _dressed_for(_pending):
+		return
+	if nim.global_position.distance_to(s.global_position) < 3.0:
+		Hud.caption(String(_pending.sister).capitalize(), "There you are.", 2.0)
+		_begin(_pending)
 
 
 ## A scene on the cross (core/cross_scene.gd), once the conversation that asked for it has closed.
@@ -333,48 +433,112 @@ func _cross(role: String, partner: Node3D, who: String) -> void:
 	scene.role = role
 	scene.partner = partner
 	scene.who = who
+	if c and c.regular != &"":
+		scene.visit = visits(c.regular)
 	_game = scene
 	add_child(scene)
-	await scene.finished
+	var result: Dictionary = await scene.finished
 	scene.queue_free()
 	_game = null
+	if c and is_instance_valid(c) and c.regular != &"" and result.get("ok", false) and not result.get("declined", false):
+		await _story(c)
 	if c and is_instance_valid(c):
-		_to_aftercare(c, true)
+		_to_aftercare(c)   # on foot, from the nook (or the cross, if they said no) to a seat of their own
 	elif partner is Talker:
-		# She walks back to her room from the quiet room's aftercare, out into the hall and along it: never popped
-		# back (owner, deck review 2: "move on from the cutscene organically instead of simply teleporting away").
-		for r: Dictionary in Hub.ROOMS:
-			if String(r.sister).to_lower() == who:
-				var t := partner as Talker
-				var from := t.global_position
-				var side := signf(float(r.at.x))
-				await t.walk_path([Vector3(3.0, from.y, from.z), Vector3(side * 3.0, from.y, float(r.at.z)),
-					Hub.sister_spot(r)], 1.6)
-				if is_instance_valid(t):
-					var to: Vector3 = r.at - t.global_position
-					t.rotation.y = atan2(-to.x, -to.z)
+		# She walks back to her room from the Quiet Room's aftercare: never popped back (owner, Deck review 2: "move on
+		# from the cutscene organically"), and through the doorways (Deck review 3: she'd walked through its wall). First
+		# she sits a while longer (Deck review 4).
+		_linger_then_home(partner as Talker, who, result.get("linger", {}))
 
 
-## Starts a game once the conversation that asked for it has closed (it pauses the world).
-func _play(mode: StringName, c: ClubClient, sister: String) -> void:
+## A sister still sat on the nook's chaise after a scene on the cross: she stays a while (nobody can talk to her
+## meanwhile), gets up, changes out of her swimwear if she was in it (once the camera's not on her, so it doesn't
+## pop in front of you), and walks home.
+func _linger_then_home(t: Talker, who: String, linger: Dictionary) -> void:
+	if not linger.is_empty():
+		t.remove_from_group(&"talker")
+		_tag(t, false)
+		await get_tree().create_timer(LINGER).timeout
+		var waited := 0.0
+		while is_instance_valid(t) and bool(linger.get("swim", false)) and waited < 25.0 and _seen(t):
+			await get_tree().process_frame
+			waited += get_process_delta_time()
+		if not is_instance_valid(t):
+			return
+		var rig: RigGear = linger.get("rig")
+		if rig:
+			rig.clear()
+		if t.model:
+			t.model.hold(false)
+		t.global_position.y += float(linger.get("drop", 0.0))
+		if linger.get("swim", false):
+			t.dress("suit")
+		t.add_to_group(&"talker")
+		_tag(t, true)
+	await _walk_home(t, who)
+
+
+## A sister's name tag (hidden while she can't be talked to).
+func _tag(t: Talker, on: bool) -> void:
+	for c in t.get_children():
+		if c is Label3D and c.name == &"NameTag":
+			(c as Label3D).visible = on
+
+
+## On screen: in front of the camera, and near enough to see a change of clothes.
+func _seen(n: Node3D) -> bool:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return false
+	var p := n.global_position + Vector3.UP
+	return cam.is_position_in_frustum(p) and cam.global_position.distance_to(p) < 18.0
+
+
+## After a good session with a regular: the next part of their story (a short conversation in the nook), and their
+## step moves on. The last one leaves Nim something.
+func _story(c: ClubClient) -> void:
+	var v := visits(c.regular)
+	if v >= STORY_VISITS:
+		return
+	await Dialogue.run(SESSIONS, "%s_after_%d" % [c.talk_as, v])
+	Game.set_flag("regular/%s" % c.regular, v + 1)
+	if v + 1 == STORY_VISITS:
+		Hud.note(STORY_ENDS.get(c.regular, ""), 6.0)
+		if c.regular == &"smith":
+			c.display = "Mr Smith (no moustache)"
+			var tag := c.get(&"_tag") as Label3D
+			if tag:
+				tag.text = c.display
+
+
+## A sister back to her place in her room, on foot, through the doorways, turned to face her room after.
+func _walk_home(t: Talker, who: String) -> void:
+	for r: Dictionary in Hub.ROOMS:
+		if String(r.sister).to_lower() == who:
+			await t.walk_path(Hub.route(t.global_position, Hub.sister_spot(r)), 1.6)
+			if is_instance_valid(t):
+				var to: Vector3 = r.at - t.global_position
+				t.rotation.y = atan2(-to.x, -to.z)
+
+
+## Starts a sister's scene in her room (core/rich_scene.gd) once the conversation that asked for it has closed (it
+## pauses the world); she walks back to her place after.
+func _play(mode: StringName, sister: String) -> void:
 	while Dialogue.is_active():
 		await get_tree().process_frame
 	if _game or not is_inside_tree():
 		return
-	_game = ClubGame.new()
+	_game = (RichScene if sister in ["silke", "augusta"] else LaterScenes).new()
 	_game.hub = hub
-	_game.client = c
 	_game.sister = sister
 	_game.mode = mode
 	add_child(_game)
-	if c:
-		_drop_talker(c)
-		c.phase = &"with_nim"
-	var result: Dictionary = await _game.finished
+	await _game.finished
 	_game.queue_free()
 	_game = null
-	if c and is_instance_valid(c):
-		_to_aftercare(c)
+	var s := hub.get_node_or_null(NodePath(sister.capitalize())) as Talker
+	if s:
+		_walk_home(s, sister)
 
 
 # --- what's said -----------------------------------------------------------------------------------------------------

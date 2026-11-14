@@ -11,7 +11,7 @@ extends Node
 ##                counted in Keys, never spent, and each rank opens the next world
 ##   contraband   100 seized per world
 ##   freed        5 people woken from a trance per world; all five pay that world's Key 10 ("<world>_10")
-##   tin          the Decency League's collection tin, one per world; smashing it pays the hub Key "tin_<world>"
+##   tin          the Coalition's collection tin, one per world; smashing it pays the hub Key "tin_<world>"
 ## Bound goons are flags "bound/<world>/<id>"; opened shortcuts "shortcut/<world>/<id>"; fast travel points found,
 ## "travel/<world>/<id>".
 
@@ -35,7 +35,7 @@ const NAMES := {&"hub": "The Velvet Rope", &"pier": "The Pier", &"primrose": "Pr
 	&"test": "The test course", &"probe": "The probe world", &"cast": "The cast stage"}
 ## Where each world's scene is, once it exists. The hub is the Old Quarter round the Velvet Rope (WO-014 step 5).
 const SCENES := {&"hub": "res://levels/hub/hub.tscn", &"test": "res://levels/test_course/course.tscn",
-	&"pier": "res://levels/pier/pier.tscn"}
+	&"pier": "res://levels/pier/pier.tscn", &"primrose": "res://levels/primrose/primrose.tscn"}
 ## The hub's one sleeper is the prologue's guest; waking him pays the hub's Key 10 (hub_10), her first Key.
 const TOTALS := {
 	&"hub": {&"key": 10, &"contraband": 0, &"freed": 1, &"tin": 0},
@@ -291,7 +291,15 @@ func slot_summary(n: int) -> Dictionary:
 	var keys_by_world: Dictionary = d.get("got", {}).get("key", {})
 	for w: String in keys_by_world:
 		k += (keys_by_world[w] as Dictionary).size()
-	return {"keys": k, "saved_at": d.get("saved_at", "")}
+	var rank := 0
+	for need: int in RANK_KEYS:
+		if k >= need:
+			rank += 1
+	var done := 0
+	for f: String in d.get("flags", {}):
+		if f.begins_with("done/") and d["flags"][f] == true:
+			done += 1
+	return {"keys": k, "saved_at": d.get("saved_at", ""), "rank": rank, "done": done}
 
 
 func erase_slot(n: int) -> void:

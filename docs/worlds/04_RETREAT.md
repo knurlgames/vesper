@@ -62,7 +62,7 @@ A hillside retreat, its terraces going up to an old sanatorium at the top.
 | 9 | **The session** (the set piece) | the Treatment Wing | suit | See below. |
 | 10 | **Five guests woken** | everywhere | either | The last one asks for a refund. Lull gives her one, from the doctor's safe. |
 
-Also: **100 contraband** (receivers, tapes, the "special stock"), and **the League's collection tin** in Reception.
+Also: **100 contraband** (receivers, tapes, the "special stock"), and **the Coalition's collection tin** in Reception.
 
 ## The set piece: the session
 Dr. Strix holds a group session in the Treatment Wing's great room. Nim joins the group in a fake trance.

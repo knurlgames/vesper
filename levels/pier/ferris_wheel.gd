@@ -122,4 +122,8 @@ func _strut(a: Vector3, b: Vector3, thick: float, mat: Material) -> void:
 	m.material_override = mat
 	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_rim.add_child(m)
-	m.look_at_from_position((a + b) / 2.0, b, Vector3.UP if absf((b - a).normalized().y) < 0.99 else Vector3.RIGHT)
+	# Placed in the rim's own space. (look_at_from_position takes world positions: given these local ones, the struts
+	# were built round the world's origin, not the axle, and swung out over the pier's entrance: owner, Deck clip
+	# 2026-11-13, "a massive pink wheel fly off into the sky through the pier".)
+	var up := Vector3.UP if absf((b - a).normalized().y) < 0.99 else Vector3.RIGHT
+	m.transform = Transform3D(Basis.looking_at(b - a, up), (a + b) / 2.0)

@@ -2,11 +2,11 @@
 
 The factory. It leans covert, and it's the first world where Vesper isn't watching.
 - **Host:** Rivet (caracal). **Gear:** lures. **No new lesson:** Vesper has taught everything. This world tests it.
-- **The link in the chain:** the Decency League's pamphlet printers out front, the toy factory behind.
+- **The link in the chain:** the Coalition's pamphlet printers out front, the toy factory behind.
 - **Target length:** 70–90 minutes on a first visit.
 
 ## The story
-- **Coming in:** the Retreat's order forms come from the Decency Press, the League's printers in the industrial
+- **Coming in:** the Retreat's order forms come from the Decency Press, the Coalition's printers in the industrial
   quarter. Rivet has a schematic of the building already. She drew it from memory after a tour. "They gave me a
   pamphlet. I gave them nothing."
 - **The same night:** Vesper is called before the Council's Decency Committee. She goes, in her coat, calm. Nim hears
@@ -22,7 +22,7 @@ A factory in four halls, with a yard and a chimney.
 
 | Area | What it is | Mostly |
 |---|---|---|
-| **The Reading Room** | the shopfront: pamphlets, a counter, a League volunteer | blend in |
+| **The Reading Room** | the shopfront: pamphlets, a counter, a Coalition volunteer | blend in |
 | **The Print Floor** | presses, paper rolls, drying racks overhead | covert |
 | **The Line** | the toy assembly line: conveyors, stamps, a paint shop, a testing booth | covert, the set piece |
 | **The Loading Yard** | vans, a weighbridge, a gatehouse with dogs | covert |
@@ -59,7 +59,7 @@ look. A world built to use everything together, with the lures as the extra.
 | 9 | **The line, backwards** (the set piece) | the Line | garb | See below. |
 | 10 | **Five testers woken** | everywhere | either | They give the product one star, all five of them. |
 
-Also: **100 contraband** (toys off the line, crates in the vans), and **the League's collection tin** in the Reading
+Also: **100 contraband** (toys off the line, crates in the vans), and **the Coalition's collection tin** in the Reading
 Room.
 
 ## The set piece: the line, backwards

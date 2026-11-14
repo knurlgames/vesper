@@ -28,7 +28,7 @@ Client: Another time, then. I'll be here.
 ~ smith_garb
 Smith: I am not here. This is not me. Good evening.
 
-~ smith_suit
+~ smith_0_suit
 Smith: Ahem. I am, er, Mister... Smith. A private citizen. Of no political affiliation whatsoever.
 Nim: Your moustache is coming off.
 Smith: It's a very relaxed moustache.
@@ -44,7 +44,7 @@ Smith: Quite right. I was never here.
 ~ pip_garb
 Pip: Oh! Hi. Sorry. I thought you were... never mind. Hi.
 
-~ pip_suit
+~ pip_0_suit
 Pip: Hi. Sorry. Hi. It's my first time. Is that obvious?
 Nim: A little. That's fine. What would you like?
 Pip: I don't know. Something gentle? I want to find out if I like it.
@@ -56,6 +56,101 @@ Nim: Teacup's perfect. And "yellow" to slow down. I'll be watching for it.
 
 ~ pip_later
 Pip: That's okay. I'll just... sit. And watch. If that's allowed.
+
+# --- the regulars' stories (levels/hub/club_life.gd: "<who>_<visit>_suit" before, "<who>_after_<visit>" after a good
+# session; four visits each, then "<who>_done_suit") ----------------------------------------------------------------
+# Mr Smith: a Coalition man in a false moustache. The hypocrite's the joke, never the kink. Over four visits he
+# works out who he's been marching with, and hands Nim the Coalition's committee roll (flag intel/coalition_roll).
+# Pip: a nervous first-timer who finds out they like it here. Over four visits Pip gets brave, becomes a member, and
+# leaves Nim a teacup (flag keepsake/teacup).
+
+~ smith_after_0
+Smith: Same time next week. I shall deny it, of course. Vigorously. In print.
+
+~ smith_1_suit
+Smith: Ahem. Mister Smith. Again. The moustache is new. Different moustache. Entirely different man.
+Smith: The Coalition had a meeting about "establishments like this" today. I took notes. For research.
+Nim: What did they decide?
+Smith: To shut you down. Then they had sherry. Then I came here. I'd like to be scolded about that, please.
+Nim: Your word's still "decency"?
+Smith: I've never needed it less.
+- Begin. => client_go
+- Not tonight. => smith_later
+
+~ smith_after_1
+Smith: The Chairman's pamphlets are printed somewhere off Press Alley. Not that I know that. Not that I said it.
+Smith: Good evening. I was never here. Again.
+
+~ smith_2_suit
+Smith: I forgot the moustache. I noticed on the stairs. I found I didn't much care.
+Smith: There's a man who brings plush toys to the Coalition's meetings. Pale blue. A spiral on the tummy. Everyone gets one.
+Nim: ...Go on.
+Smith: After the session. I'd like to feel I've earned telling you.
+- Begin. => client_go
+- Not tonight. => smith_later
+
+~ smith_after_2
+Smith: The toys come from a Mr Swyne. The Chairman calls him "our benefactor". Everyone who has one goes very quiet.
+Smith: I've been marching beside him for a year. Decency. Ha. I'd like a drink, and then I'd like to think.
+
+~ smith_3_suit
+Smith: I've resigned. Well. I've written the letter. I'll post it after this, if I'm brave.
+Smith: Same as always, please. Firmly. I've a lot of hypocrisy left to work off and I'd like to be done by spring.
+- Begin. => client_go
+- Not tonight. => smith_later
+
+~ smith_after_3
+[narrator] Mr Smith takes a folded paper from his robe pocket and holds it out, without the moustache, without a joke.
+Smith: The Coalition's committee roll. Every name. Swyne's is pencilled in beside the Chairman's.
+Smith: Give it to whoever you work for. I think I know who that is. I think I've always rather admired her.
+set intel/coalition_roll
+Nim: Thank you, Mr Smith.
+Smith: Gerald. It's Gerald. ...No, keep calling me Mr Smith. I've grown fond of him.
+
+~ smith_done_suit
+Smith: Gerald Smith, private citizen, no affiliations, and the lightest he's felt in years. The usual?
+- Begin. => client_go
+- Not tonight. => smith_later
+
+~ pip_after_0
+Pip: That was... I liked that. I really did. Can I come back? Is that allowed?
+
+~ pip_1_suit
+Pip: I came back! I brought a list. Is a list weird? It's a short list. It's mostly "gentle" written three times.
+Nim: A list's perfect. Same word?
+Pip: "Teacup". Still not silly.
+- Begin. => client_go
+- Not tonight. => pip_later
+
+~ pip_after_1
+Pip: I told my sister I'd joined a book club. She asked what we were reading and I said "rope". I panicked.
+
+~ pip_2_suit
+Pip: I want to try the... um. The flogger? Gently? I watched Silke and it looked like weather. Nice weather.
+Nim: Gently, then. And "teacup" if it isn't nice weather.
+- Begin. => client_go
+- Not tonight. => pip_later
+
+~ pip_after_2
+Pip: I think I'm braver in here than anywhere. Isn't that strange? It's the safest place I know.
+
+~ pip_3_suit
+Pip: They made me a member! Bastion nodded at me. Bastion! He's never nodded at anyone. I nearly fainted.
+Pip: One more, for the occasion. Then I've got something for you.
+- Begin. => client_go
+- Not tonight. => pip_later
+
+~ pip_after_3
+[narrator] Pip presses a teacup into Nim's hands: bone china, a little chipped, a rose painted on the side.
+Pip: It's my teacup. You know. The word. I thought you should have it.
+set keepsake/teacup
+Nim: I'll keep it safe.
+Pip: Lull says she'll put it on her shelf. With the important things.
+
+~ pip_done_suit
+Pip: Hi! Member Pip, reporting. Is "reporting" right? Gently, please. I've a list.
+- Begin. => client_go
+- Not tonight. => pip_later
 
 # --- the sisters, afterwards ---------------------------------------------------------------------------------------
 
@@ -96,3 +191,71 @@ Augusta: ...And you asked how I was. Do keep doing that. It's the best part.
 
 ~ augusta_domme_red
 Augusta: Thank you for stopping the instant I said it. That's all the conviction anyone needs.
+
+~ grizelda_switch_after
+[narrator] Grizelda turns one boot to the light, then the other.
+Grizelda: Adequate. ...Better than adequate. Up. Off your knees. Water.
+Grizelda: You were careful. People think I want fast. I want careful.
+
+~ grizelda_switch_red
+Grizelda: Red. Up. Sit. That was right, and I'm not cross. I'm never cross about that.
+
+~ grizelda_domme_after
+[narrator] Grizelda gets up off her knees as if she'd chosen to, and takes the water Nim holds out.
+Grizelda: You waited for the right moment every time. Hm.
+Grizelda: You may sit on my throne again. Rarely.
+
+~ grizelda_domme_red
+Grizelda: You stopped. Good. Don't fuss. ...Fuss a little.
+
+~ lull_switch_after
+[narrator] Lull slips the blindfold off and lets the light come back slowly.
+Lull: There you are. How do you feel?
+- Far away. Nicely. => lull_after_good
+- Heavy. In a good way. => lull_after_good
+
+~ lull_after_good
+Lull: Mm. Stay that way a while. Tea's here when you want it.
+
+~ lull_switch_red
+Lull: Red. Blindfold's off. I'm right here. Nothing's wrong; you just knew.
+
+~ lull_domme_after
+[narrator] Nim lifts the blindfold. Lull blinks, smiling at nothing.
+Lull: I never knew where you'd be. That's a gift, you know.
+Lull: Sit with me. My turn to pour.
+
+~ lull_domme_red
+Lull: Thank you. That was enough, that's all. You were lovely about it.
+
+~ dash_switch_after
+[narrator] Dash flops onto the floor, and pats the floor beside her.
+Dash: You're fast! Not as fast as me. But fast!
+Dash: Water. Both of us. Then stretch. Then probably more water.
+
+~ dash_switch_red
+Dash: Red! Stopping! Stopped! Good. Sit, sit. I went too fast, didn't I. Thanks for saying.
+
+~ dash_domme_after
+[narrator] Nim lets go. Dash stays exactly where she is, for once.
+Dash: You held on. Nobody holds on.
+Dash: ...Okay, that was really good. Don't tell Grizelda I said "really".
+
+~ dash_domme_red
+Dash: Red. Thanks. I meant it, see? Even laughing. Good stop.
+
+~ rivet_switch_after
+[narrator] Rivet unbuckles each cuff and turns it over in her hands, checking the wear.
+Rivet: Fit's good. You've got narrow wrists; I'll take a notch out of the next pair.
+Rivet: You told me the truth every time. That's the useful kind of sub.
+
+~ rivet_switch_red
+Rivet: Red. Off they come. Something pinched? Tell me what and I'll fix the design.
+
+~ rivet_domme_after
+[narrator] Rivet flexes her wrists in the cuffs, then holds them out to be undone.
+Rivet: Every buckle checked. You've no idea how rare that is.
+Rivet: ...Thanks. I could get used to someone else being careful for once.
+
+~ rivet_domme_red
+Rivet: Off. Good. Quick hands. I'll remember that.

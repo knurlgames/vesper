@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://sat4anhpmd8f"
-path="res://.godot/imported/gull_lookout_normal.png-8f78f17597d68d01fc17feaea47c2dce.ctex"
+path.s3tc="res://.godot/imported/gull_lookout_normal.png-8f78f17597d68d01fc17feaea47c2dce.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b9391656faf87dc6d027ac84d766b550"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/enemies/gull/gull_lookout_normal.png"
-dest_files=["res://.godot/imported/gull_lookout_normal.png-8f78f17597d68d01fc17feaea47c2dce.ctex"]
+dest_files=["res://.godot/imported/gull_lookout_normal.png-8f78f17597d68d01fc17feaea47c2dce.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=32
 detect_3d/compress_to=1

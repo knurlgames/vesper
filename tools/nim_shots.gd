@@ -24,13 +24,16 @@ func _initialize() -> void:
 	var cam := Camera3D.new()
 	world.add_child(cam)
 	cam.current = true
+	# The level's name banner sits over her face for its first seconds.
+	for i in 300:
+		await process_frame
 	for outfit in [0, 1]:
 		model.call(&"set_outfit", outfit)
 		nim.set(&"velocity", Vector3.ZERO)
 		for i in 30:
 			await process_frame
 		await _shot(cam, nim, 3.2, 1.0, "%s/%d_stand.png" % [dir, outfit])
-		await _shot(cam, nim, 1.1, 1.35, "%s/%d_face.png" % [dir, outfit])
+		await _shot(cam, nim, 0.9, 1.6, "%s/%d_face.png" % [dir, outfit])
 		# Moving: drive her velocity straight and let the clip follow it.
 		for clip_speed in [[2.0, "walk"], [6.5, "run"]]:
 			for i in 40:

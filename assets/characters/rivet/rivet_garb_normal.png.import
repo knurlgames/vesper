@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ciyk7npowsqqx"
-path="res://.godot/imported/rivet_garb_normal.png-c49f4c94f46f59cdfbda9f4129cdb2ea.ctex"
+path.s3tc="res://.godot/imported/rivet_garb_normal.png-c49f4c94f46f59cdfbda9f4129cdb2ea.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "10730145f79f266d0a8c45d1584c28f3"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/rivet/rivet_garb_normal.png"
-dest_files=["res://.godot/imported/rivet_garb_normal.png-c49f4c94f46f59cdfbda9f4129cdb2ea.ctex"]
+dest_files=["res://.godot/imported/rivet_garb_normal.png-c49f4c94f46f59cdfbda9f4129cdb2ea.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=32
 detect_3d/compress_to=1

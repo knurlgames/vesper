@@ -59,7 +59,7 @@ Councillors, their aides, the Ball's master of ceremonies. Without it, they igno
 | 9 | **The swap** (the set piece) | everywhere | suit | See below. |
 | 10 | **Five guests woken** | the Ballroom | either | All five find partners on waking, the same ones. |
 
-Also: **100 contraband** (the gift bags, the coat, the cake), and **the League's collection tin** in the receiving
+Also: **100 contraband** (the gift bags, the coat, the cake), and **the Coalition's collection tin** in the receiving
 line, collected by Swyne himself.
 
 ## The set piece: the swap
@@ -70,7 +70,7 @@ The crew swaps six hundred gift bags while Nim holds the room. The whole crew is
   through the kitchens, Lull wakes anyone who's already opened one, Grizelda keeps the waiters in line. Bastion holds
   the door.
 - If the room's attention slips, the secretary heads for the cloakroom. Nim heads him off.
-- **Punchline:** the new gift bags each hold one of the League's own pamphlets, blank, from the Press.
+- **Punchline:** the new gift bags each hold one of the Coalition's own pamphlets, blank, from the Press.
 
 ## The boss: Mr. Horace Tupping (name approved by the owner, 2026-11-11)
 A ram, Swyne's private secretary. He sees Nim for what she is halfway through the night.

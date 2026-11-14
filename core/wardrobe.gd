@@ -32,7 +32,7 @@ func _ready() -> void:
 		tassel.material_override = Look.toon(Look.VELVET)
 		add_child(tassel)
 	var label := Label3D.new()
-	label.text = "WARDROBE  (Y)"
+	label.text = "WARDROBE"
 	label.font_size = 36
 	label.pixel_size = 0.006
 	label.outline_size = 8

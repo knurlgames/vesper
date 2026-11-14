@@ -79,12 +79,30 @@ func _wardrobe_in() -> void:
 func _fight_refused() -> void:
 	var g := _goon("j_doorman")   # at (X + 3.5, 0), looking +Z
 	await d.place(g.global_position + Vector3(0, 0, 1.3), 0.0)
+	# Without the crop: a fist, refused.
+	var had_crop: bool = d.nim.knows(Lessons.CROP)
+	d.nim.known[Lessons.CROP] = false
 	var before := suit().composure
 	await d.tap(JOY_BUTTON_X)
 	await d.secs(0.5)
 	d.check(g.state == Enemy.State.PATROL and not d.nim.combat.striking(),
-		"in the suit, X at the doorman: she refuses (he's %s)" % Enemy.State.keys()[g.state])
-	d.check(suit().composure < before, "and the attempt, in his sight, costs Composure (%.2f to %.2f)" % [before, suit().composure])
+		"in the suit, no crop, X at the doorman: she refuses (he's %s)" % Enemy.State.keys()[g.state])
+	d.check(suit().composure < before and String(suit().get(&"slip")) == "Refusing a Fight",
+		"and the attempt, in his sight, costs Composure, and the HUD says why (%.2f to %.2f, \"%s\")" % [before,
+		suit().composure, suit().get(&"slip")])
+	# With the crop: X in the suit is the crop, tapped (owner, Deck clip: a tap was a refused punch). No Composure, and
+	# never at a goon.
+	d.nim.known[Lessons.CROP] = true
+	await d.secs(0.6)
+	before = suit().composure
+	await d.tap(JOY_BUTTON_X)
+	await d.frames(2)
+	var cracked: bool = d.nim.combat.get(&"_hit") == d.nim.combat.CROP_HIT
+	await d.secs(0.6)
+	d.check(cracked and suit().composure >= before - 0.001 and g.state == Enemy.State.PATROL,
+		"with the crop, a tap of X in the suit cracks it: no Composure lost, the doorman untouched (%.2f to %.2f)" % [
+		before, suit().composure])
+	d.nim.known[Lessons.CROP] = had_crop
 
 
 func _blend_in() -> void:
@@ -221,17 +239,27 @@ func _fake_trance() -> void:
 	await d.until(func() -> bool: return doorman.state == Enemy.State.PATROL, 15.0)
 	await _use_wardrobe()   # into the night garb
 	d.check(not suit().in_suit(), "the wardrobe again: back in the night garb")
-	for i in 4:   # D-pad left cycles LB's gear to the pendant
-		if d.nim.gear.selected == Lessons.PENDANT:
-			break
-		await d.tap(JOY_BUTTON_DPAD_LEFT)
+	if d.nim.gear.selected != Lessons.PENDANT:
+		# The gear wheel: hold LB till it opens, point the stick at the pendant, let go.
+		d.button(JOY_BUTTON_LEFT_SHOULDER, true)
+		await d.until(func() -> bool: return d.nim.gear.wheel_open, 2.0)
+		var items: Array = d.nim.gear.wheel_items
+		var a := items.find(Lessons.PENDANT) * TAU / maxi(items.size(), 1)
+		d.stick(sin(a), -cos(a))
+		await d.frames(6)
+		d.button(JOY_BUTTON_LEFT_SHOULDER, false)
+		d.stick(0, 0)
+		await d.frames(4)
 	await d.tap(JOY_BUTTON_LEFT_SHOULDER)
+	await d.frames(3)   # (LB acts as it's let go)
 	d.check(suit().faking_trance, "LB: the pendant's fake trance")
 	# Shuffle across in front of him, 2 m off his nose.
 	await d.place(doorman.global_position + Vector3(-3.0, 0, 2.0), -PI / 2.0)
 	await d.tap(JOY_BUTTON_LEFT_SHOULDER)   # a place clears nothing, but be sure it's on
+	await d.frames(3)
 	if not suit().faking_trance:
 		await d.tap(JOY_BUTTON_LEFT_SHOULDER)
+		await d.frames(3)
 	var worst := 0.0
 	for i in 180:
 		d.steer(Vector3(1, 0, 0), 0.4)

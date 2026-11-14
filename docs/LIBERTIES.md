@@ -31,8 +31,8 @@ Choices an agent made beyond the docs. The owner can overrule any of them.
   column and bench, and lamps on every corner. Only the club wears red.
 - **Words on the street** (all `# OWNER REVIEW` in `levels/style_test/corner.gd`):
   - The club's plaque: "Members. And those who ask nicely."
-  - The Decency League poster: "KEEP THE PURRLANDS DECENT", then "Vote SWYNE", then the small print "Paid for by the
-    Decency League. Seen something indecent? Write it down. Send it to us. All of it."
+  - The Coalition poster: "KEEP THE PURRLANDS DECENT", then "Vote SWYNE", then the small print "Paid for by the
+    Decency and Integrity Coalition of Kindness. Seen something indecent? Write it down. Send it to us. All of it."
 - **The corner was the main scene for the style test,** so the Deck build opens on it. Back / Tab flips to the test room (a
   prototype action, `debug_swap`).
 
@@ -260,7 +260,7 @@ Choices an agent made beyond the docs. The owner can overrule any of them.
 - **Clients change at a screen by the bar**, street clothes to swimwear. (The robes on hooks were my earlier
   suggestion; the screen reuses the WO-014 civilians upstairs.)
 - **The regulars:**
-  - **"Mr Smith"**, a Decency League man in a false moustache, wants scolding "for hypocrisy, ideally". His word
+  - **"Mr Smith"**, a Coalition man in a false moustache, wants scolding "for hypocrisy, ideally". His word
     is "Decency".
   - **Pip**, a nervous first-timer. Her word is "Teacup".
   - Both mine; the hypocrite's the joke, never the kink.

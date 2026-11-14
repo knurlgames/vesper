@@ -39,7 +39,7 @@ func _ready() -> void:
 	col.add_child(_tabs)
 	for i in PAGES.size():
 		var t := Button.new()
-		t.text = PAGES[i]
+		t.text = UiKit.title_case(PAGES[i])
 		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		t.custom_minimum_size = Vector2(0, 40)
 		t.pressed.connect(show_page.bind(i))
@@ -81,9 +81,10 @@ func show_page(i: int) -> void:
 func _controls_page() -> void:
 	var head := HBoxContainer.new()
 	_body.add_child(head)
-	for spec: Array in [["Action", 330], ["Keyboard / mouse", 210], ["Pad", 210]]:
+	for spec: Array in [["Action", 330], ["Keyboard / Mouse", 210], ["Pad", 210]]:
 		var l := Label.new()
 		l.text = spec[0]
+		l.add_theme_font_override(&"font", UiKit.display())
 		l.custom_minimum_size = Vector2(spec[1], 0)
 		l.add_theme_color_override(&"font_color", Menu.GOLD)
 		head.add_child(l)
@@ -100,8 +101,9 @@ func _controls_page() -> void:
 		row.name = String(action)
 		list.add_child(row)
 		var l := Label.new()
-		l.text = ControlsScript.ACTION_NAMES.get(action, String(action))
+		l.text = UiKit.title_case(ControlsScript.ACTION_NAMES.get(action, String(action)))
 		l.custom_minimum_size = Vector2(330, 0)
+		l.add_theme_font_override(&"font", UiKit.bold())
 		row.add_child(l)
 		for pad: bool in [false, true]:
 			var b := Button.new()

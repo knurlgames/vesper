@@ -18,7 +18,7 @@ Decisions are the owner's unless marked **proposal**. The research behind the st
   - It reads as protective, dominant gear (respirator or fencing-mask energy), **never a gag:** nothing holds her
     mouth open, and nothing locks.
   - **Rivet built it.** It scrambles Nim's voice, and it filters the trance at the Retreat and in the broadcast.
-  - **On while she's covert, off for dialogue and cutscenes.** It clicks on and off with an animation (WO-011's
+  - **On with the garb, dialogue and cutscenes included** (owner, Deck review 3, 2026-11-13; it was off for dialogue). It clicks on and off with an animation (WO-011's
     clips).
 - **Proposal:** one of Swyne's first test subjects. The Rope pulled her out of a trance, and she asked to join. The
   toys no longer work on her. She's the best climber in the house.
@@ -55,10 +55,14 @@ They come off for every conversation (look: ART_DIRECTION §1, "The Rope's masks
   - Bastion "the Wall";
   - Nim "the Muzzle", which she hates.
   The barks are `# OWNER REVIEW`.
-- **Wanted posters:** Swyne's Decency League pastes up posters of the masks, a drawing of each one, never a face,
+- **Swyne's coalition: the Decency and Integrity Coalition of Kindness**, the D.I.C.K. (owner, 2026-11-13; it was
+  "the Decency League"). Its full name goes on anything printed (cards, posters, letterheads); people call it "the
+  Coalition". Nobody inside it has ever read the initials downwards, or admits to it. Nim, on Laffer's card: "Nobody
+  on that committee read it downwards. Or somebody did, and laughed for a week."
+- **Wanted posters:** Swyne's Coalition pastes up posters of the masks, a drawing of each one, never a face,
   with a reward. They're props in every world, torn down and pasted back as the story goes. A new mask joins
   the wall when Nim earns hers.
-- **Vesper has no mask.** She's the Rope's open face, the one the League can name but never prove anything
+- **Vesper has no mask.** She's the Rope's open face, the one the Coalition can name but never prove anything
   against. At City Hall she stands unmasked in front of the whole Purrlands for the broadcast: the one face they
   all know, and the reason the masks behind her can stay masks.
 
@@ -97,10 +101,10 @@ to every area added later:
 | # | World | The link | Host | Lean | Set piece | Boss (never a feline) |
 |---|---|---|---|---|---|---|
 | 1 | **The Pier**: a seaside boardwalk | toys as arcade prizes | Dash | both, a tutorial for each | a rollercoaster chase | the arcade's owner |
-| 2 | **Primrose Close**: the suburbs | home "demonstration parties" for Decency League wives | Grizelda | blend in | a toy party you host as a Domme | the top saleswoman |
+| 2 | **Primrose Close**: the suburbs | home "demonstration parties" for Coalition wives | Grizelda | blend in | a toy party you host as a Domme | the top saleswoman |
 | 3 | **The Docks** | where it comes in | Silke | covert | crane and rigging rope swings across a moving ship | the harbour master |
 | 4 | **The Retreat**: a wellness spa | where the hypnosis is tested, where Nim was | Lull | both | Nim pretends to be under | the doctor |
-| 5 | **The Decency Press** | the League's pamphlet printers out front, the factory behind | Rivet | covert | a production line run backwards | the foreman's machine |
+| 5 | **The Decency Press** | the Coalition's pamphlet printers out front, the factory behind | Rivet | covert | a production line run backwards | the foreman's machine |
 | 6 | **The Decency Ball**, in the Council's grand hall | Swyne in public, selling to the powerful | Augusta | blend in | holding court at the ball while the crew works | Swyne's right hand |
 | ★ | **City Hall** | Swyne's broadcast to the whole Purrlands | – | both | Vesper's last stand | Swyne |
 
@@ -149,13 +153,14 @@ dominated by one of your sisters."
   - **Clients change at the door:** robes hang on hooks by Bastion, so upstairs they're in robes.
   - **Nim's set:** a black two-piece with the Rope's velvet-red piping. She keeps her muzzle and eye mask: her
     identity, and Rivet's filter.
-  - **The sisters too** (owner, 2026-11-12: "separate models for the Sisters in bikinis as well"): downstairs in the
-    vaults each wears her own full-coverage two-piece, in her colours (`<who>_swim.glb`). Upstairs and on missions
-    they keep their suits and garb. Rope goes over skin or swimwear, never under it.
+  - **The sisters: always in their Domme suits in the club** (owner, Deck review 3, 2026-11-13; it was swimwear
+    downstairs). A sister changes into her two-piece (`<who>_swim.glb`) only when she's the sub: on the cross, and
+    in a scene where Nim leads her (Silke's knots, Augusta's corrections). She's back in her suit after. Rope goes
+    over skin or swimwear, never under it.
   - **Art cost:** Nim's third outfit goes through her own pipeline. The clients need new Meshy bodies in swimwear,
     about 54 each: four species, men and women. To quote when it's built.
 - Every scene is consensual and reads that way: check-ins, safewords, aftercare. The kink is never the joke. The
-  joke can be a hypocrite who turns up as a client (a Decency League man in a false moustache).
+  joke can be a hypocrite who turns up as a client (a Coalition man in a false moustache).
 - Clients are adults, members' guests who asked to be there.
 
 **The layout** (sized by Banjo's lessons: compact, one landmark, everything within about 30 s of the door):
@@ -166,6 +171,9 @@ dominated by one of your sisters."
   - **Augusta's parlour:** posture and protocol; a client kneels with a book on his head, and she corrects his chin.
   - **Grizelda's throne room:** a client blacks her boots, very carefully. She inspects the shine.
   - **Lull's quiet room:** low light and cushions; aftercare. A client under a blanket with tea, talking.
+    **Built twice the size** (owner, Deck review 3: "more space and not have everyone in there all overlapping on the
+    same couch"): it runs east under the street to x 20. There are four chaises, a client on each with their tea,
+    and a fifth in a nook where every scene on the cross ends.
   - **Rivet's workshop:** her bench (contraband into gear moves here), the muzzle on a stand, Swyne's toys gutted.
   - **Dash's room:** a punching bag and a fridge. Nobody books Dash; she's here anyway.
 - **The Backroom:** behind a door in Rivet's workshop (a shelf that swings), the covert side.
@@ -180,6 +188,159 @@ dominated by one of your sisters."
   on through a safeword fails the session, by design, and Vesper says why.
 - A good session ends in aftercare (Lull's room is next door). A few clients over the game, each with a joke and a
   want. Some are comic (the moustache), some are sweet (a nervous first-timer).
+
+**How the scenes play (built, Deck review 3, 2026-11-13; owner: "a much better visual and UI to play... the current
+text with timing, etc is hard to play"):** every scene (the cross, either way round, and the sisters' own) shows the
+same drawn kit (`core/scene_hud.gd`), not typed text:
+- the scene's name and the safeword chip (with a hold-B ring when Nim's the one tied);
+- the meters (heat with the band they want, strain, trust);
+- the form as rows of choices (their limits struck out), and the tray as picture cards;
+- a needle to keep on their sweet spot or in the middle, a ring that closes on the beat, a breathing ring to match,
+  a D-pad sequence for knots, and the D-pad's four choices;
+- "Perfect / Late" pops where the timing happened.
+On the bodies (`core/rig_gear.gd`):
+- The one leading holds the tool in their hand, winds it up and swings it as it lands.
+- Their sweet spot glows on the body on the cross, which flinches and squirms.
+- Silke's frame ties wrists overhead to its beam, with a chest harness.
+- Augusta's posture is hands behind the back, and her faults show on her body.
+- The client session game is gone: the cross replaced it.
+
+**Richer scenes (proposal, 2026-11-13; owner, Deck review 5: "all the mini-games are small, non-immersive balance or
+timing games. Let's look at how we can expand or elaborate on them so they are more immersive and you get to truly
+feel being the Sub (or the Domme)". Augusta's posture "almost plays itself").** **Built for Silke and Augusta, both
+ways (2026-11-13; owner: "build Augusta and Silke first")**, then **for Grizelda, Lull, Dash and Rivet** (owner:
+"proceed with Grizelda, Lull, Dash, and Rivet"): see "Built so far" below. Every sister's scene is now three acts.
+
+*What changes in every scene:*
+1. **Three acts, not one game.** Each scene runs the arc a real scene has:
+   - **Asking for it:** a short, sister-specific form like the cross's. She asks what Nim wants and offers her own
+     options (Silke: wrists, chest or a full harness; Grizelda: boots, then the throne room's other chores).
+   - **The scene:** three or four phases that change what you do and escalate. One mechanic for 30 seconds is the
+     main thing that reads as a mini-game.
+   - **Aftercare:** you do something, not just read dialogue. Choose what to say, offer water, sit closer or give
+     space. Her lines answer what you did.
+2. **A feeling meter for each side, shown on the body and the screen as well as in a bar:**
+   - **As the sub, Headspace:** it grows when you yield (hold still, breathe with her, wait for her word, don't
+     rush). As it rises, the world softens: the vignette closes in, the music thins to her voice and your breath, the
+     UI fades to the one thing you're doing, and the camera drifts in close. A push you can't take (a missed cue, a
+     yellow ignored) drops you out of it. That's being the sub: giving the scene your attention, rewarded with the
+     scene getting bigger.
+   - **As the Domme, Connection:** you read her instead of reacting to a prompt.
+     - Her body tells you how it's going: her breathing (chest), her hands (fidget or still), her tail, her face (the
+       brow keys), and small sounds.
+     - You choose the next step, and the right one depends on what she's showing. The UI stops naming the answer
+       (Augusta's faults stop being captioned; you watch her).
+     - Pacing is part of it: a pause can be the best move.
+3. **Camera grammar:**
+   - wide for the setup, close on hands and wrists for the tie or the buckle;
+   - over the sub's shoulder (or from her eyes, blindfolded: dark, then sound) as Headspace rises;
+   - a cut between phases, never a snap back to the follow camera.
+4. **It remembers.** A bond with each sister builds over scenes. Later scenes open new phases and options and change
+   her lines, so there's a reason to go back. DESIGN already proposes bonds for the Switch scenes.
+
+*Per scene (first ideas; each keeps its current game as one phase):*
+- **Silke, she leads (rope):**
+  1. You offer each limb as she asks (the D-pad), and the rope goes on as you do.
+  2. Breathing, as now.
+  3. She takes the line up: up on your toes, and breathing and balance together.
+  4. The release, wiggling your fingers for her.
+- **Silke, Nim leads:** pick a pattern (wrists, chest, full harness), tie it a knot at a time, and check her hands
+  between limbs (Y). Her breathing tells you if a knot's too tight.
+- **Augusta, she leads (protocol):**
+  1. She calls positions (attention, kneel, present, inspection), and Nim takes them: real poses.
+  2. You hold each while she circles you, a crop's tip under your chin, "eyes front".
+  3. The book on your head: balance while she talks you through it.
+  4. Her praise feeds Headspace. Holding still is the game, but she tests it, so it can't play itself.
+- **Augusta, Nim leads (inspection):** walk round her (the camera orbits with the stick) and find what's slipped
+  yourself, with no caption. Correct it in words. Some of her slips are tests, and the right answer is to notice and
+  say nothing.
+- **Grizelda, she leads (service):**
+  1. Polishing, as now.
+  2. Lacing her boots, a crossing pattern.
+  3. Presenting each boot for inspection, at her pace.
+  - She inspects with commentary, and "Again." is a real outcome.
+- **Grizelda, Nim leads (the throne):** your orders, as now, plus her answering back. You choose your replies
+  (dialogue), and the right tone matters as much as the timing.
+- **Lull, she leads (senses):**
+  1. Blindfolded (from Nim's eyes: black, then her voice), she touches somewhere and you say where (the D-pad),
+     from her narration and sound.
+  2. Then her counting.
+  3. Then warmth and cold.
+- **Lull, Nim leads:** as now, plus temperature (ice or a warm cloth) and her breathing as the only feedback.
+- **Dash, she leads:** the drill, then a play-wrestle: break her holds and pin her, all laughter.
+- **Dash, Nim leads:** holding her, then tickling. Her laugh meter climbs, and so does her mercy word's urgency.
+  Stopping at "mercy" is the skill.
+- **Rivet, she leads:** a full harness fitting, strap by strap.
+  - Then she tests it: you try to wriggle free and can't. That's the point; the camera lets you feel it.
+  - She adjusts what pinched.
+- **Rivet, Nim leads:** buckles and checks, as now, then a restraint test she does herself while you watch her
+  hands, ready to release.
+
+*Suggested order:* prototype the framework (three acts, Headspace and Connection, the camera) on Augusta both ways
+(the owner's sore spot) and Silke both ways (the best-liked). Then the other four.
+
+*Built so far (2026-11-13, `core/rich_scene.gd`):*
+- **Silke, she leads:** offer each limb as she asks; breathe with her; give her your colour; up on the line; the
+  release.
+- **Silke, Nim leads:** tie her a knot at a time; check her hands; her colour; let her sit in it.
+- **Augusta, she leads:** take the positions she calls (real poses); hold them while she circles you, chin and eyes
+  on her word; your colour; the book on your head.
+- **Augusta, Nim leads:** the inspection (orbit her and find what slipped; some slips are tests); her colour; let
+  her sit in it.
+- **Grizelda, she leads** (`core/rich_scenes_later.gd`, like the next seven): polish her boots (circle the stick); lace
+  them, crossing (the D-pad; each cross goes on the boot); your colour; present each boot when she calls for it,
+  hold it up while she looks, and lower it when she says. If the shine wasn't good enough: "Again." (a boot more,
+  and present again).
+- **Grizelda, Nim leads:** the orders, as her will swings into the green. Then her back-talk: answer firm, amused
+  or gentle. When she goes quiet and asks something real ("Am I doing this right?"), gentle is right. A tone that
+  misses isn't punished: she just wins that one. Ask her; let her sit in it.
+- **Lull, she leads:** blindfolded, from Nim's eyes (the screen goes dark). She touches you; say where from her voice
+  alone. Sometimes she touches nothing, and the right answer is to wait. Then her count, your colour, and warm and
+  cold: still for the ice, lean into the warm cloth (hold A).
+- **Lull, Nim leads:** where your hand goes next (new places, never rushed). Then ice or the warm cloth, by her
+  breathing: quick and shallow, warm her; slow and settled, she wants the ice. Ask her; let her sit in it.
+- **Dash, she leads:** her drill at the bag; your colour; the play-wrestle: break her holds (her direction, three
+  times, fast), then pin her. All laughter; losing a hold costs nothing.
+- **Dash, Nim leads:** hold her still while she wriggles. Then tickling, with her own word picked on the form
+  (Mercy, Uncle or Pineapple; gagged, she shakes the bell): stop the moment she says it. Ignoring it costs the most
+  Connection in the game, and she tells you why. Ask her; let her sit in it.
+- **Rivet, she leads:** the fitting, cuff by cuff (wrists, or wrists and ankles). Then "try to get out": pull
+  against them (the stick); a short chain links the cuffs, and they hold. That's the point. Your colour. Then "does
+  anything pinch?": a cuff fitted on the tight side tingles, and you tell her where. Honest is right, and she lets it
+  out.
+- **Rivet, Nim leads:** buckle and check every cuff. Then she tests them herself: watch her hands, and release her on
+  her signal (two quick flicks of her right hand), not before. Ask her; let her sit in it.
+- **Every one:** the asking form first (what, how hard, the gag), Headspace (sub) or Connection (Domme), a camera per
+  phase, and interactive aftercare (water, a blanket, sitting close, words). A good scene builds `bond/<sister>`.
+- **Gags** (owner: "Ball, bit, or tape gags. We also need to add tape gags to the cross"): a choice on the asking
+  form and on the cross's. A gagged sub's lines come out muffled with the words in brackets, and her safeword is
+  the bell in her hand: hold B and she drops it. The gags are fitted to each face (`RigGear.face()` measures the
+  head mesh).
+- **Aftercare on the chaise** (owner: "let's have them cuddle up with each other some and be more affectionate
+  while talking. They are Sisters who love and care for each other"): after the cross with a sister, the two sit
+  close. Whoever was on the cross leans on the other's shoulder with a hand on her knee, and the other's arm goes
+  round her. They breathe and nuzzle while they talk. With a client, Nim sits near, not on them.
+
+**Every sister's own scene, both ways round** (built 2026-11-13; the first good one pays hub_09). Nim chooses who
+leads in the sister's conversation ("A scene?"). These were the first single games; since the richer scenes, each one
+lives on as a phase of its scene (above):
+
+| Sister | She leads | Nim leads |
+|---|---|---|
+| Silke | the rope frame: breathe with her | tie her, knot by knot |
+| Augusta | hold a posture | correct hers |
+| Grizelda | polish her boots, kneeling at the throne (circle the stick) | Nim on the throne, Grizelda kneeling: say each order as her will swings into the green |
+| Lull | blindfolded, she counts: A on each count, still | she's blindfolded: pick where your hand goes next, never the same twice, never rushed |
+| Dash | her drill: hit the direction she calls | hold her still while she wriggles; catch her if she slips |
+| Rivet | she fits her cuffs: say when each is snug | fasten her cuffs, and check every buckle |
+
+**The regulars' stories** (built 2026-11-13; four good sessions each; `regular/<id>` counts them):
+- **Mr Smith** works out that the "benefactor" handing pale-blue plush toys round the Coalition is Swyne. He
+  resigns, and on his fourth visit he gives Nim the Coalition's committee roll, with Swyne pencilled in beside the
+  Chairman (flag `intel/coalition_roll`, for the Press, the Ball and City Hall). After that he comes without the
+  moustache.
+- **Pip** gets braver, asks for the flogger, gently, on the third visit, and becomes a member. Pip leaves Nim a
+  teacup (`keepsake/teacup`), which Lull keeps on her shelf.
 
 **Switch (Nim bottoms for a sister; optional; it pays a hub Rose):**
 - Nim asks a sister, and the sister checks in first: limits, a safeword.
@@ -232,11 +393,13 @@ them". It's a bigger version of Nine Lives' After Hours: Nim on either side, wit
   - Swyne's vibrating toys are the story's weapon, so they're never used in a scene.
   - Each sister's wants, limits and tray are in character (Lull asks for the blindfold, Grizelda tops from the bottom).
 
-3. **Not decided (owner unsure).** **Recommendation: alongside.**
+3. **Decided: alongside** (owner, 2026-11-13: "proceed with the Alongside option"; built,
+   `levels/hub/backroom_board.gd`).
    - The street gates stay where a world is unlocked (a gate with its cost on show is a character; the walk down
      its street is part of the trip).
-   - The Backroom board is for briefings and progress: Swyne's chain with each link crossed off, and fast travel to
-     any world already open.
+   - The Backroom board is for briefings and progress. Each card names its world and says OPEN, DONE (stamped red)
+     or the roses it wants. Y at the board lists the seven worlds, each with its host and its link in the chain,
+     and A takes Nim to any that's open.
 
 **Rewards:** the hub's two spare Roses go to the first client session and the first Switch or Domme scene. The rest
 pay small, character-based perks, and a sister's bond (her lines change).
@@ -295,10 +458,17 @@ finished by world 4 of 6, so worlds 5 and 6 test mastery. Combat is built first.
 
 Vesper never draws her own whip until City Hall.
 
-### Pad layout (draft)
-- A jump. X strike (hold for the crop). Y bind, talk or Command (context). B crouch-sneak.
-- RT pounce. LT lock on, and pick a Command target. RB rope. LB gear (Scold, pendant, lure).
-- The D-pad picks the Command word. Right stick camera, R3 recentres. Start pauses.
+### Pad layout (draft; the wheel and the Kit decided 2026-11-13)
+- A jump. X strike in the garb (hold for the crop); in the suit, X is always the crop. Y bind, talk or Command
+  (context). B crouch-sneak.
+- RT pounce. LT lock on, and pick a Command target. RB rope.
+- **LB gear:** a tap uses what's set (Scold, pendant, lure); **held, the gear wheel** opens (time slows, the stick
+  points, letting go takes it). Owner: "Let's go ahead with the wheel and kit page", over equipment slots: the crop,
+  the rope and the signet stay fixed, the verbs that are Nim; only LB's gear is chosen.
+- The D-pad is the Commands' alone: up Kneel, right Fetch, down Open (left free for a fourth). Right stick camera, R3
+  recentres. Start pauses.
+- **The Kit** (pause menu, under Resume): every move, Command and piece of gear, with its button, its outfit and who
+  gave it; what she hasn't got yet as "???". Like Banjo's move list.
 
 ## Content lines (binding)
 - Every character is an upright, anthropomorphic, unmistakably grown adult.

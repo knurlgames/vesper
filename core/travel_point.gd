@@ -34,7 +34,7 @@ func _ready() -> void:
 	ribbon.material_override = Look.toon(Look.VELVET, 0.3)
 	add_child(ribbon)
 	var plate := Label3D.new()
-	plate.text = "%s  (Y)" % label
+	plate.text = label
 	plate.font_size = 32
 	plate.pixel_size = 0.006
 	plate.outline_size = 8

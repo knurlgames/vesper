@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gmg2kd6lsowr"
-path="res://.godot/imported/bulldog_goon_texture_0.png-4cbbc08bcf1cc1c668b527405369ca77.ctex"
+path.s3tc="res://.godot/imported/bulldog_goon_texture_0.png-4cbbc08bcf1cc1c668b527405369ca77.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "391cd1cb0e619fd76a7a2265a2dded2c"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/enemies/bulldog/bulldog_goon_texture_0.png"
-dest_files=["res://.godot/imported/bulldog_goon_texture_0.png-4cbbc08bcf1cc1c668b527405369ca77.ctex"]
+dest_files=["res://.godot/imported/bulldog_goon_texture_0.png-4cbbc08bcf1cc1c668b527405369ca77.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

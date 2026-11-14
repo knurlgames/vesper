@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkqrxbc2b1f2k"
-path="res://.godot/imported/toy_plush_Image_0.png-f00e2e94052b6266c82ba9fad7a29d39.ctex"
+path.s3tc="res://.godot/imported/toy_plush_Image_0.png-f00e2e94052b6266c82ba9fad7a29d39.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "68dc1e7e78daad3826e56cbd68c542b9"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/toy_plush_Image_0.png"
-dest_files=["res://.godot/imported/toy_plush_Image_0.png-f00e2e94052b6266c82ba9fad7a29d39.ctex"]
+dest_files=["res://.godot/imported/toy_plush_Image_0.png-f00e2e94052b6266c82ba9fad7a29d39.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

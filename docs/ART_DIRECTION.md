@@ -120,7 +120,7 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
   silhouette rule works for her body.
   - **All share:** a black base, velvet-red piping, the brass knot somewhere on it, and Rivet's build.
     - Never gag-shaped: nothing in or over the mouth that holds it, nothing that locks.
-    - Off for dialogue and cutscenes.
+    - Kept on for dialogue and cutscenes (owner, Deck review 3, 2026-11-13; it was off, and popping it on and off looked odd).
     - Worn with the night garb only, never the Domme suit.
     - **Never silver skull faces,** and nothing that reads as a horror mask.
   - **The variants:**
@@ -195,7 +195,7 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
 - **The night palette:** indigo and teal shadows, warm sodium orange lamps, cold moonlight from above.
 - **The Velvet Rope is red:** a deep velvet crimson. Only the sisters, the club and their marks wear it. Swyne's
   people never do.
-- **Swyne is cream and gilt:** clean, respectable, "decent". The Decency League's posters are cream and navy.
+- **Swyne is cream and gilt:** clean, respectable, "decent". The Coalition's posters are cream and navy.
 - **Nim:** a smoky grey-brown coat with dark cloud markings, and pale green eyes. The player must read against every
   world, so worlds stay mid-dark and she carries a light rim.
 
@@ -219,7 +219,7 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
   A visible light level on Nim is a gameplay readout, not decoration.
 
 ## 5. Props carry the jokes
-- **Big and readable, with funny small print:** Swyne's posters, League pamphlets, toy boxes, signs, rosettes.
+- **Big and readable, with funny small print:** Swyne's posters, Coalition pamphlets, toy boxes, signs, rosettes.
 - **Text is mesh or `Label3D`, never Meshy's scribble.**
 
 ## 6. Animation

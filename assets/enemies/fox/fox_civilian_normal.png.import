@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dca5kk2sbb1n1"
-path="res://.godot/imported/fox_civilian_normal.png-b68a3d8f9b955f2826f5ef0bb19b753b.ctex"
+path.s3tc="res://.godot/imported/fox_civilian_normal.png-b68a3d8f9b955f2826f5ef0bb19b753b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2691eb227e11277cf40c8992ab092257"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/enemies/fox/fox_civilian_normal.png"
-dest_files=["res://.godot/imported/fox_civilian_normal.png-b68a3d8f9b955f2826f5ef0bb19b753b.ctex"]
+dest_files=["res://.godot/imported/fox_civilian_normal.png-b68a3d8f9b955f2826f5ef0bb19b753b.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=32
 detect_3d/compress_to=1

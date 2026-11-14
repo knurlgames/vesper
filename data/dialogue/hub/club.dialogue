@@ -103,7 +103,26 @@ Rivet: The muzzle's holding up? Good. I built it to outlast your bad decisions.
 Rivet: Bring me every one of Swyne's toys you seize. Gutted, they make good distractions.
 Rivet: And enough of them pays for better kit. Harder to knock down. Harder to rattle.
 - That's all. => END
+- A scene? => rivet_scene
 - The cross? => rivet_cross
+
+~ rivet_scene
+Rivet: I've made cuffs. Somebody has to wear them, and somebody has to fasten them. Which are you?
+- Fit them on me. => rivet_switch
+- I'll fasten yours. => rivet_domme
+- Never mind. => END
+
+~ rivet_switch
+Rivet: Arms out. Tell me when each one's snug. Not tight. Snug. There's a difference and I'll be grading it.
+Rivet: Your word's "red". I'll ask your colour halfway, because I ask everyone everything.
+set club/scene/rivet_switch
+=> END
+
+~ rivet_domme
+Rivet: Fasten them, then check every buckle. Every one. I made them, so I'll know.
+Rivet: My word's "red".
+set club/scene/rivet_domme
+=> END
 
 ~ rivet_cross
 Rivet: The cross. Which of us is on it?
@@ -124,8 +143,27 @@ set club/cross/rivet_sub
 ~ dash
 Dash [grin]: Nobody books me. Can't think why.
 Dash: I hit the bag. The bag doesn't complain. It's the healthiest relationship in the building.
+- A scene? => dash_scene
 - The cross? => dash_cross
 - Keep hitting it. => END
+
+~ dash_scene
+Dash [grin]: Someone booked me! Okay. Okay okay. Who's in charge?
+- You are. => dash_switch
+- I am. => dash_domme
+- Never mind. => END
+
+~ dash_switch
+Dash: Drill! I call it, you hit it. High, low, left, right. It gets faster. It always gets faster.
+Dash: Your word's "red". I'll ask halfway. I'll remember to ask halfway. Probably.
+set club/scene/dash_switch
+=> END
+
+~ dash_domme
+Dash: Hold me still. Bet you can't. I'm going to wriggle, and that's not a colour, that's just me.
+Dash: My word's "red". If I say it, I mean it, even if I'm laughing.
+set club/scene/dash_domme
+=> END
 
 ~ dash_cross
 Dash [grin]: Ooh. Who's on it?
@@ -145,8 +183,27 @@ set club/cross/dash_sub
 
 ~ lull
 Lull: Mm. Swyne took something gentle and made a weapon of it. I'd like it back.
+- A scene? => lull_scene
 - The cross? => lull_cross
 - Rest well. => END
+
+~ lull_scene
+Lull: Something quiet. Which of us wears the blindfold?
+- You lead. I'll wear it. => lull_switch
+- I'll lead. You wear it. => lull_domme
+- Not tonight. => END
+
+~ lull_switch
+Lull: I'll count, slowly. Breathe on each one. Nothing else to do. Nothing else to be.
+Lull: Your word is "red". I'll ask your colour halfway, softly.
+set club/scene/lull_switch
+=> END
+
+~ lull_domme
+Lull: I like not knowing where you'll be. Don't rush. The waiting is the best part.
+Lull: My word is "red". And ask me how I am. I'll tell you the truth.
+set club/scene/lull_domme
+=> END
 
 ~ lull_cross
 Lull: The cross. Mm. Which of us?
@@ -167,8 +224,27 @@ set club/cross/lull_sub
 ~ grizelda
 [if done/pier] Grizelda: Primrose Close. Mine. Don't be late.
 Grizelda: Shoes. Wipe.
+- A scene? => grizelda_scene
 - The cross? => grizelda_cross
 - Yes, Grizelda. => END
+
+~ grizelda_scene
+Grizelda: Hm. And who sits on the throne?
+- You do. => grizelda_switch
+- I do. => grizelda_domme
+- Never mind. => END
+
+~ grizelda_switch
+Grizelda: Then you kneel, and my boots get polished. Small circles. Not too fast. I will inspect.
+Grizelda: Your word is "red". I'll ask your colour halfway, and I'll want a real answer.
+set club/scene/grizelda_switch
+=> END
+
+~ grizelda_domme
+Grizelda: You, on my throne. ...Fine. Make me do as I'm told. I won't make it easy.
+Grizelda: My word is "red". I won't need it. Ask me how I am anyway.
+set club/scene/grizelda_domme
+=> END
 
 ~ grizelda_cross
 Grizelda: Hm. And who's on it?

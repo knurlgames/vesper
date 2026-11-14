@@ -1,0 +1,49 @@
+# OWNER REVIEW
+# The raffle at St. Prudence's (Key 3; levels/primrose/keys/raffle.gd). The first prize is one of Swyne's hypnotic toys.
+# Buy a ticket, stuff the drum while the vicar's counting the float, and he draws. Nim wins; the vicar's never been so
+# relieved. ("primrose/vicar_looking" is kept up to date by the script.)
+
+~ start
+[if primrose/raffle_won] => after
+[if primrose/stuffed] => draw
+[if primrose/ticket] => wait
+Vicar: Raffle ticket? A pound a strip. All in aid of Decency.
+Vicar: The first prize was donated by the Coalition. It's a, um. It's a toy. It hums.
+- One strip, please. => buy
+- Not tonight. => no
+
+~ no
+Vicar: No. No, quite right.
+
+~ buy
+Vicar: Lovely. Forty-seven. Lucky number. The draw's whenever I can face it.
+set primrose/ticket
+
+~ wait
+Vicar: I'll draw when the drum's a bit fuller. Nobody's bought any. I can't think why.
+
+~ draw
+Vicar: Shall I? I shall. Here we go.
+Vicar: And the winner is... number forty-seven! And forty-seven. And... they're all forty-seven.
+Vicar [warm]: Oh, thank heavens. I mean, congratulations. Take it. Please. Take it a long way away.
+[narrator] The first prize: a plush lamb with a spiral on its belly. It hums. Nim takes it a long way away.
+set primrose/raffle_won
+
+~ after
+Vicar: The bake sale's raised eleven pounds. The raffle's raised my spirits.
+
+~ drum
+[if primrose/raffle_won] => after_drum
+[if not primrose/ticket] => no_ticket
+[if primrose/vicar_looking] => watched
+[narrator] While the vicar counts the float, Nim writes forty-seven on every blank stub in reach and stuffs the drum.
+set primrose/stuffed
+
+~ no_ticket
+[narrator] A drum of raffle tickets. None of them is hers. Yet.
+
+~ watched
+Vicar: Ahem. Did you want something, dear?
+
+~ after_drum
+[narrator] The drum's empty. It was only ever forty-sevens.

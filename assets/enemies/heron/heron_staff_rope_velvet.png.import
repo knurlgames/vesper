@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bg85x3b2atq2t"
-path="res://.godot/imported/heron_staff_rope_velvet.png-5060c30b0ed4c40656e748d4a9b0b10b.ctex"
+path.s3tc="res://.godot/imported/heron_staff_rope_velvet.png-5060c30b0ed4c40656e748d4a9b0b10b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5aaaa1f9549666d4b9a91882b6363b4a"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/enemies/heron/heron_staff_rope_velvet.png"
-dest_files=["res://.godot/imported/heron_staff_rope_velvet.png-5060c30b0ed4c40656e748d4a9b0b10b.ctex"]
+dest_files=["res://.godot/imported/heron_staff_rope_velvet.png-5060c30b0ed4c40656e748d4a9b0b10b.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

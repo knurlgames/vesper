@@ -118,6 +118,45 @@ func deco(at: Vector3, size: Vector3, mat: Material) -> void:
 		boxes.append([at, size, mat])
 
 
+## The inside of a room's walls, for a building whose outside is a Meshy shell: the walls themselves turn to bare
+## collision (their painted outsides poked through the shell), and these quads face in, so they show from inside and
+## vanish from outside (back faces are culled). `rect` is the room's inner faces on the ground (x0, z0, x1, z1), `gaps`
+## the doorways: [side ("n" -z, "s" +z, "w" -x, "e" +x), from, to (along the wall), height].
+func lining(rect: Rect2, y0: float, h: float, mat: Material, gaps: Array = []) -> void:
+	var x0 := rect.position.x
+	var z0 := rect.position.y
+	var x1 := rect.end.x
+	var z1 := rect.end.y
+	# [side, start, end, the fixed coordinate, its inward normal]
+	var walls := [["n", x0, x1, z0, Vector3(0, 0, 1)], ["s", x0, x1, z1, Vector3(0, 0, -1)],
+		["w", z0, z1, x0, Vector3(1, 0, 0)], ["e", z0, z1, x1, Vector3(-1, 0, 0)]]
+	for w: Array in walls:
+		var side: String = w[0]
+		var cuts: Array = gaps.filter(func(g: Array) -> bool: return g[0] == side)
+		cuts.sort_custom(func(a: Array, b: Array) -> bool: return a[1] < b[1])
+		var at: float = w[1]
+		for g: Array in cuts:
+			_lining_quad(side, at, g[1], float(w[3]), w[4], y0, h, mat)
+			_lining_quad(side, g[1], g[2], float(w[3]), w[4], y0 + float(g[3]), h - float(g[3]), mat)   # over the door
+			at = g[2]
+		_lining_quad(side, at, w[2], float(w[3]), w[4], y0, h, mat)
+
+
+func _lining_quad(side: String, a: float, b: float, fixed: float, inward: Vector3, y0: float, h: float,
+		mat: Material) -> void:
+	if b - a < 0.01 or h < 0.01:
+		return
+	var q := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = Vector2(b - a, h)
+	q.mesh = qm
+	q.material_override = mat
+	var mid := (a + b) / 2.0
+	q.position = Vector3(mid, y0 + h / 2.0, fixed) if side == "n" or side == "s" else Vector3(fixed, y0 + h / 2.0, mid)
+	q.rotation.y = atan2(inward.x, inward.z)   # a QuadMesh faces +Z
+	add_child(q)
+
+
 ## A tilted solid slab (a ramp): its own body, since the shared ones are axis-aligned.
 func _slab(at: Vector3, size: Vector3, basis: Basis, mat: Material) -> void:
 	var body := StaticBody3D.new()

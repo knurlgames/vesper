@@ -1,7 +1,8 @@
 extends SceneTree
 ## WO-010's acceptance: every screen works on the pad, the keys and the mouse (real input events throughout).
-##   - The title: any button past "press start"; the D-pad and A through the menu; the mouse clicks "Content"; Esc
-##     comes back.
+##   - The title: its cutscene, any button down to the vaults; the D-pad walks Nim from room to room, A in the Workshop
+##     opens the settings; the mouse walks back to the Quiet Room and clicks through to the content card; Esc comes
+##     back.
 ##   - Settings: A flips a toggle (invert X); the D-pad moves a slider (camera speed); Enter starts a remap and a key
 ##     press rebinds Jump; a mouse click on Back closes it. Text size and subtitles apply.
 ##   - Saves: A plays slot 1, and the level starts with its arrival card and the HUD; erasing a slot asks twice.
@@ -97,20 +98,54 @@ func focused() -> Control:
 	return root.gui_get_focus_owner()
 
 
+## Until Nim's stopped walking the vaults (and the fade's done).
+func settle(title: Node) -> void:
+	for i in 240:
+		await process_frame
+		if not is_instance_valid(title):
+			return
+		var s: Node = title.get(&"stage")
+		if not bool(title.get(&"_busy")) and s and not bool(s.get(&"walking")):
+			break
+	await frames(3)
+
+
+## The title (rebuilt 2026-11-13): the rooftop cutscene and "Press Any Button"; any button goes down to the vaults, where
+## Nim walks the corridor of rooms (D-pad left and right), and the Workshop's A opens the settings.
 func _title() -> void:
 	var title: Node = load("res://levels/title/title.tscn").instantiate()
 	root.add_child(title)
 	current_scene = title
 	await frames(5)
-	check(title.get(&"screen") == "press", "the title opens on \"press start\"")
+	check(title.get(&"screen") == "press" and title.get(&"stage") != null, "the title opens on its cutscene and \"Press Any Button\"")
 	await tap_pad(JOY_BUTTON_A)
+	await settle(title)
+	check(title.get(&"screen") == "files" and int(title.get(&"room")) == 1,
+		"A on the pad: down to the vaults, at the Rope Room (save 1) (%s, room %d)" % [title.get(&"screen"), title.get(&"room")])
+	await tap_pad(JOY_BUTTON_DPAD_RIGHT)
+	await settle(title)
+	check(int(title.get(&"room")) == 2 and int(title.get(&"stage").get(&"at")) == 2, "D-pad right: Nim walks to the Parlour (save 2)")
+	for i in 2:
+		await tap_pad(JOY_BUTTON_DPAD_RIGHT)
+		await settle(title)
+	check(int(title.get(&"room")) == 4, "and on to the Workshop (%d)" % title.get(&"room"))
+	# The stick: one push is one room, however long it's held and however its value wobbles (owner, on the Deck: it
+	# ran to the end of the corridor); back to the middle, and a second push is a second room.
+	for v: float in [0.35, 0.7, 0.9, 1.0, 0.95, 1.0]:
+		In.stick(JOY_AXIS_LEFT_X, -v)
+		await frames(3)
+	check(int(title.get(&"room")) == 3, "one push of the stick left: one room, to 3 (%d)" % title.get(&"room"))
+	await settle(title)
+	In.stick(JOY_AXIS_LEFT_X, 0.0)
 	await frames(3)
-	check(title.get(&"screen") == "main", "A on the pad: the main menu")
-	var f := focused()
-	check(f != null and f.name == "Saves", "with \"Saves\" focused (no game yet, so no Continue): %s" % (f.name if f else "nothing"))
-	await tap_pad(JOY_BUTTON_DPAD_DOWN)
-	f = focused()
-	check(f != null and f.name == "Settings", "the D-pad moves down to \"Settings\"")
+	In.stick(JOY_AXIS_LEFT_X, -1.0)
+	await frames(3)
+	In.stick(JOY_AXIS_LEFT_X, 0.0)
+	await settle(title)
+	check(int(title.get(&"room")) == 2, "back to the middle and push again: one more, to 2 (%d)" % title.get(&"room"))
+	for i in 2:
+		await tap_pad(JOY_BUTTON_DPAD_RIGHT)
+		await settle(title)
 
 
 func _settings() -> void:
@@ -165,7 +200,7 @@ func _settings() -> void:
 	await frames(3)
 	var size_btn: Button = null
 	for b in menu.find_children("*", "Button", true, false):
-		if (b as Button).text.begins_with("Text size"):
+		if (b as Button).text.begins_with("Text Size"):
 			size_btn = b
 	size_btn.grab_focus()
 	await tap_pad(JOY_BUTTON_DPAD_RIGHT)
@@ -180,30 +215,33 @@ func _settings() -> void:
 	check(not hud.call(&"settings_open"), "a mouse click on Back closes the settings")
 
 
+## By mouse: the left arrow, four times, to the Quiet Room; its card's button; "Content Notes"; Esc back.
 func _content_by_mouse() -> void:
 	var title := current_scene
-	var content: Button = title.find_child("Content", true, false)
-	await click(content)
+	for i in 4:
+		await click(title.get_node("Prev"))
+		await settle(title)
+	check(int(title.get(&"room")) == 0, "the mouse on the left arrow walks back to the Quiet Room (%d)" % title.get(&"room"))
+	await click(title.get_node("Act"))
 	await frames(3)
-	check(title.get(&"screen") == "content", "a mouse click on \"Content\" shows the content card")
+	check(title.get(&"screen") == "extras", "a click on the card's button: the Quiet Room's menu")
+	await click(title.find_child("Content", true, false))
+	await frames(3)
+	check(title.get(&"screen") == "content", "a mouse click on \"Content Notes\" shows the content card")
 	await tap_key(KEY_ESCAPE)
 	await frames(3)
-	check(title.get(&"screen") == "main", "Esc comes back to the main menu")
+	check(title.get(&"screen") == "files", "Esc comes back to the vaults")
 
 
 func _play_slot() -> void:
 	var title := current_scene
-	(title.find_child("Saves", true, false) as Control).grab_focus()
+	await tap_pad(JOY_BUTTON_DPAD_RIGHT)
+	await settle(title)
+	check(int(title.get(&"room")) == 1 and game.call(&"slot_summary", 1).is_empty(), "back at the Rope Room: save 1, empty")
 	await tap_pad(JOY_BUTTON_A)
-	await frames(3)
-	check(title.get(&"screen") == "slots", "A on \"Saves\": the three slots")
-	var play: Button = title.find_child("Slot1", true, false).get_node("Play")
-	check(play.text.contains("empty"), "slot 1 is empty: \"%s\"" % play.text)
-	play.grab_focus()
-	await tap_pad(JOY_BUTTON_A)
-	for i in 30:
+	for i in 70:
 		await process_frame
-	check(current_scene != null and current_scene.scene_file_path == game.get(&"START_SCENE"), "A on slot 1 starts the game")
+	check(current_scene != null and current_scene.scene_file_path == game.get(&"START_SCENE"), "A on save 1 starts the game")
 	await frames(5)
 	check(hud.call(&"arrival_showing"), "with the world's arrival card")
 
@@ -225,7 +263,17 @@ func _hud() -> void:
 	var nim: Node3D = level.get(&"nim")
 	var world_ui: Control = hud.get(&"_world_ui")
 	var hearts: Node = hud.get(&"_hearts")
-	check(world_ui.visible and hearts.get_child_count() == 5, "the HUD is up: five health")
+	check(world_ui.visible and hearts.get_child_count() == 5 and hud.call(&"dignity_verdict") == "Immaculate",
+		"the HUD is up: five points of Dignity, \"Immaculate\"")
+	# The camera that renders is where the follow camera's arm puts it: not at the pivot, inside Nim (owner, Deck clip
+	# 2026-11-13: "perma zoomed in on Nim's back": the crane's offset was overwriting the arm's placement).
+	var fcam: Node3D = level.get(&"cam")
+	var arm: SpringArm3D = fcam.get(&"_arm")
+	await frames(10)
+	var shown := root.get_viewport().get_camera_3d()
+	var off := shown.global_position.distance_to(fcam.global_position)
+	check(absf(off - arm.get_hit_length()) < 0.9 and off > 1.0,
+		"the camera sits back along its arm, not inside her (%.2f m from the pivot; the arm's %.2f)" % [off, arm.get_hit_length()])
 	var dash: Node3D = level.get_node("Dash_k")
 	nim.call(&"teleport", dash.global_position + Vector3(0, 0.05, 1.5), 0.0)
 	await frames(4)
@@ -255,11 +303,53 @@ func _pause() -> void:
 	check(hud.call(&"paused") and paused, "Start pauses")
 	var f := focused()
 	check(f != null and f.text == "Resume", "with Resume focused")
+	# The world's name in the middle; its tallies in the corners.
+	var here: StringName = root.get_tree().current_scene.get(&"world_id")
+	var title_l: Label = hud.get(&"_pause_title")
+	var corners: Array = hud.call(&"pause_corners")
+	check(title_l.text == UiKit.title_case(String(game.get(&"NAMES").get(here, "Paused"))) and corners.size() > 0,
+		"the pause screen names the world (%s) with %d tallies in its corners" % [title_l.text, corners.size()])
+	# Level Totals, just under Resume: open on this world's page; RB turns to the next; B comes back.
 	await tap_pad(JOY_BUTTON_DPAD_DOWN)
 	await tap_pad(JOY_BUTTON_A)
 	await frames(3)
+	var totals: LevelTotals = hud.get(&"_totals")
+	check(hud.call(&"totals_showing") and totals.page_world() == here,
+		"Level Totals opens on this world's page (%s of %d)" % [totals.page_world(), totals.page_count()])
+	var at := totals.page
+	await tap_pad(JOY_BUTTON_RIGHT_SHOULDER)
+	await frames(3)
+	check(totals.page == wrapi(at + 1, 0, totals.page_count()), "RB turns the page")
+	for i in totals.page_count():
+		if totals.page_world() == &"":
+			break
+		await tap_pad(JOY_BUTTON_RIGHT_SHOULDER)
+		await frames(2)
+	var summary: Label = totals.find_child("Summary", true, false)
+	check(totals.page == totals.page_count() - 1 and summary != null and summary.text.contains("Velvet Roses"),
+		"the last page is All Worlds, with the overview")
+	await tap_pad(JOY_BUTTON_B)
+	await frames(3)
+	f = focused()
+	check(not hud.call(&"totals_showing") and (hud.get(&"_pause_menu") as Control).visible and f != null
+		and f.text == "Level Totals", "B goes back from Level Totals")
+	# The Kit, under Level Totals: a card for everything she can do, the ones she hasn't got as "???".
+	await tap_pad(JOY_BUTTON_DPAD_DOWN)
+	await tap_pad(JOY_BUTTON_A)
+	await frames(3)
+	var grid: GridContainer = hud.get(&"_kit_grid")
+	var names: Array = grid.find_children("*", "Label", true, false).map(func(l: Label) -> String: return l.text)
+	check(hud.call(&"kit_showing") and grid.get_child_count() == Kit.ENTRIES.size() and names.has("Jump"),
+		"the Kit lists everything (%d cards)" % grid.get_child_count())
+	await tap_pad(JOY_BUTTON_B)
+	await frames(3)
+	check(not hud.call(&"kit_showing") and (hud.get(&"_pause_menu") as Control).visible, "B goes back from the Kit")
+	for i in 3:   # Resume, Level Totals, Kit, Controls
+		await tap_pad(JOY_BUTTON_DPAD_DOWN)
+	await tap_pad(JOY_BUTTON_A)
+	await frames(3)
 	var help: Control = hud.get(&"_pause_help")
-	var help_text: String = help.get_node("Text").text
+	var help_text: String = help.find_child("Text", true, false).text
 	check(help.visible and help_text.contains("Jump"), "Controls lists the bindings")
 	await tap_key(KEY_9)
 	help_text = hud.call(&"_help_text")
@@ -268,8 +358,8 @@ func _pause() -> void:
 	await frames(3)
 	check(not help.visible and (hud.get(&"_pause_menu") as Control).visible, "B goes back to the pause menu")
 	f = focused()
-	await tap_pad(JOY_BUTTON_DPAD_DOWN)
-	await tap_pad(JOY_BUTTON_DPAD_DOWN)
+	for i in 4:   # down to Settings
+		await tap_pad(JOY_BUTTON_DPAD_DOWN)
 	await tap_pad(JOY_BUTTON_A)
 	await frames(4)
 	check(hud.call(&"settings_open"), "Settings opens from the pause menu")
@@ -307,16 +397,13 @@ func _erase() -> void:
 	root.add_child(title)
 	current_scene = title
 	await frames(3)
-	title.call(&"show_slots")
+	title.call(&"show_files")
+	await settle(title)
+	check(int(title.get(&"room")) == 1 and (title.get_node("Erase") as Control).visible,
+		"save 1 has a game now: its room offers Erase")
+	await tap_pad(JOY_BUTTON_Y)
 	await frames(3)
-	var row: Node = title.find_child("Slot1", true, false)
-	check(row.has_node("Erase"), "slot 1 has a game now, so it can be erased")
-	(row.get_node("Erase") as Control).grab_focus()
-	await tap_pad(JOY_BUTTON_A)
+	check(title.get(&"_confirm") == "erase" and game.call(&"keys") == 1, "the first Y asks \"Are You Sure?\"")
+	await tap_pad(JOY_BUTTON_Y)
 	await frames(3)
-	row = title.find_child("Slot1", true, false)
-	check((row.get_node("Erase") as Button).text == "Sure?" and game.call(&"keys") == 1, "the first A asks \"Sure?\"")
-	await tap_pad(JOY_BUTTON_A)
-	await frames(3)
-	row = title.find_child("Slot1", true, false)
-	check(not row.has_node("Erase") and game.call(&"keys") == 0, "the second erases it")
+	check(game.call(&"keys") == 0 and game.call(&"slot_summary", 1).is_empty(), "the second erases it")

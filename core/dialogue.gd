@@ -396,22 +396,22 @@ func _build() -> void:
 	_panel.anchor_bottom = 1.0
 	_panel.offset_top = -250.0
 	_panel.offset_bottom = -28.0
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.09, 0.06, 0.1, 0.94)
-	sb.border_color = Look.VELVET.lightened(0.15)
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(10)
-	sb.content_margin_left = 26
-	sb.content_margin_right = 26
+	# The game's card (core/ui_kit.gd): velvet, a gold rim; the speaker's name in the heading face.
+	var sb := UiKit.card(18, 0.94)
+	sb.content_margin_left = 28
+	sb.content_margin_right = 28
 	sb.content_margin_top = 16
-	sb.content_margin_bottom = 16
+	sb.content_margin_bottom = 14
 	_panel.add_theme_stylebox_override(&"panel", sb)
 	add_child(_panel)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override(&"separation", 8)
 	_panel.add_child(v)
 	_name = Label.new()
-	_name.add_theme_font_size_override(&"font_size", 26)
+	_name.add_theme_font_override(&"font", UiKit.display())
+	_name.add_theme_font_size_override(&"font_size", 28)
+	_name.add_theme_color_override(&"font_outline_color", UiKit.INK)
+	_name.add_theme_constant_override(&"outline_size", 6)
 	v.add_child(_name)
 	_text = RichTextLabel.new()
 	_text.bbcode_enabled = true
@@ -424,7 +424,7 @@ func _build() -> void:
 	_choices = VBoxContainer.new()
 	v.add_child(_choices)
 	_more = Label.new()
-	_more.text = "..."
+	_more.text = "»"
 	_more.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_more.add_theme_color_override(&"font_color", Color("c9a447"))
+	_more.add_theme_color_override(&"font_color", UiKit.GOLD)
 	v.add_child(_more)

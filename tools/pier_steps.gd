@@ -193,16 +193,65 @@ func race() -> void:
 		if dialogue.call(&"is_active"):
 			return true
 		d.steer(Vector3(0, 0, -251.0) - d.nim.global_position)
-		dash_left[0] = float(r.get(&"_length")) - float(r.get(&"_along"))
+		dash_left[0] = float(r.get(&"_length")) - float(r.get(&"_time"))
 		return false, 25.0)
 	d.stick(0, 0)
-	d.check(ok, "over the Fun Palace's roof and over the line, with Dash %.0f m behind %s" % [dash_left[0], d.at()])
+	d.check(ok, "over the Fun Palace's roof and over the line, with Dash %.1f s behind %s" % [dash_left[0], d.at()])
 	await converse("she won: Dash let her, obviously, and hands over the crop")
 	d.check(d.nim.knows(Lessons.CROP) and flag("pier/race_won"), "Nim has the crop")
 	var p := d.nim.global_position
 	await walk_to(Vector3(p.x, 0, p.z - 1.5), 4.0, 0.3)
 	await d.secs(0.3)
 	d.check(await got(&"pier_01"), "Key 1: beat Dash")
+
+
+## Dash's way onto the west walkway, followed (owner, Deck review 3: "nearly impossible to climb"): hop the Midway's
+## west rail onto the strip, up the crate (1 m) and the stack (2 m), and over the fence's capped top (3 m) down onto
+## the walkway behind.
+func fence() -> void:
+	await d.place(Vector3(-14.0, 0.05, -109.0), PI / 2.0)
+	var over_rail := await leap(Vector3(-17.6, 0, -109.6), 0.0)
+	d.check(over_rail and d.nim.global_position.x < -16.2 and d.nim.global_position.y > -0.3,
+		"over the Midway's west rail onto the strip by the fence %s" % d.at())
+	await walk_to(Vector3(-18.5, 0, -109.4), 3.0, 0.25)
+	var low := await _step_up(Vector3(-18.5, 1.0, -110.5))
+	d.check(low, "up onto the crate (1 m) %s" % d.at())
+	var high := await _step_up(Vector3(-18.5, 2.0, -111.5))
+	d.check(high, "up onto the stack (2 m) %s" % d.at())
+	var target := Vector3(-19.0, 0, -114.5)
+	d.steer(target - d.nim.global_position)
+	await d.frames(2)
+	await d.jump(0.4)
+	var over := await d.until(func() -> bool:
+		d.steer(target - d.nim.global_position)
+		return d.nim.is_on_floor() and d.nim.global_position.z < -112.8 and d.nim.global_position.y < 0.3, 6.0)
+	d.stick(0, 0)
+	var p := d.nim.global_position
+	d.check(over and p.x > -20.0 and p.x < -18.0, "over the fence's cap and down onto the west walkway %s" % d.at())
+
+
+## A hop up onto the top at `top` (a crate's), from beside it: up first, then steered over it until she's above it, then
+## let go, so she stops there.
+func _step_up(top: Vector3) -> bool:
+	d.stick(0, 0)
+	await d.frames(15)   # settled first: still sliding from the walk up, she drifts off the crate
+	d.button(JOY_BUTTON_A, true)
+	var held := [0]
+	var ok := await d.until(func() -> bool:
+		held[0] += 1
+		if held[0] == 6:   # a short hop: a full one carries her past the crate
+			d.button(JOY_BUTTON_A, false)
+		var t := top - d.nim.global_position
+		t.y = 0.0
+		if t.length() > 0.2 and held[0] > 4:
+			d.steer(t)
+		else:
+			d.stick(0, 0)
+		return held[0] > 10 and d.nim.is_on_floor() and absf(d.nim.global_position.y - top.y) < 0.2, 3.0)
+	d.button(JOY_BUTTON_A, false)
+	d.stick(0, 0)
+	await d.frames(10)
+	return ok and absf(d.nim.global_position.y - top.y) < 0.2
 
 
 func striker() -> void:
@@ -239,7 +288,7 @@ func hush_a_gull() -> void:
 func safe() -> void:
 	await d.place(Vector3(15.6, 0.05, -148.2), -PI / 4.0)
 	await d.tap(JOY_BUTTON_Y)
-	await converse("the safe: Laffer's Decency League card, and a goon starts counting")
+	await converse("the safe: Laffer's Coalition card, and a goon starts counting")
 	var s: Node = pier.get_node("Safe")
 	d.check(s.get(&"counting"), "the count's on")
 	await walk_to(Vector3(6.8, 0, -144.9), 6.0, 0.3)
@@ -291,7 +340,7 @@ func sleepers() -> void:
 	d.check(await got(&"pier_10"), "Key 10: all five woken, and the rose tossed down for it picked up")
 
 
-## The League's collection tin on the gate: smashed, it pays the hub its Key.
+## The Coalition's collection tin on the gate: smashed, it pays the hub its Key.
 func tin() -> void:
 	await d.place(Vector3(5.5, 0.05, 4.4), 0.0)
 	await d.tap(JOY_BUTTON_X)

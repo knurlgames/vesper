@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://db7g1xaa5kq1h"
-path="res://.godot/imported/doberman_guard_normal.png-53f3d179f1eb1da5c466b238124938c5.ctex"
+path.s3tc="res://.godot/imported/doberman_guard_normal.png-53f3d179f1eb1da5c466b238124938c5.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2d2ac99bf65f79ab85852072c665ed47"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/enemies/doberman/doberman_guard_normal.png"
-dest_files=["res://.godot/imported/doberman_guard_normal.png-53f3d179f1eb1da5c466b238124938c5.ctex"]
+dest_files=["res://.godot/imported/doberman_guard_normal.png-53f3d179f1eb1da5c466b238124938c5.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=32
 detect_3d/compress_to=1

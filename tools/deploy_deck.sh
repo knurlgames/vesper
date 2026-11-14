@@ -45,3 +45,13 @@ fi
 echo "Copying $(du -h "$BUILD" | cut -f1) to $DECK_HOST:~/$DECK_DIR/$NAME..."
 ssh "$DECK_HOST" "mkdir -p ~/'$DECK_DIR' && cat > ~/'$DECK_DIR/$NAME.part' && chmod +x ~/'$DECK_DIR/$NAME.part' && mv -f ~/'$DECK_DIR/$NAME.part' ~/'$DECK_DIR/$NAME'" < "$BUILD"
 echo "Done. On the Deck: ~/$DECK_DIR/$NAME"
+# Smoke test: start it headless on the Deck through the title (which loads Nim's model) and fail on any load error.
+# 2026-11-13: an export filter left out a texture Nim's rebuilt model needs, and the game crashed on launch.
+echo "Smoke test on the Deck (headless, 900 frames)..."
+SMOKE=$(ssh "$DECK_HOST" "cd ~/'$DECK_DIR' && timeout 90 ./'$NAME' --headless --quit-after 900 2>&1" || true)
+if grep -qE "ERROR|SCRIPT ERROR|Failed loading" <<< "$SMOKE"; then
+	grep -E "ERROR|SCRIPT ERROR|Failed loading" <<< "$SMOKE" | head -20
+	echo "Smoke test FAILED: the build on the Deck logs errors at startup." >&2
+	exit 1
+fi
+echo "Smoke test passed: it starts cleanly."

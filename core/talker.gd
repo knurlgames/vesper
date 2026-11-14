@@ -32,6 +32,8 @@ var model: CastModel
 var look: EnemyModel
 ## True while walk_path is taking them somewhere.
 var walking := false
+var _walk_tw: Tween
+var _walk_id := 0
 
 
 func _ready() -> void:
@@ -68,7 +70,9 @@ func _ready() -> void:
 		add_child(body)
 	if display_name != "":
 		var tag := Label3D.new()
-		tag.text = "%s  (Y)" % display_name
+		tag.name = "NameTag"
+		# Just the name: the HUD's prompt pill says what Y does (owner: "remove all the buttons or 'Y' etc by the names").
+		tag.text = display_name
 		tag.font_size = 32
 		tag.pixel_size = 0.006
 		tag.outline_size = 8
@@ -76,6 +80,21 @@ func _ready() -> void:
 		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		tag.position.y = 2.3
 		add_child(tag)
+
+
+## Into another outfit (a cast member's model): the sisters change into their swimwear to be the sub on the cross,
+## and back into the suit after (owner, Deck review 3). Nothing happens if that GLB isn't built.
+func dress(p_outfit: String) -> void:
+	if who == "" or p_outfit == outfit or not CastModel.exists(who, p_outfit):
+		return
+	outfit = p_outfit
+	if model:
+		remove_child(model)
+		model.queue_free()
+	model = CastModel.new()
+	model.who = who
+	model.outfit = outfit
+	add_child(model)
 
 
 func once_flag() -> String:
@@ -114,6 +133,8 @@ func talk() -> void:
 ## they arrive.
 func walk_path(points: Array, speed := 1.6) -> void:
 	walking = true
+	var mine := _walk_id + 1
+	_walk_id = mine
 	for p: Vector3 in points:
 		var flat := Vector3(p.x - global_position.x, 0.0, p.z - global_position.z)
 		if flat.length() > 0.05:
@@ -121,11 +142,21 @@ func walk_path(points: Array, speed := 1.6) -> void:
 		_pace(speed)
 		var secs := global_position.distance_to(p) / speed
 		if secs > 0.0:
-			var tw := create_tween()
-			tw.tween_property(self, ^"global_position", p, secs)
-			await tw.finished
-		if not is_inside_tree():
-			return
+			_walk_tw = create_tween()
+			_walk_tw.tween_property(self, ^"global_position", p, secs)
+			await _walk_tw.finished
+		if not is_inside_tree() or _walk_id != mine:
+			return   # stopped (stop_walk), or sent somewhere else
+	_pace(0.0)
+	walking = false
+
+
+## Stops a walk where she is (a scene that needs her now: a walk still going would keep moving her).
+func stop_walk() -> void:
+	_walk_id += 1
+	if _walk_tw and _walk_tw.is_valid():
+		_walk_tw.kill()
+		_walk_tw.finished.emit()
 	_pace(0.0)
 	walking = false
 

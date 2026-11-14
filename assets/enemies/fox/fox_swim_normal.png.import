@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dijpn4liul40k"
-path="res://.godot/imported/fox_swim_normal.png-2f71a3251aa4a5d6d598a21425c0f135.ctex"
+path.s3tc="res://.godot/imported/fox_swim_normal.png-2f71a3251aa4a5d6d598a21425c0f135.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2324a5e9d40aad281aa8cdaf54226575"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/enemies/fox/fox_swim_normal.png"
-dest_files=["res://.godot/imported/fox_swim_normal.png-2f71a3251aa4a5d6d598a21425c0f135.ctex"]
+dest_files=["res://.godot/imported/fox_swim_normal.png-2f71a3251aa4a5d6d598a21425c0f135.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=32
 detect_3d/compress_to=1

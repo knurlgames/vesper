@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://uviv8f78hniu"
-path="res://.godot/imported/crate_Image_0.png-0f0cbd4b17691e87c25f96c29fba9950.ctex"
+path.s3tc="res://.godot/imported/crate_Image_0.png-0f0cbd4b17691e87c25f96c29fba9950.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9cb581afb0e4ef6447e85218c2b48ff3"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/crate_Image_0.png"
-dest_files=["res://.godot/imported/crate_Image_0.png-0f0cbd4b17691e87c25f96c29fba9950.ctex"]
+dest_files=["res://.godot/imported/crate_Image_0.png-0f0cbd4b17691e87c25f96c29fba9950.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

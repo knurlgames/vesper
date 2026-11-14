@@ -60,13 +60,13 @@ Each one is a short joke: a setup, something to play, a punchline.
 | 3 | **The shooting gallery:** crop every target, though the gallery's rigged | the Midway | suit | The prize is one of Swyne's toys. Nim confiscates it. |
 | 4 | **The high striker:** it's rigged too; climb the tower and ring the bell with the crop | the Midway | garb | The bell rings. The goon on the mallet takes the credit. |
 | 5 | **The fortune teller:** Madame Pearl (a parrot) sells toys under the table. Pose as a buyer, haggle, keep your Composure | the Midway | suit | Pearl predicts Nim's future. She's right about the ledger, wrong about everything else. |
-| 6 | **The back office safe:** in through the roof vents, out before the goons count to ten | the Fun Palace | garb | The safe holds Laffer's Decency League membership card. |
+| 6 | **The back office safe:** in through the roof vents, out before the goons count to ten | the Fun Palace | garb | The safe holds Laffer's Coalition membership card. |
 | 7 | **The prize counter:** command the clerk to kneel, then take the Key off the top shelf | the Fun Palace | suit | He's been waiting all his life for someone to tell him to. |
 | 8 | **The top of the Ferris wheel,** climbed while it turns | the wheel | garb | Vesper's in the car next to it. "You took your time." |
 | 9 | **The Big Dipper chase** (the set piece) | the coaster | garb | See below. |
 | 10 | **Five people woken:** break each plushie's device | everywhere | either | The last one wakes holding a stranger's hand. They decide to keep holding it. |
 
-Also: **100 contraband** (crates under the pier, prizes on the stalls, a stash in the Prize Hall). And **the League's
+Also: **100 contraband** (crates under the pier, prizes on the stalls, a stash in the Prize Hall). And **the Coalition's
 collection tin** on the gate (one per world): smash it and a Key appears back in the Old Quarter.
 
 ## The set piece: the Big Dipper

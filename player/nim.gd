@@ -460,6 +460,8 @@ func _step_up(motion: Vector3) -> void:
 
 ## The stick (or WASD) on the ground, relative to the camera.
 func _wish() -> Vector3:
+	if gear and gear.wheel_open:
+		return Vector3.ZERO   # the stick's the gear wheel's while it's open
 	var v := Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	var fwd: Vector3 = camera.forward() if camera else Vector3.FORWARD
 	var right := Vector3(-fwd.z, 0.0, fwd.x)
@@ -716,11 +718,36 @@ func _try_ledge(wish: Vector3) -> bool:
 ## The height of a ledge's top just behind a wall point, between `lo` and `hi`; NAN if there's none, or if the wall goes
 ## on up (a ray starting inside it hits nothing).
 func _ledge_top(wall_point: Vector3, n: Vector3, lo: float, hi: float) -> float:
-	var over := wall_point - n * 0.25
-	var down := _ray(Vector3(over.x, hi + 0.3, over.z), Vector3(over.x, lo, over.z))
+	# A quarter-metre in from the edge; on something narrower (a beam), just inside its edge.
+	var down := {}
+	for inset: float in [0.25, 0.1]:
+		var over := wall_point - n * inset
+		down = _ray(Vector3(over.x, hi + 0.3, over.z), Vector3(over.x, lo, over.z))
+		if not down.is_empty() and down.normal.y >= 0.7:
+			break
 	if down.is_empty() or down.normal.y < 0.7:
 		return NAN
-	return down.position.y
+	var top: float = down.position.y
+	# She has to be able to reach it from her side: a ceiling between her and it means the "top" is the far side of
+	# that ceiling (owner, Deck review 4: by a wall under the club's ceiling, the down-ray started above the ceiling
+	# slab, found its top, and she pulled herself up through it and out of bounds).
+	var front := wall_point + n * 0.12
+	var up := _ray(Vector3(front.x, lo, front.z), Vector3(front.x, top + 0.25, front.z))
+	if not up.is_empty() and up.normal.y < -0.5:
+		return NAN
+	return top
+
+
+## How far a top runs on from its edge, into it (a beam is only so wide): up to 0.6 m.
+func _top_depth(face: Vector3, n: Vector3, top: float) -> float:
+	var depth := 0.0
+	while depth < 0.6:
+		var p := face - n * (depth + 0.05)
+		var hit := _ray(Vector3(p.x, top + 0.2, p.z), Vector3(p.x, top - 0.2, p.z))
+		if hit.is_empty() or absf(hit.position.y - top) > 0.12:
+			break
+		depth += 0.05
+	return maxf(depth, 0.05)
 
 
 func _hang(delta: float) -> void:
@@ -756,7 +783,11 @@ func _try_mantle(lo: float, hi: float) -> bool:
 	var top := _ledge_top(at + Vector3.UP * 0.0, _wall_n, lo, hi)
 	if is_nan(top):
 		return false
-	var to := global_position - _wall_n * (RADIUS * 2.0 + 0.2)
+	# Onto the top: a step in from the edge, or the middle of something narrower (a beam: stepping a whole stride in
+	# put her past it, in the air, and the pull-up failed; owner, Deck review 4, the coaster's beams).
+	var face := global_position - _wall_n * (RADIUS + 0.03)
+	var past := minf(RADIUS + 0.17, _top_depth(face, _wall_n, top) * 0.5)
+	var to := face - _wall_n * past
 	to.y = top + 0.02
 	var space := PhysicsShapeQueryParameters3D.new()
 	space.shape = _shape

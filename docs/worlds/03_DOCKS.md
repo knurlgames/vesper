@@ -59,7 +59,7 @@ A harbour with two quays, a breakwater and a lighthouse, and the *Prudence* in t
 | 9 | **The storm** (the set piece) | everywhere | garb | See below. |
 | 10 | **Five dockers woken** | everywhere | either | The last one looks at his pyramid of boxes and is quite proud of it, actually. |
 
-Also: **100 contraband** (the coils, by the crate), and **the League's collection tin** in the Customs House.
+Also: **100 contraband** (the coils, by the crate), and **the Coalition's collection tin** in the Customs House.
 
 ## The set piece: the storm
 The *Prudence* casts off early to get away with the cargo.

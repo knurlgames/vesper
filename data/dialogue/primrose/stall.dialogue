@@ -1,0 +1,9 @@
+# OWNER REVIEW
+# The bake sale at St. Prudence's (Key 2; levels/primrose/keys/bake_sale.gd): the stallholder fetches the cake from
+# under the counter. The cake is a box of toys with icing on it.
+
+~ cake
+[narrator] The stallholder sets it down: a cake, iced pink, RESERVED piped across the top. It rattles.
+Stallholder: It's for Mrs Gander. Special order. I've not looked inside it. I've been told not to look inside it.
+[narrator] Under the icing, a box. In the box, twelve of Swyne's toys, packed in sponge.
+Nim: Lovely crumb.

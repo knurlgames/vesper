@@ -4,7 +4,7 @@ extends Level
 ## level: nothing here is final layout.
 ##
 ## A crossroads at the origin, roads 10 m wide. NE: the Velvet Rope, red door and canopy on the corner. NW: two
-## townhouses, a Decency League poster. SE: a lower block. SW: a little square with the advertising column, the bench and
+## townhouses, a Coalition poster. SE: a lower block. SW: a little square with the advertising column, the bench and
 ## Nim. Lamps on every corner. Front of a Meshy prop is its +Z.
 
 const LAMP := preload("res://assets/props/gas_lamp.glb")
@@ -19,7 +19,7 @@ const SPAWN := Vector3(-10, KERB + 0.05, 12)
 # OWNER REVIEW: the poster's wording.
 const POSTER_HEAD := "KEEP THE\nPURRLANDS\nDECENT"
 const POSTER_VOTE := "Vote SWYNE"
-const POSTER_SMALL := "Paid for by the Decency League.\nSeen something indecent? Write it down. Send it to us. All of it."
+const POSTER_SMALL := "Paid for by the Decency and Integrity Coalition of Kindness.\nSeen something indecent? Write it down. Send it to us. All of it."
 
 ## material -> Array of box transforms, flushed into one MultiMesh each (one draw call per material, not per box).
 var _batches := {}
@@ -320,7 +320,7 @@ func _post(at: Vector3) -> void:
 
 # --- the poster ------------------------------------------------------------------------------------------------------
 
-## A Decency League poster on a wall facing `n`: cream and navy, Swyne's name, and small print.
+## A Coalition poster on a wall facing `n`: cream and navy, Swyne's name, and small print.
 func _poster(at: Vector3, n: Vector3) -> void:
 	var cream := Look.toon(Look.DECENCY_CREAM)
 	var navy := Look.toon(Look.DECENCY_NAVY)

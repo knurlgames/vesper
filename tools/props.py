@@ -49,6 +49,77 @@ MESHY = {
     "map_table": dict(h=1.7),   # with its lamp: the tabletop lands near 0.9 m
     "chaise": dict(l=2.0),
     "club_cross": dict(h=2.3),
+    # Augusta's parlour (WO-014b, Deck review 3).
+    "parlour_armchair": dict(h=1.2),
+    "parlour_bookcase": dict(h=2.3),
+    "parlour_cushion": dict(l=0.78, tex=1024),
+    "parlour_mirror": dict(h=1.85),
+    "parlour_tea_table": dict(h=0.9, tex=1024),   # the pot's lid at 0.9: the tabletop lands near 0.68
+    "parlour_lamp": dict(h=1.75, tex=1024),
+    # The Velvet Rope's lounge and front door (2026-11-13, owner: "the Velvet Rope also needs some art especially in
+    # the lobby where you enter").
+    "lounge_bar": dict(l=3.0),
+    "bar_backshelf": dict(h=2.6),
+    "bar_stool": dict(h=0.8, tex=1024),
+    "lounge_sofa": dict(l=2.6),
+    "cocktail_table": dict(h=0.75, tex=1024),
+    "rope_stanchion": dict(h=1.0, tex=1024),
+    "door_podium": dict(h=1.5, tex=1024),
+    "chandelier": dict(h=1.3),
+    "potted_palm": dict(h=2.0, tex=1024),
+    # Primrose Close (WO-015 step 5).
+    "garden_gnome": dict(h=0.55, tex=1024),
+    "wheelie_bin": dict(h=1.07, tex=1024),
+    "bird_bath": dict(h=0.85, tex=1024),
+    "postbox": dict(h=1.6, tex=1024),
+    "street_lamp": dict(h=5.0),
+    "family_car": dict(l=4.2),
+    "delivery_van": dict(l=5.0),
+    "garden_shed": dict(h=2.4),
+    "topiary_swan": dict(h=1.6, tex=1024),
+    "garden_bench": dict(l=1.6, tex=1024),
+    "prize_marrow": dict(l=1.1, tex=1024),
+    "wheelbarrow": dict(l=1.5, tex=1024),
+    "trestle_table": dict(l=2.0),
+    "raffle_drum": dict(h=1.0, tex=1024),
+    "folding_chair": dict(h=0.9, tex=512),
+    "floral_sofa": dict(l=2.2),
+    # The audit's buildings (2026-11-13, owner: "spruce up the houses and church hall ... so they aren't all just painted
+    # boxes for the hub and first 2 levels"). Shells go over the greybox's collision; `fit` sizes them to it and `cut`
+    # opens the doorways of the ones you walk into (frame: +Z the front, y up, origin on the ground at the middle).
+    "pr_semi_render": dict(fit=(9.2, 9.6, 10.2)),
+    "pr_semi_render_m": dict(fit=(9.2, 9.6, 10.2), mirror="pr_semi_render"),   # its door on its left
+    # Mrs Gander's: 24 x 20, two storeys and the roof; her front door (x -1..1) and the conservatory door behind.
+    # (Cuts run deep: a porch or bay stands proud of the wall the door's in.)
+    # The walls just outside the game's (x ±12, z ±10.2 about its middle); the living room (ground floor) hollowed.
+    "pr_show_home": dict(fit=(24.6, 10.6, 20.6), walls=(12.15, 10.35),
+                         cut=[((0, 1.2, 10.35), (2.2, 2.4, 2.0)), ((0, 1.2, -10.35), (2.2, 2.4, 2.0))],
+                         hollow=[((0, 1.7, 0), (21.6, 3.4, 12.0))]),
+    # St. Prudence's hall: 28 x 28, its front (+Z) to Church Path (the world's -X). Its door is 8 m off the gable's
+    # middle (world z -46), and the tower's door is in its north side (the model's -X, world x 64..66).
+    # Its walls just outside the game's (±14.2 about the middle); the hall inside hollowed up to its ceiling (7 m).
+    "pr_church_hall": dict(fit=(28.6, 10.8, 28.6), walls=(14.35, 14.35),
+                           cut=[((-8.0, 1.6, 14.35), (3.6, 3.2, 3.0)), ((-14.35, 1.3, 3.0), (3.0, 2.6, 2.2))],
+                           hollow=[((0, 3.5, 0), (27.6, 7.0, 27.6))]),
+    "pr_spire": dict(h=10.0),
+    "pr_vicarage": dict(fit=(12.2, 9.8, 10.2)),
+    "pr_watch_hut": dict(fit=(2.8, 2.9, 2.4), tex=1024),
+    "pr_greenhouse": dict(fit=(3.0, 3.2, 4.0), tex=1024),
+    "pr_arch": dict(h=6.2),
+    "hub_facade_brick": dict(h=12.0),
+    "hub_facade_plaster": dict(h=12.0),
+    "hub_facade_shop": dict(h=12.0),
+    "padded_bench": dict(l=2.2, tex=1024),
+    "rope_coil": dict(h=0.8, tex=512),
+    "beach_hut": dict(h=3.6, tex=1024),
+    "pier_booth": dict(l=8.0),
+    "high_striker": dict(h=10.5, tex=1024),
+    # Fitted to its walls (6 deep, 5 across), its plank door (the front, +Z) cut open over the game's doorway.
+    "tackle_hut": dict(fit=(6.0, 3.6, 5.0), cut=[((0, 1.3, 2.5), (2.2, 2.6, 1.2))], hollow=[((0, 1.5, 0), (5.6, 2.9, 4.6))], tex=1024),
+    "sea_railing": dict(l=2.0, tex=512),
+    "pier_gate": dict(h=8.0),
+    # Laffer's Fun Palace's front: 36 m across, over the front wall; the jester's mouth is its door (x -1.5..1.5).
+    "funhouse_front": dict(fit=(36.4, 13.0, 1.4), cut=[((0, 1.6, 0), (3.2, 3.2, 4.0))]),
 }
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -74,7 +145,13 @@ def clean_meshy(name, src, out_dir):
     obj = bpy.context.active_object
     obj.name = obj.data.name = name
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-    if "l" in spec:
+    if "fit" in spec:
+        # Exactly this box (x, y up, z front; metres): a building shell fitted to its greybox, so `cut`s land on
+        # the game's doorways.
+        fx, fy, fz = spec["fit"]
+        d = obj.dimensions
+        obj.data.transform(Matrix.Diagonal((fx / d.x, fz / d.y, fy / d.z, 1.0)))
+    elif "l" in spec:
         obj.data.transform(Matrix.Scale(spec["l"] / max(obj.dimensions.x, obj.dimensions.y), 4))
     else:
         obj.data.transform(Matrix.Scale(spec["h"] / obj.dimensions.z, 4))
@@ -83,7 +160,39 @@ def clean_meshy(name, src, out_dir):
     shift = Vector(((min(v.x for v in vs) + max(v.x for v in vs)) / -2,
                     (min(v.y for v in vs) + max(v.y for v in vs)) / -2, -min(v.z for v in vs)))
     obj.data.transform(Matrix.Translation(shift))
+    if spec.get("mirror"):
+        obj.data.transform(Matrix.Diagonal((-1.0, 1.0, 1.0, 1.0)))
+        obj.data.flip_normals()
     obj.data.update()
+    # `walls`: (half x, half z) where the building's main walls must stand (game frame, +Z front). A porch, bays and
+    # eaves stand proud of the walls, so fitting by the bounding box leaves the walls inset, inside the room the game
+    # builds. The walls are found as the area-weighted commonest plane among faces turned to each side, and each axis
+    # is scaled and shifted so they land where asked.
+    if spec.get("walls"):
+        _fit_walls(obj, spec["walls"])
+    # `cut`: holes through a building shell where a doorway is, so the game's own door and the room behind show
+    # through (an enterable building is a Meshy shell over the greybox walls). Each is (centre x, y up, z out front),
+    # (width, height, depth) in metres in the game's frame (+Z the front); faces whose middle is inside go.
+    if spec.get("cut"):
+        import bmesh
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        doomed = []
+        for f in bm.faces:
+            c = f.calc_center_median()
+            gx, gy, gz = c.x, c.z, -c.y
+            for (cx, cy, cz), (w, h, d) in spec["cut"]:
+                if abs(gx - cx) < w / 2 and abs(gy - cy) < h / 2 and abs(gz - cz) < d / 2:
+                    doomed.append(f)
+                    break
+        bmesh.ops.delete(bm, geom=doomed, context="FACES")
+        bm.to_mesh(obj.data)
+        bm.free()
+        obj.data.update()
+    # `hollow`: boxes (same form as `cut`) inside the building's rooms: whatever of the model reaches in there (window
+    # reveals, the underside of a porch roof, inner faces) goes, so the game's own room shows.
+    if spec.get("hollow"):
+        _delete_in(obj, spec["hollow"])
     bpy.context.view_layer.update()
     for m in obj.data.materials:
         bsdf = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
@@ -100,6 +209,49 @@ def clean_meshy(name, src, out_dir):
     preview(obj, os.path.join(PREVIEWS, name + ".png"))
     tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
     return {"tris": tris, "size": [round(d, 2) for d in obj.dimensions]}
+
+
+def _plane(obj, axis, sign):
+    """The area-weighted commonest coordinate (5 cm bins) of faces turned toward `sign` on `axis` (0 x, 1 y): a wall."""
+    bins = {}
+    for p in obj.data.polygons:
+        if p.normal[axis] * sign > 0.85:
+            c = p.center[axis]
+            if c * sign > 0.0:
+                k = round(c / 0.05)
+                bins[k] = bins.get(k, 0.0) + p.area
+    return max(bins, key=bins.get) * 0.05 if bins else None
+
+
+def _fit_walls(obj, walls):
+    hx, hz = walls
+    # Game x is Blender x; game z is Blender -y.
+    xl, xr = _plane(obj, 0, -1.0), _plane(obj, 0, 1.0)
+    yb, yf = _plane(obj, 1, -1.0), _plane(obj, 1, 1.0)   # Blender -y is the front: yb (most negative) is game +z
+    sx = 2.0 * hx / (xr - xl)
+    sy = 2.0 * hz / (yf - yb)
+    obj.data.transform(Matrix.Translation((-(xl + xr) / 2.0, -(yb + yf) / 2.0, 0.0)))
+    obj.data.transform(Matrix.Diagonal((sx, sy, 1.0, 1.0)))
+    obj.data.update()
+    print("PROPS walls", obj.name, "found x", round(xl, 2), round(xr, 2), "y", round(yb, 2), round(yf, 2))
+
+
+def _delete_in(obj, boxes):
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    doomed = []
+    for f in bm.faces:
+        c = f.calc_center_median()
+        gx, gy, gz = c.x, c.z, -c.y
+        for (cx, cy, cz), (w, h, d) in boxes:
+            if abs(gx - cx) < w / 2 and abs(gy - cy) < h / 2 and abs(gz - cz) < d / 2:
+                doomed.append(f)
+                break
+    bmesh.ops.delete(bm, geom=doomed, context="FACES")
+    bm.to_mesh(obj.data)
+    bm.free()
+    obj.data.update()
 
 
 def preview(obj, path):
@@ -148,7 +300,8 @@ def main():
     os.makedirs(PREVIEWS, exist_ok=True)
     report = {}
     for name in argv[2:] or list(MESHY):
-        path = os.path.join(src, name + ".glb")
+        # `mirror`: a left-right mirror image of another prop's download (a house whose door must be on its other side).
+        path = os.path.join(src, MESHY.get(name, {}).get("mirror", name) + ".glb")
         report[name] = clean_meshy(name, path, out) if os.path.exists(path) else "missing"
     print("PROPS", report)
 

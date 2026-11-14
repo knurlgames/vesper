@@ -1,11 +1,14 @@
 extends "res://levels/pier/keys/pier_key.gd"
 ## Key 1: beat Dash from the gate to the end of the pier (worlds/01_PIER.md). She's at her beach hut. Agree to race and
-## she meets Nim at the gate, counts them in, and goes on "two". She cheats: she vaults the 4 m fence at the Fun Palace's
-## west corner and runs the walkway Nim can't get onto. Nim has to go over the top: the east walkway's marked wall, the
-## roof, and down off its back (or through the fire door, once it's open). Win and Dash claims she let her, and gives
-## her the crop (Lessons.CROP). Lose and she'll race again.
+## she meets Nim at the gate, counts them in, and goes on "two". She cheats: she hops the Midway's west rail, bounds up
+## the crates stacked against the staff fence at the Fun Palace's west corner (Pier._west_fence), vaults its capped top
+## and runs the walkway behind. Nim can follow her up the crates (owner, Deck review 3: it wasn't clear how Dash got
+## over, and Nim could barely manage it), or go over the top: the east walkway's marked wall, the roof, and down off its
+## back (or through the fire door, once it's open). Win and Dash claims she let her, and gives her the crop
+## (Lessons.CROP). Lose and she'll race again.
 
-## Dash's whole run, start to finish, in seconds: about 5.4 m/s over her route. A clean run takes Nim about 42 s. Tune on the Deck.
+## Dash's whole run, start to finish, in seconds: about 5.4 m/s on her feet, plus the hops. A clean run takes Nim about
+## 42 s over the roof. Tune on the Deck.
 @export var race_secs := 52.0
 
 const HUT := Vector3(64.5, 0.0, 14.6)
@@ -15,35 +18,67 @@ const NIM_START := Vector3(-2.5, 0.0, 5.0)
 const FINISH_Z := -249.0
 ## From her hut to the gate, along the promenade behind the beach huts' fronts and the deckchairs.
 const TO_GATE := [Vector3(60.0, 0, 16.0), Vector3(10.0, 0, 16.0), Vector3(2.5, 0, 7.5), START]
-## How far along her route the fence vault is (ROUTE's point 6, the top of the fence): she shouts as she goes over.
-const VAULT_AT := 6
-## Her route; the y bumps are the vaults (the Midway's rail, then the fence).
-const ROUTE := [Vector3(2.5, 0, 5), Vector3(4, 0, -100), Vector3(-14, 0, -108.5), Vector3(-15.5, 1.3, -109.6),
-	Vector3(-17.5, 0, -110.6), Vector3(-19, 0, -111.2), Vector3(-19, 4.4, -112.3), Vector3(-19, 0, -113.6),
-	Vector3(-19, 0, -150), Vector3(-12, 0, -160), Vector3(0, 0, -250)]
+## Her route from START, leg by leg: [where to, hop]. A hop of 0 is running; otherwise it's a jump, `hop` metres of
+## arc over the straight line, taking `secs`, after a crouch: over the Midway's rail, up the two crates, and the vault
+## over the fence's cap (Pier.FENCE_TOP, 3 m) down onto the walkway.
+const LEGS := [
+	[Vector3(4, 0, -100), 0.0], [Vector3(-14, 0, -108.6), 0.0], [Vector3(-15.2, 0, -109.2), 0.0],
+	[Vector3(-17.0, 0, -109.6), 1.5, 0.55, 20.0],            # the rail (1.1 m)
+	[Vector3(-18.5, 0, -109.5), 0.0],
+	[Vector3(-18.5, 1.0, -110.5), 0.6, 0.4, 12.0],           # onto the crate
+	[Vector3(-18.5, 2.0, -111.5), 0.6, 0.4, 12.0],           # onto the stack
+	[Vector3(-19.0, 0, -113.8), 2.6, 0.8, 65.0],             # the vault: hands down on the cap, over, and down
+	[Vector3(-19, 0, -150), 0.0], [Vector3(-12, 0, -160), 0.0], [Vector3(0, 0, -250), 0.0]]
+## The fence vault is this leg: she shouts as she crouches for it.
+const VAULT_LEG := 7
+## The crouch before a hop, and the squash as she lands, in seconds.
+const CROUCH := 0.14
+const LAND := 0.16
 
 enum Phase { IDLE, TO_START, COUNT, RACE, DONE }
 
 var phase := Phase.IDLE
 var dash: Talker
 var _t := 0.0
-var _along := 0.0
+## Seconds into her run, and its whole length (race_secs). The legs' start times, their lengths, her running speed.
+var _time := 0.0
 var _length := 0.0
+var _starts: Array[float] = []
+var _speed := 5.4
 var _count := 0
 ## Over her head during the race, seen through walls: where she's got to (owner, on the Deck: "it isn't obvious
 ## where she goes").
 var _marker: Label3D
 var _shouted := false
-var _vault_along := 0.0
 
 
 func _setup() -> void:
+	# A race left running (saved and quit mid-race, or left the Pier) is over: she offers a rematch. Saved, the flag
+	# kept her saying "The gate, Nim" with no race to run (owner, Deck review 4).
+	if flag("race_on") or flag("race_go"):
+		clear("race_on")
+		clear("race_go")
+		if not flag("race_won"):
+			set_flag("race_lost")
 	dash = talker("Dash", "dash", "start", HUT, PI, "dash", "garb", "Dash", Color("e8a030"))
 	dash.talked.connect(_on_talked)
-	for i in ROUTE.size() - 1:
-		if i == VAULT_AT - 1:
-			_vault_along = _length
-		_length += (ROUTE[i] as Vector3).distance_to(ROUTE[i + 1])
+	# Her running speed: what's left of race_secs once the hops (and their crouches) are taken out.
+	var run := 0.0
+	var fixed := 0.0
+	var from := START
+	for leg: Array in LEGS:
+		if float(leg[1]) > 0.0:
+			fixed += CROUCH + float(leg[2])
+		else:
+			run += from.distance_to(leg[0])
+		from = leg[0]
+	_speed = run / maxf(race_secs - fixed, 1.0)
+	_length = 0.0
+	from = START
+	for leg: Array in LEGS:
+		_starts.append(_length)
+		_length += _leg_secs(from, leg)
+		from = leg[0]
 	_marker = Label3D.new()
 	_marker.text = "DASH\n▼"
 	_marker.font_size = 40
@@ -60,16 +95,20 @@ func _setup() -> void:
 	# The finish: two posts and a banner across the pier, short of the Prize Hall.
 	for x: float in [-24.0, 24.0]:
 		pier.call(&"block", Vector3(x, 2.0, FINISH_Z), Vector3(0.3, 4.0, 0.3), Look.toon(Color("e8e0d0")))
-	var banner := Label3D.new()
-	banner.text = "FINISH"
-	banner.font_size = 96
-	banner.pixel_size = 0.01
-	banner.outline_size = 12
-	banner.modulate = Color(2.2, 2.2, 2.2)
-	banner.outline_modulate = Look.INK
-	banner.shaded = false
-	banner.position = Vector3(0, 4.0, FINISH_Z)
-	add_child(banner)
+	# Two banners back to back: one sided, so from beyond the line it doesn't read backwards ("HSINIF": owner, Deck clip).
+	for side: float in [1.0, -1.0]:
+		var banner := Label3D.new()
+		banner.text = "FINISH"
+		banner.font_size = 96
+		banner.pixel_size = 0.01
+		banner.outline_size = 12
+		banner.modulate = Color(2.2, 2.2, 2.2)
+		banner.outline_modulate = Look.INK
+		banner.shaded = false
+		banner.double_sided = false
+		banner.position = Vector3(0, 4.0, FINISH_Z + side * 0.02)
+		banner.rotation.y = 0.0 if side > 0.0 else PI
+		add_child(banner)
 	# Her hut's wardrobe is the first (the brief: "Dash is no help with the buttons").
 	var n := nim()
 	if n:
@@ -104,11 +143,13 @@ func _on_talked(_which: String) -> void:
 		# She runs there (owner: no teleporting): from her hut along the promenade, or back up the pier from the
 		# finish for a rematch.
 		var from_finish := dash.global_position.z < -100.0
-		var way: Array = ROUTE.duplicate()
+		var way: Array = [START]
+		for leg: Array in LEGS:
+			way.append(leg[0])
 		way.reverse()
 		await dash.walk_path(way if from_finish else TO_GATE, 6.0)
 		if is_inside_tree():
-			_place_dash(START, 0.0)
+			_place_dash(START, 0.0, 0.0, 0.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -133,25 +174,24 @@ func _physics_process(delta: float) -> void:
 
 func _go() -> void:
 	phase = Phase.RACE
-	_along = 0.0
+	_time = 0.0
 	_shouted = false
 	_marker.visible = true
 
 
 func _run(delta: float) -> void:
-	_along += _length / race_secs * delta
-	var p := _at(_along)
-	var ahead := _at(_along + 0.5)
-	_place_dash(p, atan2(-(ahead.x - p.x), -(ahead.z - p.z)))
+	_time += delta
+	var pose := _pose_at(_time)
+	_place_dash(pose.at, pose.yaw, pose.pitch, pose.squash)
 	if dash.model:
-		dash.model.speed = _length / race_secs
-	if not _shouted and _along >= _vault_along:
+		dash.model.speed = _speed
+	if not _shouted and _time >= _starts[VAULT_LEG]:
 		_shouted = true
 		Hud.caption("Dash", "Over the fence! Find your own way round, slowpoke!", 3.0)
 	var n := nim()
 	if n and n.global_position.z < FINISH_Z and n.global_position.y > -1.0:
 		_finish(true)
-	elif _along >= _length:
+	elif _time >= _length:
 		_finish(false)
 
 
@@ -161,11 +201,11 @@ func _finish(won: bool) -> void:
 	_marker.visible = false
 	if won:
 		# She's still on her route: she runs the rest of it, then up to Nim (no teleport).
+		_place_dash(dash.global_position, dash.rotation.y, 0.0, 0.0)
 		var rest: Array = []
-		var d := _along + 2.0
-		while d < _length:
-			rest.append(_at(d))
-			d += 6.0
+		for i in LEGS.size():
+			if _starts[i] + _leg_secs(START if i == 0 else LEGS[i - 1][0], LEGS[i]) > _time:
+				rest.append(LEGS[i][0])
 		rest.append(Vector3(nim().global_position.x + 2.5, 0.0, FINISH_Z - 1.0))
 		await dash.walk_path(rest, 8.0)
 		if not is_inside_tree():
@@ -175,7 +215,7 @@ func _finish(won: bool) -> void:
 		await talk("dash", "won")
 		Game.set_flag(Lessons.CROP)
 		nim().known[Lessons.CROP] = true
-		Hud.note("Dash's crop: hold X to crack it.")
+		Hud.note("Got: Dash's crop. Hold X to crack it at bells, switches and targets out of reach. In the suit, X is always the crop.", 6.0)
 		var p := nim().global_position
 		award(&"pier_01", Vector3(p.x, 0.0, p.z - 1.5))
 	else:
@@ -186,18 +226,49 @@ func _finish(won: bool) -> void:
 	phase = Phase.IDLE
 
 
-## The point `d` metres along her route.
-func _at(d: float) -> Vector3:
-	for i in ROUTE.size() - 1:
-		var a: Vector3 = ROUTE[i]
-		var b: Vector3 = ROUTE[i + 1]
-		var seg := a.distance_to(b)
-		if d <= seg:
-			return a.lerp(b, d / seg)
-		d -= seg
-	return ROUTE[ROUTE.size() - 1]
+## How long a leg takes: running at her speed, or a hop's crouch and flight.
+func _leg_secs(from: Vector3, leg: Array) -> float:
+	if float(leg[1]) > 0.0:
+		return CROUCH + float(leg[2])
+	return from.distance_to(leg[0]) / _speed
 
 
-func _place_dash(at: Vector3, yaw: float) -> void:
-	dash.global_position = at
-	dash.rotation.y = yaw
+## Where she is `t` seconds into her run, which way she faces, how far she's pitched forward (radians), and how
+## squashed she is (0..1: crouching to jump, or landing).
+func _pose_at(t: float) -> Dictionary:
+	var from := START
+	for i in LEGS.size():
+		var leg: Array = LEGS[i]
+		var to: Vector3 = leg[0]
+		var secs := _leg_secs(from, leg)
+		var u := t - _starts[i]
+		if u <= secs or i == LEGS.size() - 1:
+			var flat := Vector3(to.x - from.x, 0.0, to.z - from.z)
+			var yaw := atan2(-flat.x, -flat.z)
+			var hop := float(leg[1])
+			if hop <= 0.0:
+				var k := clampf(u / maxf(secs, 0.001), 0.0, 1.0)
+				# Landing: a squash as she comes down off the hop before.
+				var landed := i > 0 and float(LEGS[i - 1][1]) > 0.0
+				var squash := clampf(1.0 - u / LAND, 0.0, 1.0) if landed else 0.0
+				return {"at": from.lerp(to, k), "yaw": yaw, "pitch": 0.0, "squash": squash}
+			if u < CROUCH:
+				# The crouch: down on her haunches, leaning in, before she goes.
+				return {"at": from, "yaw": yaw, "pitch": -0.2, "squash": sin(u / CROUCH * PI * 0.5)}
+			var f := clampf((u - CROUCH) / float(leg[2]), 0.0, 1.0)
+			var at := from.lerp(to, f)
+			at.y += 4.0 * hop * f * (1.0 - f)
+			# Pitched over the top of the arc (the vault: hands down on the cap, heels over), upright to land.
+			return {"at": at, "yaw": yaw, "pitch": -deg_to_rad(float(leg[3])) * sin(f * PI), "squash": 0.0}
+		from = to
+	return {"at": from, "yaw": 0.0, "pitch": 0.0, "squash": 0.0}
+
+
+## Placed, turned, pitched forward about her hips (not her feet), and squashed down from the top.
+func _place_dash(at: Vector3, yaw: float, pitch := 0.0, squash := 0.0) -> void:
+	var hips := Vector3(0, 0.9, 0)
+	var b := Basis.from_euler(Vector3(pitch, yaw, 0.0))
+	dash.global_position = at + hips - b * hips
+	dash.rotation = Vector3(pitch, yaw, 0.0)
+	if dash.model:
+		dash.model.scale = Vector3(1.0 + 0.07 * squash, 1.0 - 0.18 * squash, 1.0 + 0.07 * squash)
