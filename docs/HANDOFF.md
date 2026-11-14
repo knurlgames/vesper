@@ -90,6 +90,8 @@ print "0 failures".
     "PRIZE HALL" moved in front of it;
   - every piling is the iron-and-timber legs with the X brace.
 - **Still painted:** the Fun Palace's sides and roof, the Prize Hall's sides, and the hub's street-stub end walls.
+- **Probes pass** (the same 11 as the audit). The build is exported (554 MB) but **not on the Deck**: at 20:36 "Could not
+  resolve hostname steamdeck". Run `bash tools/deploy_deck.sh --no-export` once it's awake.
 
 ## 2026-11-13: The building audit (hub, Pier, Primrose)
 - **Owner:** "Let's spruce up the houses and church hall. And audit every thing rendered so far and find a suitable
