@@ -510,6 +510,11 @@ func _under() -> void:
 func _piling(at: Vector3) -> void:
 	var top := DECK - DECK_T
 	var bottom := SEA - 2.0
+	if _have("pier_piling"):
+		# The iron-and-timber legs with their X brace and weed, over the post's collision (turned across the pier).
+		_col(Vector3(at.x, (top + bottom) / 2.0, at.z), Vector3(0.5, top - bottom, 0.5), 1)
+		_dress("pier_piling", [Vector3(at.x, bottom, at.z), 0.0, Vector3(1.8, top - bottom, 0.6)])
+		return
 	solid(Vector3(at.x, (top + bottom) / 2.0, at.z), Vector3(0.5, top - bottom, 0.5), _m.timber)
 
 
@@ -743,7 +748,12 @@ func _hall() -> void:
 	var shutter := block(Vector3(0, 2.5, -258.0), Vector3(6.0, 5.0, 0.3), Look.toon(Color("6a6a74"), 0.4))
 	shutter.name = "HallShutter"
 	_sign("CLOSED FOR STOCKTAKING", Vector3(0, 2.6, -257.8), 0.0, Look.DECENCY_CREAM, 28, false).name = "ShutterSign"
-	_sign("PRIZE HALL", Vector3(0, 9.0, -257.95), 0.0, Color(2.4, 1.9, 0.6), 96)
+	if _have("prize_hall_front"):
+		# The Edwardian front (sunburst gable, bulbs), over the front wall; its doorway cut over the shutter's.
+		_dress("prize_hall_front", [Vector3(0, DECK, -257.2), 0.0, Vector3(44.6, 19.0, 1.6)])
+		_sign("PRIZE HALL", Vector3(0, 9.0, -256.2), 0.0, Color(2.4, 1.9, 0.6), 96)
+	else:
+		_sign("PRIZE HALL", Vector3(0, 9.0, -257.95), 0.0, Color(2.4, 1.9, 0.6), 96)
 	_light(Vector3(0, 7.0, -255.0), Color("ffc860"), 3.0, 12.0)
 	_railing(Vector3(-26, DECK, -258), Vector3(-26, DECK, -298))
 	_railing(Vector3(26, DECK, -258), Vector3(26, DECK, -298))

@@ -231,14 +231,19 @@ func _club() -> void:
 	solid(Vector3(10.8, (h + DUNGEON) / 2.0, -27.0), Vector3(0.4, h - DUNGEON, 22.0), _m.club)
 	# Inside: the ceiling, the roof and its cornice; windows on the square.
 	solid(Vector3(0, CEILING + 0.15, -27.0), Vector3(21.2, 0.3, 21.2), _m.club_in)
-	deco(Vector3(0, h + 0.15, -27.0), Vector3(22.6, 0.3, 22.6), _m.sill)
 	solid(Vector3(0, h - 0.2, -27.0), Vector3(21.2, 0.38, 21.2), _m.slate)   # inside the walls: flush, they fought
-	for k in [1, 2, 3]:
-		for i in 6:
-			var x := -8.75 + i * 3.5
-			if k == 1 and absf(x) < 2.0:
-				continue
-			_window(Vector3(x, k * 3.4 + 1.9, -16.0), i % 3 != 1)
+	# The Velvet Rope's outside: the Meshy music hall (aubergine brick, stone trim, its arched windows lit) round the
+	# walls, its doorway cut over the game's (props.py club_front). Without it, the cornice and the lit windows.
+	if ResourceLoader.exists(PROP_PATH % "club_front"):
+		props("club_front", [[Vector3(0, STREET, -27.0), 0.0]], false)   # (its built size: its walls are fitted to these)
+	else:
+		deco(Vector3(0, h + 0.15, -27.0), Vector3(22.6, 0.3, 22.6), _m.sill)
+		for k in [1, 2, 3]:
+			for i in 6:
+				var x := -8.75 + i * 3.5
+				if k == 1 and absf(x) < 2.0:
+					continue
+				_window(Vector3(x, k * 3.4 + 1.9, -16.0), i % 3 != 1)
 	# The floors: the lounge at street level, cut for the ramp (x 6..9 from z -27.5 on); the dungeon 1.6 m down.
 	solid(Vector3(-2.3, -0.5, -23.3), Vector3(16.56, 1.0, 13.8), _m.carpet)      # x -10.6..6, z -16.4..-30.2 (ends 2 cm in from the wall's)
 	solid(Vector3(9.8, -0.5, -23.3), Vector3(1.56, 1.0, 13.8), _m.carpet)         # x 9..10.6
@@ -289,7 +294,7 @@ func _club() -> void:
 	deco(Vector3(0, 1.4, -15.96), Vector3(2.2, 2.9, 0.1), _m.brass)
 	solid(Vector3(0, 3.25, -15.1), Vector3(3.6, 0.35, 1.8), _m.velvet)
 	_sign("THE VELVET ROPE", Vector3(0, 3.25, -14.18), 0.0, Color("f2c56a"), 30, false)
-	_sign("Members.\nAnd those who ask nicely.", Vector3(1.9, 1.7, -15.95), 0.0, Color("e8d7c0"), 16, false)   # OWNER REVIEW
+	_sign("Members.\nAnd those who ask nicely.", Vector3(1.9, 1.7, -15.7), 0.0, Color("e8d7c0"), 16, false)   # OWNER REVIEW
 	# The Meshy posts carry their own rope, swagged toward +X: the left pair's ropes run outward from the door, the
 	# right pair turned round to match (the way in, between x -1.9 and 1.9, stays open).
 	if not props("rope_stanchion", [[Vector3(-3.4, STREET, -14.6), PI], [Vector3(-2.3, STREET, -14.6), PI],

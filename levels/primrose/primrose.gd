@@ -265,6 +265,9 @@ func _house(c: Vector3, out: Vector3, w: float, d: float, h: float, wall: Materi
 		prop := "pr_semi_render") -> void:
 	var along_x := absf(out.x) < 0.5   # its front faces ±Z, so its width runs along X
 	var size := Vector3(w if along_x else d, h, d if along_x else w)
+	# The brick houses are the red-brick semi; the rendered ones the pebbledash.
+	if prop == "pr_semi_render" and (wall == _m.brick or wall == _m.brick2) and _has_prop("pr_semi_brick"):
+		prop = "pr_semi_brick"
 	if _has_prop(prop):
 		_house_model(c, out, w, d, h, prop, door_at)
 		return
@@ -305,8 +308,11 @@ const HOUSE_WINDOWS := {
 	"pr_semi_render": [[Vector2(-1.6, 5.25), Vector2(1.8, 5.25), Vector2(-1.56, 2.33)],
 		[Vector2(1.83, 5.25), Vector2(-1.69, 5.25), Vector2(1.75, 2.33), Vector2(-1.7, 2.33)]],
 	"pr_vicarage": [[Vector2(-3.39, 4.64), Vector2(0.0, 4.64), Vector2(3.39, 4.64), Vector2(-3.39, 1.83), Vector2(3.39, 1.83)], []],
+	# (Its back is blank brick: its curtain twitchers are all on the front.)
+	"pr_semi_brick": [[Vector2(-1.73, 5.0), Vector2(2.32, 5.0), Vector2(-1.61, 1.98)], []],
 }
-const HOUSE_BUILT := {"pr_semi_render": Vector3(9.2, 9.6, 10.2), "pr_vicarage": Vector3(12.2, 9.8, 10.2)}
+const HOUSE_BUILT := {"pr_semi_render": Vector3(9.2, 9.6, 10.2), "pr_vicarage": Vector3(12.2, 9.8, 10.2),
+	"pr_semi_brick": Vector3(9.2, 9.6, 10.2)}
 
 
 ## A house as its Meshy model, over the greybox's collision box (its roof's top at h + 2.6, like the old prism). Its
@@ -320,8 +326,8 @@ func _house_model(c: Vector3, out: Vector3, w: float, d: float, h: float, prop: 
 	var b := Basis(Vector3.UP, yaw)
 	# The semi's door is on its right (+X): where the path comes in on the other side, it's the mirror image.
 	var across := Vector3(out.z, 0, -out.x)
-	var flip := prop == "pr_semi_render" and (b * Vector3.RIGHT).dot(across * door_at) < 0.0 \
-		and _has_prop("pr_semi_render_m")
+	var flip := prop.begins_with("pr_semi_") and (b * Vector3.RIGHT).dot(across * door_at) < 0.0 \
+		and _has_prop(prop + "_m")
 	_put(prop + ("_m" if flip else ""), c, yaw, fit)
 	var k := Vector3(fit.x / built.x, fit.y / built.y, fit.z / built.z) * Vector3(-1.0 if flip else 1.0, 1.0, 1.0)
 	for face in 2:
@@ -392,7 +398,7 @@ var _dress := {}
 const DRESS_SOFT := ["folding_chair", "garden_gnome", "trestle_table", "raffle_drum", "floral_sofa", "garden_bench",
 	"prize_marrow",
 	# The buildings: shells over the greybox's own collision (their doorways, belfries and climbs are in that).
-	"pr_semi_render", "pr_semi_render_m", "pr_vicarage", "pr_church_hall", "pr_show_home", "pr_spire", "pr_arch",
+	"pr_semi_render", "pr_semi_render_m", "pr_semi_brick", "pr_semi_brick_m", "pr_vicarage", "pr_church_hall", "pr_show_home", "pr_spire", "pr_arch",
 	"pr_watch_hut", "pr_greenhouse"]
 
 

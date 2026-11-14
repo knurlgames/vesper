@@ -119,6 +119,15 @@ MESHY = {
     "sea_railing": dict(l=2.0, tex=512),
     "pier_gate": dict(h=8.0),
     # Laffer's Fun Palace's front: 36 m across, over the front wall; the jester's mouth is its door (x -1.5..1.5).
+    "pier_piling": dict(h=8.0, tex=512),
+    # The Prize Hall's front over its front wall (44 x 16); its doorway (6 x 5) cut over the shutter.
+    "prize_hall_front": dict(fit=(44.6, 19.0, 1.6), cut=[((0, 2.5, 0), (6.4, 5.1, 4.0))]),
+    # The Velvet Rope: the whole club as a shell round its walls (22 x 22, 13.6 up), its walls just outside the game's,
+    # the doorway (2 x 2.8) cut through. The game's walls stay, painted inside, hidden outside.
+    "club_front": dict(fit=(23.0, 15.0, 23.0), walls=(11.08, 11.08), cut=[((0, 1.4, 11.08), (2.2, 2.85, 3.0))],
+                       hollow=[((0, 7.0, 0), (21.6, 14.0, 21.6))]),   # nothing of it inside the game's walls
+    "pr_semi_brick": dict(fit=(9.2, 9.6, 10.2)),
+    "pr_semi_brick_m": dict(fit=(9.2, 9.6, 10.2), mirror="pr_semi_brick"),
     "funhouse_front": dict(fit=(36.4, 13.0, 1.4), cut=[((0, 1.6, 0), (3.2, 3.2, 4.0))]),
 }
 

@@ -70,8 +70,26 @@ print "0 failures".
   - build size: about 332 MB, now that the cast GLBs ship (Bastion's garb grew to 24.8 MB with the tail's texture).
 - **Enemies (WO-013):** all five worlds' rosters are modelled, rigged, bound-posed and in the game (19 bodies; the
   cast stage lineup has a row per world). The Decency Engine is a downloaded mesh awaiting its boss design and rig.
-- **Meshy balance:** 1,544 credits (2026-11-13, after the building audit).
+- **Meshy balance:** 1,457 credits (2026-11-13, after the building audit and its last four).
 - **Nothing is committed** (the owner commits).
+
+## 2026-11-13: The audit's last four (after the Meshy allow rule)
+- **`.claude/settings.json`** (new, project) allows `mcp__meshy__meshy_image_to_image` and
+  `mcp__meshy__meshy_image_to_3d` (owner: "Add the rule"). After the owner restarted, the paid calls went through.
+- **Meshy: 87 credits** (3 concepts, 4 models). Task ids are under `second_pass` in
+  `.wip/meshy/wo_audit_buildings.json`.
+- **The Velvet Rope:** the club is the Meshy music hall (aubergine brick, stone trim, lit arched windows), a shell
+  round the game's walls.
+  - `walls` puts its wall planes just outside the walls, the doorway is cut, and `hollow` empties it inside.
+  - The game's walls, lounge and dungeon are untouched. The old cornice and lit-window decals go.
+  - The door plaque has moved forward to z -15.7.
+- **Primrose:** the brick houses (their wall is `_m.brick`/`brick2`) are now the red-brick semi (`pr_semi_brick`,
+  mirrored as `_m`). Its curtain twitchers are on its front only; its back is blank brick.
+- **The Pier:**
+  - the Prize Hall's Edwardian front (sunburst gable, bulbs) over its front wall, its doorway cut over the shutter;
+    "PRIZE HALL" moved in front of it;
+  - every piling is the iron-and-timber legs with the X brace.
+- **Still painted:** the Fun Palace's sides and roof, the Prize Hall's sides, and the hub's street-stub end walls.
 
 ## 2026-11-13: The building audit (hub, Pier, Primrose)
 - **Owner:** "Let's spruce up the houses and church hall. And audit every thing rendered so far and find a suitable
