@@ -1,7 +1,7 @@
 {
   "id": "hub",
   "number": 0,
-  "name": "The Velvet Rope (the Old Quarter)",
+  "name": "The Velvet Claw (the Old Quarter)",
   "host": null,
   "gear": null,
   "lesson": null,
@@ -18,9 +18,14 @@
     {"n": 5, "id": "tin_press", "name": "The Coalition's collection tin in The Decency Press", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
     {"n": 6, "id": "tin_ball", "name": "The Coalition's collection tin in The Decency Ball", "where": "paid when the tin is smashed in that world", "outfit": null, "joke": ""},
     {"n": 7, "id": "hub_07", "name": "Over the rooftops of Seafront Road: up the marked alley wall, across the roofs, along the wire to the harbour lamp", "where": "Seafront Road", "outfit": "garb", "joke": ""},
-    {"n": 8, "id": "hub_08", "name": "A client of her own: a session in the vaults, read and listened to, safeword respected", "where": "the Velvet Rope's vaults", "outfit": "suit", "joke": ""},
-    {"n": 9, "id": "hub_09", "name": "Trust: a first scene with a sister, either way (Switch or Domme)", "where": "the Velvet Rope's vaults", "outfit": null, "joke": ""},
-    {"n": 10, "id": "hub_10", "name": "The guest in the dungeon: wake him (the prologue). Her first Key", "where": "the Velvet Rope's dungeon", "outfit": "garb", "joke": ""}
+    {"n": 8, "id": "hub_08", "name": "A client of her own: a session in the vaults, read and listened to, safeword respected", "where": "the Velvet Claw's vaults", "outfit": "suit", "joke": ""},
+    {"n": 9, "id": "hub_09", "name": "Dash, home from the Pier: a first good scene with her, either way", "where": "Dash's room in the vaults", "outfit": null, "joke": ""},
+    {"n": 10, "id": "hub_10", "name": "The guest in the dungeon: wake him (the prologue). Her first Key", "where": "the Velvet Claw's dungeon", "outfit": "garb", "joke": ""},
+    {"n": 11, "id": "hub_11", "name": "Grizelda, home from Primrose Close: a first good scene with her, either way", "where": "the Throne Room", "outfit": null, "joke": ""},
+    {"n": 12, "id": "hub_12", "name": "Silke, home from the Docks: a first good scene with her, either way", "where": "the Rope Room", "outfit": null, "joke": ""},
+    {"n": 13, "id": "hub_13", "name": "Lull, home from the Retreat: a first good scene with her, either way", "where": "the Quiet Room", "outfit": null, "joke": ""},
+    {"n": 14, "id": "hub_14", "name": "Rivet, home from the Decency Press: a first good scene with her, either way", "where": "the Workshop", "outfit": null, "joke": ""},
+    {"n": 15, "id": "hub_15", "name": "Augusta, home from the Decency Ball: a first good scene with her, either way", "where": "the Parlour", "outfit": null, "joke": ""}
   ],
   "contraband": null,
   "tin": null,
@@ -32,9 +37,9 @@
   "owner_review": null,
   "status": "proposal",
   "story": [
-    "The hub: the Velvet Rope, a members' club in the Old Quarter with the dungeon underneath. Bastion keeps the door.",
+    "The hub: the Velvet Claw, a members' club in the Old Quarter with the dungeon underneath. Bastion keeps the door.",
     "The Old Quarter's streets open around it world by world, each area with a wardrobe and fast travel.",
-    "The hub changes as the story goes: the toys turn up in the Rope's own dungeon at the start, Swyne's posters go up, and the club is raided before the finale."
+    "The hub changes as the story goes: the toys turn up in the Claw's own dungeon at the start, Swyne's posters go up, and the club is raided before the finale."
   ],
   "how_it_teaches": [],
   "notes": [

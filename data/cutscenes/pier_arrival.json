@@ -1,0 +1,21 @@
+{
+  "_": "The first time Nim comes onto the Pier (levels/pier/pier.gd, Level.intro_cutscene): the promenade, the pier running out to Laffer's Fun Palace, Dash at her hut, and Vesper under the deck with the ramp down to her (owner's playtest: she never found Dash, and missed Vesper's lesson). Live.",
+  "live": true,
+  "steps": [
+    {"fade": {"to": 1.0, "secs": 0}},
+    {"shot": {"from": [-66, 15, 32], "look_at": [-20, 2, 2]}},
+    {"fade": {"to": 0.0, "secs": 1.0}},
+    {"caption": "The Pier. Swyne's seafront, prizes for everyone."},
+    {"shot": {"from": [-46, 6, 18], "look_at": [2.5, 3, -6], "secs": 4.0}},
+    {"caption": "At the far end, Laffer's Fun Palace. Where the prizes come from."},
+    {"shot": {"start_from": [2.5, 22, 32], "start_look": [0, 4, -120], "from": [2.5, 15, -45], "look_at": [0, 7, -250], "secs": 5.5}},
+    {"caption": "Dash is at her beach hut on the promenade. She wants a race."},
+    {"shot": {"node": "Dash", "start_from": [-1.3, 1.5, 2.6], "from": [-0.7, 1.55, 1.9], "look_at": [0, 1.3, 0], "secs": 3.2}},
+    {"caption": "And under the deck, Vesper is waiting for you."},
+    {"shot": {"node": "Vesper_lesson", "start_from": [-3.0, 0.0, -2.2], "from": [-2.3, 0.3, -1.5], "look_at": [0, 0.9, 0], "secs": 3.2}},
+    {"caption": "Take the ramp down to the beach, at the promenade's west end."},
+    {"shot": {"start_from": [-60, -3.6, -6], "start_look": [-46, -2.0, 3.1], "from": [-57, -3.2, -4.5], "look_at": [-45, -1.5, 3.1], "secs": 3.0}},
+    {"caption": ""},
+    {"wait": 0.3}
+  ]
+}

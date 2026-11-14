@@ -153,9 +153,88 @@ func set_word(word: StringName) -> void:
 
 
 ## What Y does right now ("" for nothing), shown with the button for the device in use.
-func set_prompt(what: String) -> void:
+## `action`: the button it's for (Y by default; X for "strike the toy" beside someone in a trance).
+func set_prompt(what: String, action: StringName = &"interact") -> void:
 	_prompt_what = UiKit.title_case(what)
-	_prompt.text = "" if what == "" else "%s   %s" % [Controls.glyph(&"interact"), _prompt_what]
+	_prompt_action = action
+	_prompt.text = "" if what == "" else "%s   %s" % [Controls.glyph(action), _prompt_what]
+
+
+var _prompt_action: StringName = &"interact"
+
+
+# --- the guide: what to do next, and which way (owner, from a first playthrough: "Need a guide or arrow to assist
+# with story progression") ------------------------------------------------------------------------------------------
+
+var _goal_text := ""
+var _goal_at := Vector3.INF
+
+
+## The current objective, shown under Dignity until it changes, with a marker over `at` (or an arrow at the screen's
+## edge toward it) when it's in this scene. "" clears it.
+func set_goal(text: String, at := Vector3.INF) -> void:
+	_goal_text = text
+	_goal_at = at
+
+
+func goal_text() -> String:
+	return _goal_text
+
+
+func _draw_goal(c: Control, vp: Vector2) -> void:
+	if _goal_text == "" or not bool(Game.get_setting("show_guide", true)):
+		return
+	# The line, under the Dignity card.
+	var font := UiKit.bold()
+	var lines := _wrap(_goal_text, font, 16, 330.0)
+	var h := 20.0 * lines.size() + 16.0
+	var box := Rect2(16, 128, 360, h)
+	c.draw_style_box(UiKit.card(12, 0.8), box)
+	c.draw_circle(box.position + Vector2(16, 18), 5.0, UiKit.GOLD)
+	for i in lines.size():
+		UiKit.text(c, font, box.position + Vector2(30, 24 + i * 20), lines[i], 16, UiKit.CREAM)
+	# The marker: over the place if it's in front of the camera and on screen, else a chevron on the edge.
+	if _goal_at == Vector3.INF:
+		return
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	var n := _nim()
+	var dist: float = n.global_position.distance_to(_goal_at) if n else 0.0
+	if dist < 3.0:
+		return
+	var at := _goal_at + Vector3.UP * 2.2
+	var ahead := not cam.is_position_behind(at)
+	var p := cam.unproject_position(at)
+	var margin := 48.0
+	if vp.x < margin * 3.0 or vp.y < margin * 3.0:
+		return   # (a probe's 64-pixel window: no room for a marker)
+	var bob := sin(_t * 3.0) * 5.0
+	var label := "%d m" % roundi(dist)
+	if ahead and Rect2(Vector2(margin, margin), vp - Vector2(margin, margin) * 2.0).has_point(p):
+		var tip := p + Vector2(0, bob)
+		c.draw_colored_polygon(PackedVector2Array([tip + Vector2(-12, -22), tip + Vector2(12, -22), tip]), UiKit.GOLD)
+		c.draw_polyline(PackedVector2Array([tip + Vector2(-12, -22), tip + Vector2(12, -22), tip, tip + Vector2(-12, -22)]),
+			UiKit.INK, 2.0, true)
+		UiKit.text(c, UiKit.display(), tip + Vector2(-30, -30), label, 16, UiKit.CREAM, HORIZONTAL_ALIGNMENT_CENTER, 60)
+		return
+	# Off screen (or behind): point from the middle toward it, pinned to the edge.
+	var centre := vp / 2.0
+	var d := p - centre
+	if not ahead:
+		d = -d
+	if d.length() < 1.0:
+		d = Vector2(0, 1)
+	d = d.normalized()
+	var half := centre - Vector2(margin, margin)
+	var k := minf(half.x / maxf(absf(d.x), 0.001), half.y / maxf(absf(d.y), 0.001))
+	var edge := centre + d * k
+	var side := Vector2(-d.y, d.x)
+	var pts := PackedVector2Array([edge + d * 16, edge - d * 10 + side * 14, edge - d * 10 - side * 14])
+	c.draw_colored_polygon(pts, UiKit.GOLD)
+	pts.append(pts[0])
+	c.draw_polyline(pts, UiKit.INK, 2.0, true)
+	UiKit.text(c, UiKit.display(), edge - d * 34 + Vector2(-30, 6), label, 16, UiKit.CREAM, HORIZONTAL_ALIGNMENT_CENTER, 60)
 
 
 ## A short notice: a locked door, a rule.
@@ -336,7 +415,7 @@ func _apply_setting(key: String) -> void:
 
 ## Banjo-style: a pick-up shows its world's count for a moment, then gets out of the way.
 func _on_collected(kind: StringName, world: StringName, _id: StringName) -> void:
-	# A "key" in the code is a Velvet Rose on screen (owner, 2026-11-12): the Rope's rose for good work.
+	# A "key" in the code is a Velvet Rose on screen (owner, 2026-11-12): the Claw's rose for good work.
 	_counter_kind = kind
 	_counter_text = "%d / %d" % [Game.count(kind, world), Game.total(kind, world)] if kind != &"tin" else "Smashed!"
 	_counter_world = Game.NAMES.get(world, String(world))
@@ -357,6 +436,7 @@ func _draw_world() -> void:
 	if _in_suit:
 		_draw_suit(c, vp)
 	_draw_gear(c, vp)
+	_draw_goal(c, vp)
 	_draw_prompt(c, vp)
 	_draw_note(c, vp)
 	_draw_zone(c, vp)
@@ -527,12 +607,12 @@ func _draw_prompt(c: Control, vp: Vector2) -> void:
 		return
 	var h := 32.0
 	var tw := UiKit.display().get_string_size(_prompt_what, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x
-	var gw := UiKit.glyph_width(&"interact", h)
+	var gw := UiKit.glyph_width(_prompt_action, h)
 	var w := gw + tw + 40.0
 	var bob := sin(_t * 3.0) * 2.0
 	var box := Rect2(vp.x / 2.0 - w / 2.0, vp.y - 172 + bob, w, h + 14)
 	c.draw_style_box(UiKit.card(int((h + 14) / 2.0), 0.85), box)
-	UiKit.draw_glyph(c, Vector2(box.position.x + 12, box.get_center().y), &"interact", h)
+	UiKit.draw_glyph(c, Vector2(box.position.x + 12, box.get_center().y), _prompt_action, h)
 	UiKit.text(c, UiKit.display(), Vector2(box.position.x + 22 + gw, box.get_center().y + 8), _prompt_what, 22, UiKit.CREAM)
 
 

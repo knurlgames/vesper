@@ -13,6 +13,8 @@ const FALL_Y := -20.0
 
 ## Which world this is (Game counts collectibles and remembers bound goons per world).
 var world_id: StringName = &"test"
+## A cutscene played the first time Nim sets foot in this world, before its arrival card (Dialogue.play_cutscene).
+var intro_cutscene := ""
 var nim: Nim
 var cam: Node3D
 ## Where she comes back: the spawn, then the last checkpoint she passed.
@@ -45,6 +47,7 @@ func spawn_player(at: Vector3, yaw := 0.0) -> void:
 	spawn_at = at
 	spawn_yaw = yaw
 	# Been here: the pause menu's Level Totals pages each world she's set foot in.
+	var first_visit := world_id in Game.WORLDS and not Game.has_flag("visited/%s" % world_id)
 	if world_id in Game.WORLDS:
 		Game.set_flag("visited/%s" % world_id)
 	nim = Nim.new()
@@ -74,14 +77,45 @@ func spawn_player(at: Vector3, yaw := 0.0) -> void:
 	nim.suit.set_outfit(NimSuit.Outfit.GARB)
 	Hud.set_word(nim.suit.word)
 	Hud.age_gate()
-	_arrival_card()
+	if first_visit and intro_cutscene != "":
+		_intro.call_deferred()
+	else:
+		_arrival_card()
+
+
+## The world's first-visit cutscene (intro_cutscene), once its people are placed; then its arrival card.
+func _intro() -> void:
+	for i in 3:
+		await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	await Dialogue.play_cutscene(intro_cutscene)
+	if is_inside_tree():
+		_arrival_card()
 
 
 func _process(_delta: float) -> void:
 	if nim:
 		Hud.set_light(nim.light)
 		# Held by a scene (the cross, the club's games, cutscenes): nothing to press Y at.
-		Hud.set_prompt(nim.suit.y_prompt() if nim.is_physics_processing() else "")
+		var y := nim.suit.y_prompt() if nim.is_physics_processing() else ""
+		if y == "" and nim.is_physics_processing() and _near_trance():
+			# Beside someone in a trance: say what wakes them (owner, a first playthrough: she punched the Pier's first
+			# sleeper without seeing it was the same as waking the guest).
+			Hud.set_prompt("Hit the toy to wake them", &"strike")
+		else:
+			Hud.set_prompt(y)
+		var g := Guide.step(self)
+		Hud.set_goal(g[0], g[1])
+
+
+## Someone still in a trance within a few metres, in front of Nim or not.
+func _near_trance() -> bool:
+	for e: Node in get_tree().get_nodes_in_group(&"entranced"):
+		var t := e as Node3D
+		if t and int(t.get(&"state")) == 0 and t.global_position.distance_to(nim.global_position) < 4.0:
+			return true
+	return false
 
 
 ## The world's arrival card: its name, and its host and gear if its data has them.

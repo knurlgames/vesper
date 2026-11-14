@@ -285,7 +285,7 @@ def unbleed(body):
 # --- bound: the tied-up pose and its ropes (owner: "we need bound variants of each of the goons") ---------------------
 ## A `bound` clip: sat on the ground, legs straight out and together, arms pulled behind the back, head down, a small
 ## struggle in a loop. Keyed with cast_build's world-axis rotations, so it works on any of Meshy's rigs. Then the
-## Rope's red cord, built for this body in that pose and parented to its bones so it rides along: two turns round the
+## Claw's red cord, built for this body in that pose and parented to its bones so it rides along: two turns round the
 ## chest pinning the arms, one round the ankles. They're exported in the GLB as `<body>_Ropes_*` (EnemyModel shows
 ## them only while he's bound).
 import math  # noqa: E402
@@ -342,7 +342,7 @@ ROPE_STRANDS = 3
 ROPE_LAY = 0.05             # metres per full turn of a strand
 ROPE_BULGE = 0.22           # strand crown vs groove, as a fraction of the cord's radius
 ROPE_TEX = 128
-## Velvet: the Rope's crimson (Look.VELVET, #7a1428) on the strand crowns, near-black wine in the grooves.
+## Velvet: the Claw's crimson (Look.VELVET, #7a1428) on the strand crowns, near-black wine in the grooves.
 ROPE_CROWN = (0x9c, 0x22, 0x3a)
 ROPE_MID = (0x7a, 0x14, 0x28)
 ROPE_GROOVE = (0x2e, 0x05, 0x0e)
@@ -534,10 +534,10 @@ def _slab_radius(vs, centre, axis, half, near=0.35, pct=80):
 
 ## The velvet tape (owner, 2026-11-12: "to pair with the Kink and Velvet nature... I want them to also have their
 ## mouths wrapped in velvet 'tape' when they get tied up", then "Option 2... and keep the tape velvet"). The classic
-## cartoon X: two short strips of the Rope's velvet crossed over the mouth, laid onto the face (each point projected
+## cartoon X: two short strips of the Claw's velvet crossed over the mouth, laid onto the face (each point projected
 ## straight back onto the skin from the front, so it follows the face without wrapping anything), skinned with the
 ## face's own weights, shown only while bound. (A band wrapped round the whole snout tore on whiskers and jowls.)
-## It's the goons' comeuppance; the Rope's own masks never cover a mouth (ART_DIRECTION §1).
+## It's the goons' comeuppance; the Claw's own masks never cover a mouth (ART_DIRECTION §1).
 TAPE_LEN = 0.55            # each strip's length, as a fraction of the head's width
 TAPE_WIDTH = 0.11          # each strip's width, as a fraction of the head's width
 TAPE_ANGLE = 32.0          # degrees each strip leans off horizontal

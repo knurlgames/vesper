@@ -2,7 +2,7 @@ extends SceneTree
 ## Laffer's fight in the Prize Hall (WO-014 step 4), with real input on a fresh Pier with the ledger (the pier's own
 ## goons and gulls cleared off). The steps are tools/pier_steps.gd's:
 ##   - in, the door locks, Laffer's welcome; downed and back in (the door opens, the phase waits, no second welcome);
-##   - the Claw: a drop side-stepped, a drop taken; the stuck claw's cable climbed, the bridge walked to his gallery;
+##   - the Cackling Crane: a drop side-stepped, a drop taken; the stuck claw's cable climbed, the bridge walked to his gallery;
 ##   - whack-a-goon: three hits at the hatches, following the gull's calls; goons came up;
 ##   - the prize mountain: the toy, the steps through the boxes, the pounce; the rosette, Vesper, the paper.
 ##   godot --headless --fixed-fps 60 --path . -s tools/pier_boss_probe.gd
@@ -19,6 +19,7 @@ func _initialize() -> void:
 	game.call(&"set_setting", "age_confirmed", true)
 	game.call(&"reset")
 	game.call(&"set_flag", "pier/ledger")
+	game.call(&"set_flag", "visited/pier")   # (not the first visit: no arrival cutscene before the fight)
 	var pier: Node = load(PIER).instantiate()
 	root.add_child(pier)
 	current_scene = pier

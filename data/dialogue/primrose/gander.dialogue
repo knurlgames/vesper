@@ -18,3 +18,13 @@ Nim: It's a lovely sign.
 [narrator] And under the order book, folded small: shipping notes. Crates of "literature", due at the Docks.
 Gander: The Councillor will hear about this.
 Nim: I'm counting on it.
+
+# The second half of her finish (owner, 2026-11-14): her last word, Nim's retort, the tape (gander.gd tape_gag), and
+# her "properly gagged", on her gagged portrait (speakers.json GanderGagged).
+~ tape
+Gander [cold]: And ANOTHER thing, young lady. When I am through with you, you will never work in this Close ag-
+Nim: Shh. Indoor voice.
+
+~ gagged
+GanderGagged: MMMPH! Mmph mmph MMMPH! Mmmph!
+[narrator] It's the most polite she's sounded all evening.

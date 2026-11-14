@@ -1,0 +1,11 @@
+{
+  "_": "The prologue's guest coming down the ramp into the dungeon (levels/hub/prologue.gd): from the ramp's foot as he comes down, then his glassy eyes, then the humming plush in his hands. Shows the thing to look for: someone in a trance, holding a toy. Live: he walks.",
+  "live": true,
+  "steps": [
+    {"shot": {"from": [6.9, -0.7, -32.4], "look_at": [7.5, 0.7, -25.0]}},
+    {"wait": 4.0},
+    {"track": {"node": "Entranced_guest", "offset": [0.0, 1.72, -1.5], "look": [0.0, 1.55, 0.0], "secs": 2.4}},
+    {"track": {"node": "Entranced_guest", "offset": [0.3, 1.2, -0.8], "look": [0.0, 1.05, -0.25], "secs": 2.2}},
+    {"wait": 0.2}
+  ]
+}

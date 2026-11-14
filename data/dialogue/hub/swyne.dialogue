@@ -1,0 +1,30 @@
+# OWNER REVIEW
+# Councillor Swyne's cutaways (owner, 2026-11-14; Banjo's cuts back to the villain): after each world, the first time
+# Nim's back at the club, the camera cuts to his office at City Hall after hours, the evening paper on his desk
+# (levels/hub/swyne_office.gd). Three parts a world: <world> (pleased with himself), <world>_paper (what page two says,
+# over a close-up of the paper), <world>_rage (working it out). He never believes he's the joke, and he always is.
+
+~ pier
+Swyne [pleased]: "Councillor Swyne condemned the filth on our seafront." Ha! Strong. Clear. They'll read that out in chapel.
+Swyne: Now. Page two.
+
+~ pier_paper
+Swyne: "Pier manager found tied up in his own Prize Hall, wearing a rosette."
+
+~ pier_rage
+Swyne: Laffer. Somebody tied up Lou Laffer.
+Swyne [angry]: And gave him a rosette! It says WINNER! He's never won a thing in his life. I made sure of it.
+Swyne [angry]: Somebody is cleaning up my seafront. Cleaning up the seafront is MY campaign. I have the leaflets!
+
+~ primrose
+Swyne [pleased]: "The parish thanks Mrs. Gander for a record year." So it should. A pillar. A real pillar of the parish.
+Swyne: And page two...
+
+~ primrose_paper
+Swyne: "...found tied to her own garden bench, beneath her own sign."
+
+~ primrose_rage
+Swyne [angry]: My sign. SWYNE FOR DECENCY. I paid for that sign! It was laminated!
+Swyne: And her order book is missing. Every councillor's address is in that book. Every one.
+Swyne [angry]: That's two. Somebody is reading my paperwork.
+Swyne: I want those masks on every wall in the Old Quarter. WANTED. By morning.

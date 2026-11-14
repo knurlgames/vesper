@@ -14,6 +14,8 @@ const PAGES := ["Controls", "Camera", "Display & sound", "Accessibility"]
 ## names SettingsMenu compiles before autoloads exist).
 const ControlsScript := preload("res://core/controls.gd")
 const TEXT_SIZES: Array[String] = ["Small", "Medium", "Large"]
+## Conversation typing speeds (Dialogue.TEXT_SPEEDS, letters a second); "Instant" shows each line whole.
+const TEXT_SPEEDS: Array[String] = ["Slow", "Normal", "Fast", "Instant"]
 
 var page := 0
 ## The action and device being rebound (the screen waits for the next key or button).
@@ -69,11 +71,14 @@ func show_page(i: int) -> void:
 			Menu.toggle(_body, "Invert up and down", "invert_y")
 		2:
 			Menu.slider(_body, "Volume", "volume", 0.0, 1.0, 0.1)
+			Menu.toggle(_body, "Typing blips in conversations", "text_blips")
 			Menu.toggle(_body, "Fullscreen", "fullscreen")
 			Menu.toggle(_body, "Show the frame rate", "show_fps")
 		3:
 			Menu.toggle(_body, "Subtitles (what people say aloud)", "subtitles")
+			Menu.toggle(_body, "Show the guide (what's next, and which way)", "show_guide")
 			Menu.choice(_body, "Text size", "text_size", TEXT_SIZES)
+			Menu.choice(_body, "Text speed", "text_speed", TEXT_SPEEDS)
 			Menu.toggle(_body, "Reduce motion (cuts, not camera moves)", "reduce_motion")
 			Menu.toggle(_body, "Reduce flashing", "reduce_flashing")
 

@@ -489,9 +489,9 @@ func _close_scene() -> void:
 ## Mrs Gander needs some air, in her garden, alone: the back door's unlocked, and she's gone through it (step 4's fight
 ## is out there).
 func _after_party(walk: bool) -> void:
-	var lock := level.get_node_or_null("GardenDoor")
+	var lock := level.get_node_or_null(^"GardenDoor") as LockDoor
 	if lock:
-		lock.queue_free()
+		lock.unlock(walk)
 	for t: Talker in guests:
 		t.label = "after"
 	if not is_instance_valid(gander):

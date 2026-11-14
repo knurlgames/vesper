@@ -53,9 +53,27 @@ func _initialize() -> void:
 	await _guards()
 	await _dash()
 	await _cutscene()
+	await _speeds()
 	_lint()
 	print("dialogue probe: %d failures" % d.fails)
 	quit(1 if d.fails else 0)
+
+
+## Settings > Text speed: how much of the prologue's first line is typed after half a second, at each speed; Instant
+## shows it whole at once.
+func _speeds() -> void:
+	var typed := []
+	for speed in 4:
+		game.call(&"set_setting", "text_speed", speed)
+		dialogue.call(&"run", "res://data/dialogue/hub/prologue.dialogue", "welcome")
+		await d.secs(0.5)
+		typed.append(float(dialogue.get(&"_shown")))
+		dialogue.set(&"auto_advance", true)
+		await d.until(func() -> bool: return not dialogue.call(&"is_active"), 5.0)
+		dialogue.set(&"auto_advance", false)
+	d.check(typed[0] < typed[1] and typed[1] < typed[2] and typed[3] >= 40.0,
+		"text speed: slow < normal < fast, instant whole (%s)" % [typed])
+	game.call(&"set_setting", "text_speed", 1)
 
 
 func _current_text() -> String:
@@ -153,6 +171,7 @@ func _dash() -> void:
 
 func _cutscene() -> void:
 	var stand := course.get_node("Newsstand_k") as Node3D
+	dialogue.set(&"skip_cutscenes", false)   # (the driver skips them for every other probe: this one's about them)
 	await d.place(stand.global_position + Vector3(0, 0.05, 1.5), 0.0)
 	var level_cam := root.get_viewport().get_camera_3d()
 	await d.tap(JOY_BUTTON_Y)
@@ -170,6 +189,19 @@ func _cutscene() -> void:
 	await d.secs(0.6)
 	d.check(root.get_viewport().get_camera_3d() == level_cam and not paused and not dialogue.call(&"is_active"),
 		"and the level's camera comes back, the world running")
+	# A cinematic one, held B to skip: the bars, then gone in under a second of holding, the camera home.
+	dialogue.call(&"play_cutscene", {"live": true, "steps": [{"shot": {"from": [195, 6, 20], "look_at": [199, 1, 10], "secs": 6}},
+		{"wait": 6}, {"set": {"flag": "probe/cut_end"}}]})
+	await d.secs(0.5)
+	var bars := (dialogue.get(&"_bars") as Array)[0] as Control
+	var tall := root.get_viewport().get_visible_rect().size.y
+	d.check(dialogue.call(&"is_active") and bars.size.y > tall * 0.08, "a cinematic cutscene: the letterbox bars are in (%.0f of %.0f)" % [bars.size.y, tall])
+	d.button(JOY_BUTTON_B, true)
+	var gone := await d.until(func() -> bool: return not dialogue.call(&"is_active"), 1.5)
+	d.button(JOY_BUTTON_B, false)
+	d.check(gone and game.call(&"has_flag", "probe/cut_end") and root.get_viewport().get_camera_3d() == level_cam,
+		"held B: skipped to its end (its flag set), the level's camera back")
+	dialogue.set(&"skip_cutscenes", true)
 
 
 func _lint() -> void:

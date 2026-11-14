@@ -7,10 +7,11 @@ extends StaticBody3D
 @export var id: StringName = &""
 @export var width := 1.6
 @export var height := 2.6
+@export var colour := Color("4a3a2a")
 
 var is_open := false
 var world: StringName = &"test"
-var _mesh: MeshInstance3D
+var _leaf: Node3D
 var _col: CollisionShape3D
 
 
@@ -27,20 +28,10 @@ func _ready() -> void:
 	_col.shape = shape
 	_col.position.y = height / 2.0
 	add_child(_col)
-	_mesh = MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = shape.size
-	_mesh.mesh = box
-	_mesh.position.y = height / 2.0
-	_mesh.material_override = Look.toon(Color("4a3a2a"))
-	add_child(_mesh)
-	var bolt := MeshInstance3D.new()
-	var b := BoxMesh.new()
-	b.size = Vector3(0.5, 0.1, 0.1)
-	bolt.mesh = b
-	bolt.position = Vector3(0, height * 0.5, 0.15)   # the bolt's on the back
-	bolt.material_override = Look.toon(Look.BRASS, 0.6)
-	_mesh.add_child(bolt)
+	# A leaf on its hinge (DoorKit; it used to spin on its middle, half of it through the wall either side), its bolt
+	# on the back.
+	_leaf = DoorKit.panelled(self, Vector3(-width / 2.0, 0, 0), width, height, 1.0, colour, 0.07)
+	DoorKit.part(_leaf, [[Vector3(width - 0.35, height * 0.5, 0.07), Vector3(0.5, 0.08, 0.06)]], Look.toon(Look.BRASS, 0.6))
 	var game := get_node_or_null(^"/root/Game")
 	if game and game.call(&"has_flag", flag()):
 		_open_now(false)
@@ -66,7 +57,5 @@ func try_open(from: Vector3) -> bool:
 func _open_now(animate: bool) -> void:
 	is_open = true
 	_col.set_deferred(&"disabled", true)
-	if animate:
-		create_tween().tween_property(_mesh, ^"rotation:y", -PI / 2.0, 0.5)
-	else:
-		_mesh.rotation.y = -PI / 2.0
+	# Away from whoever unbolted it (they're behind it, +Z): it swings to the front.
+	DoorKit.swing(_leaf, deg_to_rad(100.0), 0.6 if animate else 0.0)

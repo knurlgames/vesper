@@ -1,12 +1,13 @@
 class_name Checkpoint
 extends Area3D
-## A checkpoint (WO-004: generous, no lives): walking past it makes it where Nim comes back after she's downed. A lamp
-## post with a velvet ribbon that brightens when it's hers.
+## A checkpoint (WO-004: generous, no lives): walking past it makes it where Nim comes back after she's downed. An
+## invisible trigger at a key point (owner, 2026-11-14: "remove the explicit checkpoint flags throughout the game ...
+## so they aren't more on-screen clutter"; it was a post with a velvet flag). The travel posts, which you can see and
+## use, are checkpoints too (TravelPoint).
 
 ## The way she faces when she comes back here.
 @export var yaw := 0.0
 
-var _flag: MeshInstance3D
 var _lit := false
 
 
@@ -15,27 +16,11 @@ func _ready() -> void:
 	collision_mask = 1   # Nim's layer; she's picked out by class below
 	monitoring = true
 	var shape := BoxShape3D.new()
-	shape.size = Vector3(3.0, 3.0, 3.0)
+	shape.size = Vector3(6.0, 4.0, 6.0)   # wide: with nothing to see, nobody aims for it
 	var col := CollisionShape3D.new()
 	col.shape = shape
-	col.position.y = 1.5
+	col.position.y = 2.0
 	add_child(col)
-	var post := MeshInstance3D.new()
-	var cyl := CylinderMesh.new()
-	cyl.top_radius = 0.05
-	cyl.bottom_radius = 0.08
-	cyl.height = 2.2
-	post.mesh = cyl
-	post.position = Vector3(1.6, 1.1, 0)
-	post.material_override = Look.toon(Look.INK)
-	add_child(post)
-	_flag = MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(0.05, 0.5, 0.35)
-	_flag.mesh = box
-	_flag.position = Vector3(1.6, 1.9, 0.2)
-	_flag.material_override = Look.toon(Look.VELVET.darkened(0.5))
-	add_child(_flag)
 
 
 func _physics_process(_delta: float) -> void:
@@ -52,9 +37,6 @@ func _reach(_nim: Nim) -> void:
 		level.call(&"checkpoint", global_position, yaw, self)
 
 
-## Lit when it's the current one.
+## (Level.checkpoint lights the current one; there's nothing to see.)
 func set_lit(on: bool) -> void:
-	if on == _lit:
-		return
 	_lit = on
-	_flag.material_override = Look.toon(Look.VELVET if on else Look.VELVET.darkened(0.5), 0.3 if on else 0.0)

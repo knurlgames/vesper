@@ -91,6 +91,11 @@ func _ready() -> void:
 	add_child(_model)
 	_dress(_model)
 	_player = _model.find_child("AnimationPlayer", true, false)
+	if who == "nim":   # the Claw's Clawed Rose on her grille and her harness's medallion (NimModel.emblems)
+		var sk: Skeleton3D = null
+		for s: Skeleton3D in _model.find_children("*", "Skeleton3D", true, false):
+			sk = s
+		NimModelScript.emblems(_model, sk, path)
 	# Nim, worn as a cast model (the title's cutscene and the file select): her head shrunk to sit with the cast's, her
 	# muzzle less so, as her own model does (player/nim_model.gd HEAD_SCALE, MASK_SCALE).
 	var nim_head := NimModelScript.HEAD_SCALE if who == "nim" else 1.0

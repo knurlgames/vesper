@@ -1,7 +1,7 @@
 extends Node3D
 ## The title screen's cutscene (owner, 2026-11-13: "a small cutscene that plays in the background with the working title
 ## 'Vesper's Kinky Kapers' listed and 'Press Any Button'"; after Banjo's band on the title and Conker's throne room: the
-## whole cast at home, in character, looping). On the Velvet Rope's roof at night, its neon sign buzzing over the street:
+## whole cast at home, in character, looping). On the Velvet Claw's roof at night, its neon sign buzzing over the street:
 ##   - the sisters off duty: Grizelda in a deckchair, Augusta reading, Silke coiling rope, Lull on a chaise under the
 ##     string lights, Dash stretching, Rivet up a step fixing the sign's wiring;
 ##   - Vesper at the parapet, watching the city;
@@ -240,7 +240,7 @@ func _city() -> void:
 	_light(Vector3(0, -3.0, 16.0), Color("ffb060"), 2.0, 16.0)
 
 
-## The sign over the street: THE VELVET ROPE in neon, on a frame at the roof's front edge.
+## The sign over the street: THE VELVET CLAW in neon, on a frame at the roof's front edge.
 func _sign() -> void:
 	var frame := Look.toon(Color("2a2430"))
 	for x: float in [-4.6, 4.6]:
@@ -250,7 +250,7 @@ func _sign() -> void:
 	# Both faces: the street reads it, and so do we, from the roof (reversed: we see its back).
 	for side: float in [1.0, -1.0]:
 		var l := Label3D.new()
-		l.text = "THE VELVET ROPE"
+		l.text = "THE VELVET CLAW"
 		l.font = UiKit.display()
 		l.font_size = 120
 		l.pixel_size = 0.0072

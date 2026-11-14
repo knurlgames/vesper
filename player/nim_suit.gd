@@ -415,7 +415,7 @@ func _interact_input(delta: float) -> void:
 		_hold_the_room()
 
 
-## The Velvet Rope's changing screen (owner, Deck review 5: "Nim should be directed to change into her undergarments
+## The Velvet Claw's changing screen (owner, Deck review 5: "Nim should be directed to change into her undergarments
 ## at a wardrobe to begin a scene"): the garb, the Domme suit (to lead a scene), or her two-piece (to be the sub; no
 ## muzzle, so her face, and any blindfold, show).
 func _club_screen() -> void:

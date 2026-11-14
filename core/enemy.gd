@@ -83,6 +83,7 @@ var _look: EnemyModel
 var _mark: Label3D
 var _ropes: Node3D
 var _note: Label3D
+const CARD := preload("res://assets/ui/emblems/three_marks.png")
 
 
 func _ready() -> void:
@@ -422,7 +423,30 @@ func _become_bound() -> void:
 	if _ropes:
 		_ropes.visible = true
 		_note.visible = true
+	_calling_card()
 	_show()
+
+
+## The Claw's calling card (owner, 2026-11-14: "Three Marks"): three claw slashes with a rosebud blooming from the
+## middle one, scored into the ground in front of him (assets/ui/emblems/three_marks.png, a Decal: it lies on whatever
+## floor he's on, boards or cobbles). Turned a little differently for each goon.
+var _card: Decal
+
+
+func _calling_card() -> void:
+	if _card:
+		return
+	_card = Decal.new()
+	_card.name = "CallingCard"
+	_card.texture_albedo = CARD
+	_card.size = Vector3(1.7, 1.2, 1.7)
+	_card.upper_fade = 0.2
+	_card.lower_fade = 0.2
+	_card.texture_emission = CARD   # a faint glow, so it reads on dark boards at night
+	_card.emission_energy = 0.5
+	_card.position = Vector3(0.0, 0.2, -1.15)   # his front, at his feet
+	_card.rotation.y = float(hash(name) % 628) / 100.0
+	add_child(_card)
 
 
 # --- the greybox -----------------------------------------------------------------------------------------------------
@@ -463,7 +487,7 @@ func _build() -> void:
 	_mark.position.y = HEIGHT + 0.6
 	_mark.no_depth_test = false   # behind walls and floors it stays hidden (it showed through the pier's boards)
 	add_child(_mark)
-	# Bound: three turns of the Rope's red, and a note for the police.
+	# Bound: three turns of the Claw's red, and a note for the police.
 	_ropes = Node3D.new()
 	_ropes.visible = false
 	add_child(_ropes)

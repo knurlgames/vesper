@@ -1,0 +1,19 @@
+{
+  "_": "Laffer beaten (levels/pier/keys/laffer.gd _caught), in two parts (owner, 2026-11-14): tied in the scuffle with his mouth free, up the prize mountain to him with his WINNER rosette, his last lines and his last word; Nim's retort; then the tape (Nim's hold_room clip, her palm flat out at his face height, laffer.gd tape_gag, no scuffle cloud) and him mmphing on his gagged portrait; Dash whoops; Vesper at the door, \"Adequate.\" Live.",
+  "live": true,
+  "steps": [
+    {"shot": {"start_from": [5, 2.5, -282], "start_look": [0, 7.5, -295.6], "from": [2.2, 8.8, -291.6], "look_at": [0, 8.4, -295.6], "secs": 3.5}},
+    {"say": {"file": "res://data/dialogue/pier/laffer.dialogue", "label": "rosette"}},
+    {"face": {"node": "Nim", "toward": [0, 7.5, -295.6]}},
+    {"shot": {"from": [1.6, 9.0, -292.6], "look_at": [0, 8.9, -295.6], "secs": 0.8}},
+    {"say": {"file": "res://data/dialogue/pier/laffer.dialogue", "label": "tape"}},
+    {"anim": {"node": "Nim", "clip": "hold_room"}},
+    {"wait": 0.45},
+    {"call": {"node": "Laffer", "method": "tape_gag"}},
+    {"wait": 0.6},
+    {"say": {"file": "res://data/dialogue/pier/laffer.dialogue", "label": "gagged"}},
+    {"shot": {"from": [1.0, 1.6, -263.2], "look_at": [1.5, 1.45, -261.0]}},
+    {"say": {"file": "res://data/dialogue/pier/vesper.dialogue", "label": "adequate"}},
+    {"wait": 0.3}
+  ]
+}

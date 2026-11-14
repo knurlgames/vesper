@@ -9,7 +9,7 @@ The build plan for **Vesper's Kinky Kapers** (working title). Read these first:
 ## §0 Ground rules
 
 ### 0.1 The game
-A 3D, Banjo-style hub action platformer, adults only. Nimbus, a clouded leopard, joins the Velvet Rope, a sisterhood
+A 3D, Banjo-style hub action platformer, adults only. Nimbus, a clouded leopard, joins the Velvet Claw, a sisterhood
 of feline Dommes who fight crime, under Mistress Vesper. She follows Councillor Swyne's hypnotic contraband through
 six worlds to City Hall, where Vesper dies on her own terms.
 
@@ -17,9 +17,9 @@ six worlds to City Hall, where Vesper dies on her own terms.
 - Every character is an upright, anthropomorphic, unmistakably grown adult. No age jokes, no child-coded designs.
 - Crude writing is welcome. Assets stay suggestive. **No on-screen sex acts, nudity or genitalia in anything an agent
   authors.** The toys are boxed products with a spiral glow, never shown in use.
-- Jokes target Swyne, his goons, hypocrites and Nim's dignity. Never the kink community or the Rope's practice.
+- Jokes target Swyne, his goons, hypocrites and Nim's dignity. Never the kink community or the Claw's practice.
 - People in trances are never hurt by the player and never the joke.
-- "Consent" is never said as the thesis. It's shown: the Rope asks, Swyne doesn't.
+- "Consent" is never said as the thesis. It's shown: the Claw asks, Swyne doesn't.
 - Vesper's lines, Swyne's speeches, the death and the coda are owner-reviewed: mark them `# OWNER REVIEW` in the data.
 
 ### 0.3 Rules from the owner
@@ -228,7 +228,7 @@ any other cast member.**
   - Councillor Swyne.
 - **All in the cartoon style,** at the heights and shapes in ART_DIRECTION §1's silhouette table.
 - **Concepts:** an anchor per character, the second outfit from it.
-- **Masks (owner, 2026-11-11):** one personal mask per sister (ART_DIRECTION §1, "The Rope's masks").
+- **Masks (owner, 2026-11-11):** one personal mask per sister (ART_DIRECTION §1, "The Claw's masks").
   - **First:** one concept lineup of the seven masked heads, before any individual turnaround.
   - Then each mask is its own mesh, fitted like Nim's.
   - Vesper has none.
@@ -280,7 +280,7 @@ any other cast member.**
 ## The game
 
 ## WO-014: The vertical slice: the prologue, the club, the Pier (stop and playtest)
-- The prologue in the Velvet Rope (the toys turn up in the dungeon), the club and the first Old Quarter streets, and
+- The prologue in the Velvet Claw (the toys turn up in the dungeon), the club and the first Old Quarter streets, and
   the Pier complete (worlds/01_PIER.md): every Key, the set piece, Laffer.
 - Art-complete: props, dressing, lighting, sound placeholders.
 - `pier_probe` (every climb and swing), `pier_flow` (every Key and the boss with real inputs).
@@ -308,7 +308,7 @@ any other cast member.**
   7. **`pier_flow`** (built 2026-11-12, 0 failures; HANDOFF): every Key and the boss with real inputs. Then a Deck push, and **stop** for the owner's
      playtest.
 
-## WO-014b: The Velvet Rope's house (started 2026-11-12, during the WO-014 playtest; HANDOFF)
+## WO-014b: The Velvet Claw's house (started 2026-11-12, during the WO-014 playtest; HANDOFF)
 - **Status:**
   - **Built:** steps 1–6. Silke and Augusta's scenes are in, Silke's both ways; Augusta's Domme is probed, and her
     Switch is built but not probed.
@@ -333,7 +333,7 @@ any other cast member.**
     - Aftercare sits on the nook's chaise, and the sister lingers.
     - The Coalition rename.
   - **Done, bar the owner's notes.**
-DESIGN.md "The Velvet Rope's house". The club grows into a place to wander between worlds. Build order:
+DESIGN.md "The Velvet Claw's house". The club grows into a place to wander between worlds. Build order:
 1. **The layout:** the Dungeon hall and six sisters' rooms, and the Backroom behind Rivet's shelf.
    - Sized to "Sizing": everything within about 30 s of the door. `zfight_check` clean, `hub_probe` routes.
    - Rivet's bench moves to her workshop.
@@ -377,8 +377,9 @@ DESIGN.md "The Velvet Rope's house". The club grows into a place to wander betwe
   4. **The boss** (built 2026-11-13; HANDOFF): Mrs. Marjorie Gander's three phases (the garden party, the sprinklers,
      the tantrum and the Scold). `levels/primrose/keys/gander.gd`, played in `primrose_boss_probe`.
   5. **Art** (built 2026-11-13; HANDOFF): 25 Meshy props for the Close, the Hall, the allotments, the party and
-     Gander's garden, and the Velvet Rope's lounge and door (600 credits). The people already had bodies (WO-013).
-  6. **`primrose_flow`:** every Key and the boss with real inputs. Then a Deck push, and stop for the owner.
+     Gander's garden, and the Velvet Claw's lounge and door (600 credits). The people already had bodies (WO-013).
+  6. **`primrose_flow`** (built 2026-11-13; HANDOFF): every Key and the boss with real inputs, from the hub with the
+     Pier done, and home to Grizelda's homecoming. Then a Deck push, and stop for the owner.
 
 ## WO-016: The Docks
 - worlds/03_DOCKS.md. The storm set piece, Tusk.

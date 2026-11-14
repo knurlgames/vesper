@@ -35,7 +35,7 @@ func _setup() -> void:
 	hut_door = door("HutDoor", HUT + Vector3(-1.45, 0.0, -0.7), HUT + Vector3(-3.0, 0.0, -0.7), 0.9, 2.1)
 	# Nim's turn: the thermos on the windowsill, and the postbox's hatch.
 	thermos = fetch_box("Thermos", &"thermos", HUT + Vector3(-1.5, 0.0, 1.0), Vector3(0.14, 0.32, 0.14), Color("b02a2a"))
-	postbox = door("Postbox", Vector3(7.4, 0.62, -2.68), Vector3(7.4, 0.62, -1.6), 0.46, 0.5)
+	postbox = door("Postbox", Vector3(7.4, 0.62, -2.68), Vector3(7.4, 0.62, -1.6), 0.46, 0.5, Color("b8202a"))
 	if flag("lesson_done"):
 		hut_door.open()
 		postbox.open()

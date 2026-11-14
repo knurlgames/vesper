@@ -1,11 +1,13 @@
 extends Node3D
-## The prologue (worlds/01_PIER.md "Coming in"; WO-014 step 5): Nim's first night as one of the Rope, in the club's
+## The prologue (worlds/01_PIER.md "Coming in"; WO-014 step 5): Nim's first night as one of the Claw, in the club's
 ## dungeon. Vesper welcomes her; a member's guest comes down the ramp glassy-eyed, holding a prize-stall plush that
 ## hums. Nim breaks its device (a strike at the toy, from in front: Entranced). He wakes, and that pays the hub's Key 10
 ## (her first Key, rank 1: the Pier's gate opens). Vesper reads the tag: "Laffer's Fun Palace. The Pier."
 ## After that (flag hub/prologue_done), Vesper's in the lounge.
 
 const DIALOGUE := "res://data/dialogue/hub/prologue.dialogue"
+const OPENING := "res://data/cutscenes/hub_opening.json"
+const GUEST := "res://data/cutscenes/guest_ramp.json"
 const DUNGEON := -1.6
 const VESPER_DUNGEON := Vector3(2.5, DUNGEON, -35.2)
 const VESPER_LOUNGE := Vector3(0.0, 0.0, -26.6)
@@ -43,7 +45,12 @@ func _setup() -> void:
 	vesper.global_position = VESPER_DUNGEON
 	vesper.rotation.y = -PI / 2.0
 	vesper.label = ""   # nothing to say over Y until the prologue's done
+	# The game's opening: the Old Quarter in the rain, the club's front, down into the dungeon (owner, 2026-11-13:
+	# cinematic cutscenes, "the opening" first).
 	await get_tree().create_timer(0.6).timeout
+	if not is_inside_tree():
+		return
+	await Dialogue.play_cutscene(OPENING)   # straight into her first line: no gap (a probe reads them as one talk)
 	# After every wait: still in the game? (Quit to the title mid-prologue and this would play over whatever's next.)
 	if not is_inside_tree():
 		return
@@ -60,11 +67,16 @@ func _setup() -> void:
 		Vector3(7.5, DUNGEON, -33.0)])
 	guest.position = Vector3(7.5, 0.05, -24.0)
 	hub.add_child(guest)
-	await get_tree().create_timer(2.5).timeout
+	await get_tree().create_timer(1.0).timeout   # a beat after "Footsteps on the ramp"
+	if not is_inside_tree():
+		return
+	# Him coming down the ramp, his eyes, the humming plush: what someone in a trance looks like (owner's playtest:
+	# the Pier's first sleeper wasn't taken for the same thing as this guest).
+	await Dialogue.play_cutscene(GUEST)
 	if not is_inside_tree():
 		return
 	await Dialogue.run(DIALOGUE, "guest")
-	Hud.note("Wake him: strike the toy he's holding, from in front. (X)", 5.0)
+	Hud.note("Wake him: strike the toy he's holding, from in front. (X)", 10.0)   # (and the guide keeps it up)
 	stage = 1
 
 
@@ -86,7 +98,7 @@ func _tag() -> void:
 	if guest:
 		guest.go([RAMP_FOOT, RAMP_TOP, GUEST_SEAT])
 	Game.set_flag("hub/prologue_done")
-	Hud.note("The Pier's gate is open: east of the square, down Seafront Road.", 5.0)
+	Hud.note("The Pier's gate is open: east of the square, down Seafront Road.", 9.0)
 	stage = 3
 	await get_tree().create_timer(1.2).timeout
 	if not is_inside_tree():

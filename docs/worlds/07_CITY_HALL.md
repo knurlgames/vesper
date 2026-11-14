@@ -9,7 +9,7 @@ Midnight, the night of the vote. Vesper's last night. Owner-decided: City Hall, 
 The raided club. The door's sealed with police tape, the dungeon's dark, the crew's scattered. Vesper is the only one
 there, waiting for Nim.
 - She sets her the exam she set every sister. A course through the empty club, one room per lesson. The takedown
-  from above, the commands, the ceiling, Hold the Room, and one room each for every sister's gear. The Rope's own
+  from above, the commands, the ceiling, Hold the Room, and one room each for every sister's gear. The Claw's own
   version of a recap quiz, played, not answered.
 - At the end, Vesper gives no verdict. She takes the tape off the door. "Shall we?"
 
@@ -56,7 +56,7 @@ The broadcast starts anyway: it was set to run from the bells, not by Swyne.
 - In the chamber, the councillors wake. The vote fails.
 
 ## After
-- **The club:** the crew reopens the Velvet Rope. Nobody sits in Vesper's chair. Augusta gives Nim Vesper's coat.
+- **The club:** the crew reopens the Velvet Claw. Nobody sits in Vesper's chair. Augusta gives Nim Vesper's coat.
 - **The hub's final state:** the club is lit again, and the clock on City Hall still reads a minute to twelve.
   Nobody's fixed it. Nobody will.
 - **Post-credits (proposal, owner's call):** a short coda in an afterlife's waiting room, Vesper taking a ticket.

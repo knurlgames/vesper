@@ -14,7 +14,7 @@ const GLB := {
 	0: "res://assets/characters/nim/nim_garb.glb",
 	1: "res://assets/characters/nim/nim_suit.glb",
 }
-## Her two-piece (WO-014b; DESIGN.md "The Velvet Rope's house", the dress code), worn only in the club's scenes when
+## Her two-piece (WO-014b; DESIGN.md "The Velvet Claw's house", the dress code), worn only in the club's scenes when
 ## she's the sub: never a gameplay outfit, so NimSuit doesn't know it. Loaded the first time a scene asks (wear_swim):
 ## it's 43 MB, and most levels never need it.
 const SWIM := 2
@@ -86,6 +86,49 @@ func _ready() -> void:
 		suit.connect(&"outfit_changed", set_outfit)
 
 
+## The Claw's emblem, the Clawed Rose, where her knot was (owner, 2026-11-14): a brass plate on her muzzle's grille and
+## a leather disc on her chest harness's medallion, as Decals that ride the mask and the chest bone, opaque, so the knot
+## under them is covered. Measured off the GLB by tools/nim_emblem.gd (the GLB faces +Z; its skeleton sits at the
+## origin): the grille's middle in the mask's own space, the medallion's in the skeleton's.
+const GRILLE := Vector3(-0.0017, 1.471, 0.37)   # (under the front-most point: the plate runs lower)
+const GRILLE_SIZE := Vector2(0.074, 0.088)      # across, and up (tools/nim_emblem.gd BRASS_TALL)
+const MEDALLION := Vector3(0.0, 1.19, 0.366)
+const MEDALLION_SIZE := 0.096
+const EMBLEM_BRASS := preload("res://assets/ui/emblems/clawed_rose_brass.png")
+const EMBLEM_MEDAL := preload("res://assets/ui/emblems/clawed_rose_medal.png")
+
+
+## (Static: CastModel wears Nim too, on the title screen, the file select and in the portraits.)
+static func emblems(m: Node3D, skel: Skeleton3D, path: String) -> void:
+	# Its Y axis out of her front (+Z): a decal projects down its -Y.
+	var out := Basis(Vector3.RIGHT, PI / 2.0)
+	for mi: MeshInstance3D in m.find_children("*", "MeshInstance3D", true, false):
+		if mi.name.ends_with("_Mask"):
+			mi.add_child(_decal(EMBLEM_BRASS, GRILLE_SIZE, 0.045, Transform3D(out, GRILLE)))
+	if skel == null or not path.contains("garb"):
+		return   # (the medallion's on the garb's harness only)
+	var chest := skel.find_bone("chest")
+	if chest < 0:
+		return
+	var att := BoneAttachment3D.new()
+	att.bone_name = "chest"
+	skel.add_child(att)
+	var rest := skel.get_bone_global_rest(chest)
+	att.add_child(_decal(EMBLEM_MEDAL, Vector2(MEDALLION_SIZE, MEDALLION_SIZE), 0.04,
+		rest.affine_inverse() * Transform3D(out, MEDALLION)))
+
+
+static func _decal(tex: Texture2D, size: Vector2, depth: float, xf: Transform3D) -> Decal:
+	var d := Decal.new()
+	d.name = "ClawedRose"
+	d.texture_albedo = tex
+	d.size = Vector3(size.x, depth, size.y)   # (its Z runs down her front: the picture's up is up)
+	d.upper_fade = 0.0
+	d.lower_fade = 0.0
+	d.transform = xf
+	return d
+
+
 ## One outfit's GLB into slot `o`, hidden unless it's the one shown. False if the file isn't there.
 func _load(o: int, path: String) -> bool:
 	var packed: PackedScene = load(path) if ResourceLoader.exists(path) else null
@@ -129,6 +172,7 @@ func _load(o: int, path: String) -> bool:
 			mi.transform = Transform3D(mi.transform.basis.scaled(Vector3.ONE * k), mi.transform.origin * k)
 		elif mi.mesh is ArrayMesh and (mi.mesh as ArrayMesh).get_blend_shape_count() > 0:
 			_faces[o] = mi
+	emblems(m, skel, path)
 	var ap: AnimationPlayer = _players[o]
 	if ap:
 		ap.animation_finished.connect(_on_finished)

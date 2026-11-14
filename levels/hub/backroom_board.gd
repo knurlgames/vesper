@@ -109,8 +109,15 @@ func _show(w: StringName, i: int) -> void:
 		state = "Its gate opens at %d roses. You have %d." % [Game.RANK_KEYS[i], Game.keys()]
 	_status.text = state
 	var lines: Array[String] = []
-	if data.has("host"):
-		lines.append("Your host: %s." % data.host)
+	if data.has("host") and data.host != null:
+		# Where she is (the sisters are away on their jobs till Nim finishes them: Sisters).
+		var who := String(data.host).get_slice(" ", 0).to_lower()
+		if not Sisters.WORLD.has(who):
+			lines.append("Your host: %s." % data.host)
+		elif Sisters.home(who):
+			lines.append("Your host: %s. Home now, in %s." % [data.host, Sisters.ROOM[who]])
+		else:
+			lines.append("Your host: %s. Out there now, on the job. She comes home when it's done." % data.host)
 	if data.has("link"):
 		lines.append("The link in the chain: %s" % data.link)
 	if data.has("gear") and Game.has_flag("done/%s" % w):

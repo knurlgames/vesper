@@ -20,7 +20,7 @@ var b: Dictionary
 var gear: Array[Node] = []
 var _base := {}
 
-const ROPE := Color("b8283c")      # the Rope's red
+const ROPE := Color("b8283c")      # the Claw's red
 const ROPE_TAN := Color("c8a070")
 const LEATHER := Color("1c1418")
 
@@ -238,7 +238,7 @@ func attach(role: String, what: Node3D, offset := Vector3.ZERO) -> Node3D:
 
 
 ## Hung on a bone but laid out in the world's frame: `what`'s middle at `at`, its +Z along `face`, its +Y up.
-func wear(role: String, what: Node3D, at: Vector3, face: Vector3) -> Node3D:
+func wear(role: String, what: Node3D, at: Vector3, face: Vector3, up := Vector3.UP) -> Node3D:
 	var i := sk.find_bone(bone(role))
 	if i < 0:
 		what.free()
@@ -249,7 +249,7 @@ func wear(role: String, what: Node3D, at: Vector3, face: Vector3) -> Node3D:
 	a.bone_name = bone(role)
 	sk.add_child(a)
 	a.add_child(what)
-	what.transform = bg.affine_inverse() * Transform3D(Basis.looking_at(-face, Vector3.UP), at)
+	what.transform = bg.affine_inverse() * Transform3D(Basis.looking_at(-face, up), at)
 	gear.append(a)
 	return what
 
@@ -279,6 +279,82 @@ func band(role: String, radius: float, c: Color, buckle: bool, along := 0.0) -> 
 		n.add_child(bk)
 	attach(role, root, Vector3(0, along, 0))
 	return n
+
+
+## A cuff on a wrist or ankle ("wristL", "ankleR", ...), fitted to this body: round the end of the forearm or shin
+## (the foot's and hand's bones run off along the foot and hand, so a ring round them sat tilted round the heel and
+## knuckles: owner, "Straps not fully lined up"), as wide as the limb is there, measured off the mesh.
+func cuff(where: String, c: Color, buckle := true) -> Node3D:
+	var side := where.right(1)
+	var limb := "shin" if where.begins_with("ankle") else "forearm"
+	var tip := "foot" if limb == "shin" else "hand"
+	var length := (pos(tip + side) - pos(limb + side)).length()
+	var along := length * (0.86 if limb == "shin" else 0.88)
+	# The wrist or ankle is the limb's narrowest: the thinnest of a few slabs up it (one slab at the end caught Nim's
+	# hand and gave her a bangle wider than her shin).
+	var fallback := 0.05 if limb == "shin" else 0.044
+	var r := INF
+	for k: float in [0.62, 0.72, 0.8, along / length]:
+		r = minf(r, girth(limb + side, length * k, fallback))
+	return band(limb + side, r + 0.006, c, buckle, along)
+
+
+## How far the skin stands off a bone's axis `along` it (metres from its head): the 85th percentile of the skinned
+## vertices in a thin slab there, or `fallback` if there aren't enough to tell.
+func girth(role: String, along: float, fallback: float) -> float:
+	var bi := sk.find_bone(bone(role))
+	if bi < 0:
+		return fallback
+	sk.force_update_all_bone_transforms()
+	var g := sk.global_transform * sk.get_bone_global_pose(bi)
+	var axis := g.basis.y.normalized()
+	# Along the limb itself, to the next joint, where there is one: a bone rolled off the limb's line slices it
+	# on the slant and reads it fat.
+	var next := {"forearm": "hand", "shin": "foot", "upperarm": "forearm", "thigh": "shin"}
+	var key := role.left(-1)
+	if next.has(key):
+		var to := pos(String(next[key]) + role.right(1)) - g.origin
+		if to.length() > 0.05:
+			axis = to.normalized()
+	var at := g.origin + axis * along
+	var dists: Array[float] = []
+	for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null or mi.skin == null or mi.name.ends_with("_Mask") or not mi.is_visible_in_tree():
+			continue
+		var skin := mi.skin
+		var bind := -1
+		for b in skin.get_bind_count():
+			if skin.get_bind_name(b) == sk.get_bone_name(bi) or skin.get_bind_bone(b) == bi:
+				bind = b
+				break
+		if bind < 0:
+			continue
+		var to_world := sk.global_transform * sk.get_bone_global_pose(bi) * skin.get_bind_pose(bind)
+		for s in mi.mesh.get_surface_count():
+			var arr := mi.mesh.surface_get_arrays(s)
+			var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+			var bones = arr[Mesh.ARRAY_BONES]
+			var weights = arr[Mesh.ARRAY_WEIGHTS]
+			if bones == null or weights == null:
+				continue
+			var per := (bones as Array).size() / maxi(verts.size(), 1)
+			for v in verts.size():
+				var w := 0.0
+				for k in per:
+					if int(bones[v * per + k]) == bind:
+						w += float(weights[v * per + k])
+				if w < 0.3:
+					continue
+				var p := to_world * verts[v]
+				var rel := p - at
+				var t := rel.dot(axis)
+				if absf(t) > 0.025:
+					continue
+				dists.append((rel - axis * t).length())
+	if dists.size() < 8:
+		return fallback
+	dists.sort()
+	return clampf(dists[int(dists.size() * 0.85)], 0.025, 0.12)
 
 
 ## Rope wrapped round a bone: `turns` thin coils side by side, and a knot.
@@ -375,6 +451,10 @@ func head_frame() -> Dictionary:
 
 
 const TAPE := Color("2a2a30")
+## Duct tape: the bosses' (owner, 2026-11-14), silver, so it reads on a black nose.
+const DUCT := Color("a4a7ae")
+## What colour the next tape gag is (TAPE, the club's black, unless set).
+var tape_colour := TAPE
 
 
 ## The face as it is, read off the mesh (owner, 2026-11-13: tape "bleeding through on Augusta's face"; a gag sized
@@ -389,18 +469,30 @@ func face() -> Dictionary:
 		return {}
 	var pts: Array[Vector3] = []
 	sk.force_update_all_bone_transforms()
+	# The head and every bone under it: a jaw, a beak, a snout bone (Mrs Gander's beak and Laffer's muzzle hang off
+	# their own, and measured off the head bone alone the tape went inside them; owner, 2026-11-14).
+	var under := {head_i: true}
+	var grew := true
+	while grew:
+		grew = false
+		for bi in sk.get_bone_count():
+			if not under.has(bi) and under.has(sk.get_bone_parent(bi)):
+				under[bi] = true
+				grew = true
 	for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
 		if mi.mesh == null or mi.skin == null or mi.name.ends_with("_Mask") or not mi.is_visible_in_tree():
 			continue
 		var skin := mi.skin
-		var bind := -1
-		for b in skin.get_bind_count():
-			if skin.get_bind_name(b) == sk.get_bone_name(head_i) or skin.get_bind_bone(b) == head_i:
-				bind = b
-				break
-		if bind < 0:
+		# Each bind that's the head's or under it, and where it puts a vertex now.
+		var xf := {}
+		for bnd in skin.get_bind_count():
+			var bi := skin.get_bind_bone(bnd)
+			if bi < 0:
+				bi = sk.find_bone(skin.get_bind_name(bnd))
+			if bi >= 0 and under.has(bi):
+				xf[bnd] = sk.global_transform * sk.get_bone_global_pose(bi) * skin.get_bind_pose(bnd)
+		if xf.is_empty():
 			continue
-		var to_world := sk.global_transform * sk.get_bone_global_pose(head_i) * skin.get_bind_pose(bind)
 		for s in mi.mesh.get_surface_count():
 			var arr := mi.mesh.surface_get_arrays(s)
 			var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
@@ -411,27 +503,49 @@ func face() -> Dictionary:
 			var per := (bones as Array).size() / maxi(verts.size(), 1)
 			for v in verts.size():
 				var w := 0.0
+				var top := -1
+				var top_w := 0.0
 				for k in per:
-					if int(bones[v * per + k]) == bind:
-						w += float(weights[v * per + k])
-				if w > 0.3:
-					pts.append(to_world * verts[v])
+					var bnd := int(bones[v * per + k])
+					var wk := float(weights[v * per + k])
+					if xf.has(bnd):
+						w += wk
+						if wk > top_w:
+							top_w = wk
+							top = bnd
+				if w > 0.3 and top >= 0:
+					pts.append((xf[top] as Transform3D) * verts[v])
 	if pts.size() < 30:
 		return {}
 	var hf := head_frame()
-	var f: Vector3 = hf.fwd
-	var side := Vector3.UP.cross(f).normalized()
-	var mid: Vector3 = hf.mid
+	# The head's own frame: how far the head bone has turned since its rest, applied to the body's level forward and
+	# up. A head tipped back (Laffer's, tied on his prize mountain) points the muzzle up: measured level, it read as a
+	# short face and the tape went under his chin (owner, 2026-11-14).
+	var g := sk.global_transform.basis
+	var now_b := (g * sk.get_bone_global_pose(head_i).basis).orthonormalized()
+	var rest_b := (g * sk.get_bone_global_rest(head_i).basis).orthonormalized()
+	var turn := now_b * rest_b.inverse()
+	var f := (turn * fwd()).normalized()
+	var up := (turn * Vector3.UP).normalized()
+	var side := up.cross(f).normalized()
+	up = f.cross(side).normalized()
+	var head_at := pos("head")
+	var mid: Vector3 = head_at + up * (Vector3(hf.mid) - head_at).length()
 	# The nose: the highest of the points nearly as far forward as any (a jutting chin or lip can be the furthest).
+	# Only at or under the head's middle: a hat's brim is skinned to the head too, and Laffer's boater stands out
+	# further than his snout (owner, 2026-11-14: the tape went round his hat).
+	var low: float = float(hf.r) * 0.3
 	var far := -INF
 	for p in pts:
-		far = maxf(far, (p - mid).dot(f))
+		if (p - mid).dot(up) < low:
+			far = maxf(far, (p - mid).dot(f))
 	var nose := pts[0]
 	var ny := -INF
 	for p in pts:
 		var d := p - mid
-		if d.dot(f) > far - 0.012 and d.y > ny:
-			ny = d.y
+		var dy := d.dot(up)
+		if dy < low and d.dot(f) > far - 0.012 and dy > ny:
+			ny = dy
 			nose = p
 	# The mouth: a little under the nose, where a gag sits.
 	var mouth_y := ny - 0.03
@@ -441,7 +555,7 @@ func face() -> Dictionary:
 	var backs: Array[float] = []
 	for p in pts:
 		var d := p - mid
-		if absf(d.y - mouth_y) < 0.015:
+		if absf(d.dot(up) - mouth_y) < 0.015:
 			if d.dot(f) > best:
 				best = d.dot(f)
 				mouth = p
@@ -457,12 +571,22 @@ func face() -> Dictionary:
 	var snouts: Array[float] = []
 	for p in pts:
 		var d := p - mid
-		if absf(d.y - mouth_y) < 0.015 and d.dot(f) > best - 0.04:
+		if absf(d.dot(up) - mouth_y) < 0.015 and d.dot(f) > best - 0.04:
 			snouts.append(absf(d.dot(side)))
 	snouts.sort()
 	var snout_w := snouts[int(snouts.size() * 0.9)] if not snouts.is_empty() else head_w * 0.5
-	return {"fwd": f, "side": side, "mid": mid, "nose": nose, "mouth": mouth, "front": best, "snout_w": snout_w,
-		"head_w": head_w, "head_back": back, "mouth_y": mouth_y}
+	# The lips: between the nose and the chin (the lowest skin at the front of the snout), a little nearer the nose
+	# (owner, 2026-11-13: tape "sit too high on their noses and not across their mouths" at the nose less 3 cm).
+	var chin := ny
+	for p in pts:
+		var d := p - mid
+		if d.dot(f) > far - 0.06 and d.dot(up) < chin:
+			chin = d.dot(up)
+	var lips_y := lerpf(ny, chin, 0.6) if ny - chin > 0.03 else mouth_y
+	# (Heights, mouth_y and lips_y among them, are along `up`, the head's own, from `mid`.)
+	return {"fwd": f, "side": side, "up": up, "mid": mid, "nose": nose, "mouth": mouth, "front": best,
+		"snout_w": snout_w, "head_w": head_w, "head_back": back, "mouth_y": mouth_y, "pts": pts, "lips_y": lips_y,
+		"jaw": ny - chin}
 
 
 ## A gag on the head (owner, 2026-11-13: "ball, bit, or tape gags"), from head_frame(): the ball or bit on a strap
@@ -491,7 +615,7 @@ func gag(kind: String) -> Node3D:
 		tab.mesh = bm
 		tab.position = Vector3(head.r * 0.48, -0.01, head.reach * 0.1)
 		tab.rotation.y = 0.6
-		tab.material_override = Look.toon(TAPE, 0.25)
+		tab.material_override = Look.toon(tape_colour, 0.25)
 		n.add_child(tab)
 		var at: Vector3 = head.mouth - f * head.reach * 0.32 + Vector3.UP * 0.01
 		return wear("head", n, at, f)
@@ -517,32 +641,222 @@ func gag(kind: String) -> Node3D:
 	return wear("head", g, head.mouth - f * head.reach * 0.85, f)
 
 
+## A strip of tape across the mouth, laid on the face itself (owner, 2026-11-13: "Mr. Smith looks odd with his gag
+## (tape)": the old one was a band round the snout's tip, which stood off a short snout like a black box). Sampled off
+## the head's vertices in columns across the mouth and rows up it, each point just proud of the skin there, from cheek
+## to cheek; a torn tab at one end. In the frame wear() gives: x the face's side, y up, z out of the face, from the
+## middle of the head at mouth height.
+func _tape(fc: Dictionary) -> Node3D:
+	# A long muzzle or a beak (Laffer's, Mrs Gander's): a strip across the front only covers the tip, so the tape
+	# wraps round the muzzle instead (owner, 2026-11-14: the bosses "properly gagged").
+	if float(fc.front) > float(fc.head_w) * 2.5:
+		var band := _muzzle_band(fc)
+		if band:
+			return band
+	var f: Vector3 = fc.fwd
+	var side: Vector3 = fc.side
+	var up: Vector3 = fc.get("up", Vector3.UP)
+	var o: Vector3 = fc.mid + up * float(fc.lips_y)
+	var pts: Array = fc.pts
+	var span := float(fc.snout_w) * 1.35 + 0.01
+	var cols := 14
+	# A wide strip (owner: "make the strip extra thick"), most of the way from the nose to the chin, with real depth.
+	var hh := clampf(float(fc.jaw) * 0.26, 0.017, 0.028)
+	var thick := 0.006
+	# Each column stands as far out as the furthest skin anywhere up the strip there: tape bridges the lip's crease
+	# rather than following it in (following it let the fur poke through in patches).
+	var zs: Array[float] = []
+	for c in cols + 1:
+		var s := lerpf(-span, span, float(c) / cols)
+		var z := -INF
+		for p: Vector3 in pts:
+			var d := p - o
+			if absf(d.dot(side) - s) < 0.014 and absf(d.dot(up)) < hh + 0.004:
+				z = maxf(z, d.dot(f))
+		zs.append(z)
+	# A column with no skin in reach takes its neighbour's depth; then each stands at least as far out as its
+	# neighbours, so no skin pokes through between them.
+	for pass_i in 3:
+		for c in cols + 1:
+			if zs[c] == -INF:
+				var l := zs[c - 1] if c > 0 else -INF
+				var r := zs[c + 1] if c < cols else -INF
+				zs[c] = maxf(l, r) - 0.004 if maxf(l, r) > -INF else 0.0
+	var smooth: Array[float] = []
+	for c in cols + 1:
+		smooth.append(maxf(zs[c], maxf(zs[maxi(c - 1, 0)], zs[mini(c + 1, cols)]) - 0.002))
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Both windings on every face: a slab seen from any side, whatever the toon shader culls.
+	var quad := func(a: Vector3, b2: Vector3, cc: Vector3, d: Vector3) -> void:
+		for t: Array in [[a, b2, cc], [b2, d, cc], [a, cc, b2], [b2, cc, d]]:
+			for v: Vector3 in t:
+				st.add_vertex(v)
+	var pt := func(c: int, y: float, outer: bool) -> Vector3:
+		return Vector3(lerpf(-span, span, float(c) / cols), y, smooth[c] + 0.003 + (thick if outer else 0.0))
+	for c in cols:
+		quad.call(pt.call(c, hh, true), pt.call(c + 1, hh, true), pt.call(c, -hh, true), pt.call(c + 1, -hh, true))
+		quad.call(pt.call(c, hh, false), pt.call(c + 1, hh, false), pt.call(c, hh, true), pt.call(c + 1, hh, true))
+		quad.call(pt.call(c, -hh, true), pt.call(c + 1, -hh, true), pt.call(c, -hh, false), pt.call(c + 1, -hh, false))
+	for c: int in [0, cols]:
+		quad.call(pt.call(c, hh, false), pt.call(c, hh, true), pt.call(c, -hh, false), pt.call(c, -hh, true))
+	st.generate_normals()
+	var n := Node3D.new()
+	var strip := MeshInstance3D.new()
+	strip.mesh = st.commit()
+	strip.material_override = Look.toon(tape_colour, 0.25)
+	n.add_child(strip)
+	# The torn end, lifting off the right cheek.
+	var tab := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(0.022, 0.03, 0.003)
+	tab.mesh = bm
+	var end: Vector3 = pt.call(cols, 0.0, true)
+	tab.position = end + Vector3(0.006, -0.004, 0.004)
+	tab.rotation = Vector3(0.0, 0.5, 0.25)
+	tab.material_override = Look.toon(tape_colour, 0.25)
+	n.add_child(tab)
+	return n
+
+
+## Tape wound round a long muzzle, a little under halfway back from its tip: the muzzle's cross-section measured there
+## off the head's vertices (its half width, its top and bottom), two turns just outside it, and a torn tab. In the
+## same frame as _tape() (x the side, y up, z out of the face, from the head's middle at the lips). Null if there's too
+## little muzzle there to measure.
+func _muzzle_band(fc: Dictionary) -> Node3D:
+	var f: Vector3 = fc.fwd
+	var side: Vector3 = fc.side
+	var up: Vector3 = fc.get("up", Vector3.UP)
+	var o: Vector3 = fc.mid + up * float(fc.lips_y)
+	var front := float(fc.front)
+	var length := front - float(fc.head_w)
+	var tall := clampf(length * 0.2, 0.045, 0.07)
+	# Close to the tip: further back, a hat's brim can stand out over the muzzle (Laffer's boater reaches 0.66 m out,
+	# his snout 0.8) and be taken for it.
+	var zc := front - minf(length * 0.3, tall * 0.5 + 0.02)
+	# The muzzle's slice there, in the face's (side, up) plane. Its middle: the run of heights round the lips' line
+	# with no big gap in it (a hat's brim above is a separate run, and left out).
+	var slice: Array[Vector2] = []
+	for p: Vector3 in fc.pts:
+		var d := p - o
+		if absf(d.dot(f) - zc) < tall * 0.5:
+			slice.append(Vector2(d.dot(side), d.dot(up)))
+	if slice.size() < 16:
+		return null
+	var ys: Array[float] = []
+	for q in slice:
+		ys.append(q.y)
+	ys.sort()
+	var at := 0
+	for i in ys.size():
+		if absf(ys[i]) < absf(ys[at]):
+			at = i
+	var lo := at
+	var hi := at
+	while lo > 0 and ys[lo] - ys[lo - 1] < 0.02:
+		lo -= 1
+	while hi < ys.size() - 1 and ys[hi + 1] - ys[hi] < 0.02:
+		hi += 1
+	var y0 := ys[lo]
+	var y1 := ys[hi]
+	var c := Vector2(0.0, (y0 + y1) / 2.0)
+	var mine: Array[Vector2] = []
+	for q in slice:
+		if q.y >= y0 - 0.001 and q.y <= y1 + 0.001:
+			mine.append(q - c)
+	# How far out the skin is at each angle round the middle (the furthest point within a few degrees of it).
+	var steps := 28
+	var radii: Array[float] = []
+	var all_r: Array[float] = []
+	for q in mine:
+		all_r.append(q.length())
+	all_r.sort()
+	var cap := all_r[int(all_r.size() * 0.5)] * 2.2
+	for k in steps:
+		var a := TAU * k / steps
+		var r := 0.0
+		for q in mine:
+			var qa := atan2(q.y, q.x)
+			if absf(wrapf(qa - a, -PI, PI)) < PI / steps * 1.6 and q.length() < cap:
+				r = maxf(r, q.length())
+		radii.append(r)
+	for pass_i in 2:   # an angle with nothing near: its neighbours' reach
+		for k in steps:
+			if radii[k] <= 0.0:
+				radii[k] = maxf(radii[(k + steps - 1) % steps], radii[(k + 1) % steps])
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Each face once, wound to face its own normal, the normal set by hand: two windings with generated normals
+	# cancelled out and left only the outline showing. (Checked by eye: wound this way round, they draw.)
+	var tri := func(a: Vector3, b2: Vector3, c2: Vector3, nrm: Vector3) -> void:
+		if (b2 - a).cross(c2 - a).dot(nrm) < 0.0:
+			var t := b2
+			b2 = c2
+			c2 = t
+		for v: Vector3 in [a, b2, c2]:
+			st.set_normal(nrm)
+			st.add_vertex(v)
+	var quad := func(p1: Vector3, p2: Vector3, p3: Vector3, p4: Vector3, nrm: Vector3) -> void:
+		tri.call(p1, p2, p3, nrm)
+		tri.call(p2, p4, p3, nrm)
+	var ring := func(k: int, z: float, out: float) -> Vector3:
+		var a := TAU * k / steps
+		var r: float = radii[k % steps] + out
+		return Vector3(c.x + cos(a) * r, c.y + sin(a) * r, z)
+	var thick := 0.007
+	var z0 := zc - tall * 0.5
+	var z1 := zc + tall * 0.5
+	var lift := 0.004
+	for k in steps:
+		var am := TAU * (k + 0.5) / steps
+		var radial := Vector3(cos(am), sin(am), 0.0)
+		var o0 := lift + thick
+		quad.call(ring.call(k, z0, o0), ring.call(k + 1, z0, o0), ring.call(k, z1, o0), ring.call(k + 1, z1, o0), radial)
+		quad.call(ring.call(k, z0, lift), ring.call(k + 1, z0, lift), ring.call(k, z1, lift), ring.call(k + 1, z1, lift), -radial)
+		quad.call(ring.call(k, z0, lift), ring.call(k + 1, z0, lift), ring.call(k, z0, o0), ring.call(k + 1, z0, o0), Vector3.BACK * -1.0)
+		quad.call(ring.call(k, z1, lift), ring.call(k + 1, z1, lift), ring.call(k, z1, o0), ring.call(k + 1, z1, o0), Vector3.BACK)
+	var n := Node3D.new()
+	var band := MeshInstance3D.new()
+	band.mesh = st.commit()
+	band.material_override = Look.toon(tape_colour, 0.25)
+	n.add_child(band)
+	# The torn end, lifting off the side.
+	var tab := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(0.003, 0.03, 0.026)
+	tab.mesh = bm
+	tab.position = ring.call(0, zc, 0.005 + thick + 0.004)
+	tab.rotation = Vector3(0.3, 0.0, -0.35)
+	tab.material_override = Look.toon(tape_colour, 0.25)
+	n.add_child(tab)
+	return n
+
+
+## Tape going on with a slap (a boss's finish, owner 2026-11-14): `g` (a worn gag) starts as a sliver at the middle
+## of the mouth, stretches out past its width and settles. Returns the tween's finished signal (or a frame's, with no
+## gag), run on `by` (a node in the tree).
+static func slap_on(g: Node3D, by: Node) -> Signal:
+	if g == null:
+		return by.get_tree().process_frame
+	var s := g.scale
+	g.scale = Vector3(s.x * 0.05, s.y * 1.25, s.z)
+	var tw := by.create_tween()
+	tw.tween_property(g, ^"scale", Vector3(s.x * 1.12, s.y * 0.92, s.z), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(g, ^"scale", s, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	return tw.finished
+
+
 ## A gag fitted to the face as measured (face()): the strap round the head at mouth height, just outside it, front to
-## back; the ball or the bit at the front of the snout. Tape wound round the snout itself, just outside it.
+## back; the ball or the bit at the front of the snout. Tape laid across the mouth (_tape()).
 func _fitted_gag(kind: String, fc: Dictionary) -> Node3D:
 	var f: Vector3 = fc.fwd
 	var mid: Vector3 = fc.mid
-	var y := Vector3.UP * float(fc.mouth_y)
+	var up: Vector3 = fc.get("up", Vector3.UP)
+	var y := up * float(fc.mouth_y)
 	var front: float = fc.front
 	if kind == "tape":
-		var length := clampf(front * 0.35, 0.035, 0.07)
-		var n := Node3D.new()
-		var w := float(fc.snout_w) + 0.01
-		var band := oval(w, length * 0.5 + 0.012, 0.05, TAPE)
-		n.add_child(band)
-		var band2 := oval(w + 0.004, length * 0.5 + 0.016, 0.032, TAPE)
-		band2.position = Vector3(0, -0.014, 0.004)
-		band2.rotation.x = 0.1
-		n.add_child(band2)
-		var tab := MeshInstance3D.new()
-		var bm := BoxMesh.new()
-		bm.size = Vector3(0.028, 0.024, 0.004)
-		tab.mesh = bm
-		tab.position = Vector3(w + 0.004, -0.01, 0.0)
-		tab.rotation.y = PI / 2.0 - 0.3
-		tab.material_override = Look.toon(TAPE, 0.25)
-		n.add_child(tab)
-		return wear("head", n, mid + y + f * (front - length * 0.5), f)
+		# At the lips, where _tape() builds it from (it was placed at mouth_y: off by their difference).
+		return wear("head", _tape(fc), mid + up * float(fc.lips_y), f, up)
 	var back: float = fc.head_back
 	var depth := (front + back) * 0.5 + 0.012
 	var g := oval(float(fc.head_w) + 0.012, depth, 0.022, LEATHER)
@@ -564,7 +878,7 @@ func _fitted_gag(kind: String, fc: Dictionary) -> Node3D:
 		piece.material_override = Look.toon(Look.VELVET, 0.6)
 		piece.position = Vector3(0, 0, depth - 0.006)
 	g.add_child(piece)
-	return wear("head", g, mid + y + f * (front - back) * 0.5, f)
+	return wear("head", g, mid + y + f * (front - back) * 0.5, f, up)
 
 
 ## A line through a gag: the sound, and what it means in brackets ("Mmh-mm. (Green.)"). OWNER REVIEW.

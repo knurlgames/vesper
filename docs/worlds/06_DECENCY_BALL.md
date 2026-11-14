@@ -15,7 +15,7 @@ The Council's grand hall, the night of the Ball. It leans blend-in, and the whol
 - **Vesper is a guest.** She comes in on Augusta's invitation and dances with Swyne. In public. In front of everyone.
   He knows who she is now. She lets him.
 - **Going out:** the bags are swapped, but Swyne's secretary saw Nim's face. Before dawn, the police raid the Velvet
-  Rope. The club is emptied, its door sealed. The crew scatters to safehouses. The vote is moved to tomorrow night.
+  Claw. The club is emptied, its door sealed. The crew scatters to safehouses. The vote is moved to tomorrow night.
 
 ## The map
 The Council's grand hall: a ballroom under a glass dome, with galleries round it.

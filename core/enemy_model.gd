@@ -26,10 +26,13 @@ var loaded := false
 var held := false
 var _player: AnimationPlayer
 var _clip := &""
-## The Rope's cord (`<body>_Ropes_*` in the GLB, on his bones): shown only while he's bound.
+## The Claw's cord (`<body>_Ropes_*` in the GLB, on his bones): shown only while he's bound.
 var _ropes: Array[Node3D] = []
 ## True when the GLB has a `bound` clip and its ropes: Enemy then hides its own greybox rings.
 var has_bound := false
+## Tied but not gagged: the ropes' mouth piece (`<body>_Ropes_tape`) stays off. The bosses: tied in the scuffle with
+## their mouths free for their last lines, then taped by Nim (owner, 2026-11-14; RigGear tape, not this piece).
+var no_mouth_tape := false
 
 
 static func path_for(p_body: String) -> String:
@@ -110,7 +113,7 @@ func show_state(state: int, t: float, speed: float, recover: float) -> void:
 		_clip = want
 		_player.play(want, BLEND)
 		for r in _ropes:
-			r.visible = want == &"bound"
+			r.visible = want == &"bound" and not (no_mouth_tape and String(r.name).ends_with("_tape"))
 	if state == 11:
 		_player.speed_scale = 0.0          # frozen by the Scold, mid-step
 	elif CLIP_SPEED.has(want):

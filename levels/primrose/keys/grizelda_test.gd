@@ -2,7 +2,7 @@ extends "res://levels/primrose/keys/primrose_key.gd"
 ## Key 1: Grizelda's test (worlds/02_PRIMROSE_CLOSE.md). On the lawn of number 4, her old house (for sale), three
 ## Coalition ladies take tea every Thursday "to look round it". Grizelda sets the test: take tea with them, in the
 ## suit, without losing Composure. Each slip in the conversation costs Composure (the dialogue sets "tea_slipN"); two
-## slips, or naming the Rope, and the ladies close ranks (blown cover). Passed: her verdict, Key 1, and the Scold.
+## slips, or naming the Claw, and the ladies close ranks (blown cover). Passed: her verdict, Key 1, and the Scold.
 ## The joke: she had the same three ladies to tea twelve years ago, and they still talk about it.
 
 ## Number 4: the east side's second plot (z -22), its lawn x 8..14.

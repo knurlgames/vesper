@@ -1,6 +1,6 @@
 extends Node3D
 ## The file select (owner, 2026-11-13: "a fun, interactive screen - perhaps a tour of a mini dungeon where each save is a
-## location in that dungeon"; after Banjo-Kazooie's file select in Grunty's lair, and Banjo-Tooie's): the Velvet Rope's
+## location in that dungeon"; after Banjo-Kazooie's file select in Grunty's lair, and Banjo-Tooie's): the Velvet Claw's
 ## vaults, a corridor of rooms, a sister in each. Nim walks between them; each room is something to do:
 ##   The Quiet Room (Lull)     content notes, and the extras
 ##   The Rope Room (Silke)     save 1

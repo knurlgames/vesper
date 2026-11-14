@@ -6,9 +6,9 @@ conversation needs no code: write a `.dialogue` file, point a Talker at it, run 
 ## The rules (binding: WORK_ORDERS.md §0.2)
 - **Every character is an unmistakable grown adult.** No age jokes, nothing child-coded.
 - **Crude is welcome.** Jokes target Swyne, his goons, hypocrites, and Nim's dignity. Never the kink community or
-  the Rope's practice.
+  the Claw's practice.
 - **People in trances** are never hurt and never the joke.
-- **"Consent" is never said as the thesis.** It's shown: the Rope asks, Swyne doesn't.
+- **"Consent" is never said as the thesis.** It's shown: the Claw asks, Swyne doesn't.
 - **Vesper's lines, Swyne's speeches, the death and the coda are the owner's to approve.** Mark them `# OWNER REVIEW`.
   The lint fails anything unmarked.
 - **Banned words** are in `data/writing/banned_words.json` (the owner owns the list). The lint matches whole words in

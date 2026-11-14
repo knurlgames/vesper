@@ -477,20 +477,21 @@ func boss_phase() -> int:
 
 func boss_enter(test_retry := true) -> void:
 	var b := boss()
-	d.check(pier.get_node_or_null("HallShutter") == null, "with the ledger, the Prize Hall's shutter is up")
+	d.check(not pier.get_node("HallDoors").call(&"is_locked") and pier.get_node_or_null("ShutterSign") == null,
+		"with the ledger, the Prize Hall's doors swing open")
 	await d.place(Vector3(0.0, 0.05, -254.0), 0.0)
 	await walk_to(Vector3(0.0, 0, -264.0), 6.0)
 	await converse("in, and Laffer's welcome")
-	d.check(b.get_node("HallLock").collision_layer == 1 and boss_phase() == 2, "the door locks behind her; the Claw")
+	d.check(pier.get_node("HallDoors").call(&"is_locked") and boss_phase() == 2, "the door locks behind her; the Cackling Crane")
 	if not test_retry:
 		return
 	# Downed in the fight, she's put back at the checkpoint outside: the door opens and the phase waits.
 	await d.place(Vector3(0.0, 0.05, -252.0), 0.0)
 	await d.frames(5)
-	d.check(b.get_node("HallLock").collision_layer == 0 and boss_phase() == 1, "out of the fight, the door opens")
+	d.check(not pier.get_node("HallDoors").call(&"is_locked") and boss_phase() == 1, "out of the fight, the door opens")
 	await walk_to(Vector3(0.0, 0, -264.0), 6.0)
 	await d.frames(5)
-	d.check(boss_phase() == 2 and not dialogue.call(&"is_active"), "back in, the Claw again (no second welcome)")
+	d.check(boss_phase() == 2 and not dialogue.call(&"is_active"), "back in, the Cackling Crane again (no second welcome)")
 
 
 func boss_claw() -> void:
@@ -596,5 +597,5 @@ func boss_mountain() -> void:
 		else:
 			await d.secs(0.25)
 	d.check(flag("done/pier") and flag("pier/laffer_bound"), "the Pier's done")
-	d.check(b.get_node("HallLock").collision_layer == 0 and pier.get_node_or_null("Laffer/Vesper_hall") != null,
+	d.check(not pier.get_node("HallDoors").call(&"is_locked") and pier.get_node_or_null("Laffer/Vesper_hall") != null,
 		"the door's open, and Vesper waits by it")

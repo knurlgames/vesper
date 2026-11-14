@@ -1,5 +1,5 @@
 extends SceneTree
-## The Velvet Rope's house (WO-014b), with real input:
+## The Velvet Claw's house (WO-014b), with real input:
 ##   - the vaults are alive: clients in a session, waiting, in aftercare from the start; new ones come in at the door,
 ##     change, and go down to wait;
 ##   - Nim's own session (in the suit): the check-in, then the cross (core/cross_scene.gd): agree the form, the
@@ -31,6 +31,16 @@ func _initialize() -> void:
 	game.call(&"reset")
 	game.call(&"set_flag", "hub/prologue_done")
 	game.call(&"set_flag", "done/pier")   # Dash is home from the Pier, in her room
+	# Every sister is home (each comes back when her world is done: core/sisters.gd) and already welcomed (hub_probe
+	# covers the homecomings).
+	for w: String in ["ball", "docks", "press", "retreat", "primrose"]:
+		game.call(&"set_flag", "done/" + w)
+	# Swyne's cutaways seen too (swyne_office.gd; this probe doesn't skip cutscenes).
+	for w: String in ["pier", "primrose"]:
+		game.call(&"set_flag", "swyne/" + w)
+	for who: String in ["dash", "augusta", "silke", "rivet", "lull", "grizelda"]:
+		game.call(&"set_flag", "home/" + who)
+		game.call(&"set_flag", "back/" + who)
 	hub = load(HUB).instantiate()
 	root.add_child(hub)
 	current_scene = hub
@@ -273,7 +283,7 @@ func _silke_switch() -> void:
 	d.check(r.ok and not r.stopped and float(r.get("feel", 0)) >= 0.35 and r.gag == "tape" and int(game.call(&"get_flag", "bond/silke", 0)) >= 1,
 		"Silke leads, the rich scene: tape on Nim, offered, breathed, the line, released; aftercare; Headspace %.2f, bond %s (%s)" % [
 		float(r.get("feel", 0)), game.call(&"get_flag", "bond/silke", 0), str(r)])
-	await _pick_up(&"hub_09")
+	await _pick_up(&"hub_12")   # Silke's own Rose (core/sisters.gd)
 
 
 ## A rich scene (core/rich_scene.gd) played with real input, following its hint(): `want` is set into its form before

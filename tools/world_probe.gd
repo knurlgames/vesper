@@ -154,9 +154,10 @@ func _shortcut_zone_travel() -> void:
 	d.check(hud.call(&"choosing"), "Y at one lists where she can go")
 	await d.tap(JOY_BUTTON_DPAD_DOWN)
 	await d.tap(JOY_BUTTON_A)
-	await d.frames(3)
-	d.check(d.nim.global_position.distance_to(b.global_position) < 2.5 and not paused,
-		"picking \"Yard\" puts her there %s" % d.at())
+	# The rose cyclone wraps her up, she's moved, and it sinks away there (about 2.2 s): then she's free.
+	var arrived := await d.until(func() -> bool:
+		return d.nim.global_position.distance_to(b.global_position) < 2.5 and d.nim.is_physics_processing(), 4.0)
+	d.check(arrived and not paused, "picking \"Yard\": a cyclone of roses, and she's there %s" % d.at())
 
 
 func _wardrobe_and_goon() -> void:
@@ -221,5 +222,5 @@ func _slots(before: Dictionary) -> void:
 
 func _pause_tallies() -> void:
 	var text: String = hud.call(&"_tally_text")
-	d.check(text.contains("Velvet Roses: %d." % game.call(&"keys")) and text.contains("The Velvet Rope"),
+	d.check(text.contains("Velvet Roses: %d." % game.call(&"keys")) and text.contains("The Velvet Claw"),
 		"the pause screen tallies it (hub line and %d roses)" % game.call(&"keys"))

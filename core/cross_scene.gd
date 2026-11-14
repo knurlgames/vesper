@@ -167,6 +167,11 @@ func _ready() -> void:
 	_nim = hub.get(&"nim")
 	_nim.set_physics_process(false)
 	_nim.set(&"velocity", Vector3.ZERO)
+	# Held in her idle from the start: with her body stopped, her model read it as airborne and played the fall, arms
+	# flailing, all through the form (owner, from a first playthrough: "As the Domme, Nim was flailing awkwardly").
+	var nm: Node = _nim.get(&"model")
+	if nm and nm.has_method(&"hold"):
+		nm.call(&"hold", true)
 	hud = SceneHud.new()
 	add_child(hud)
 	Hud.show_world_ui(false)
@@ -359,9 +364,9 @@ func _tie_on() -> void:
 		if picks.wrists == "rope":
 			r.wrap("forearm" + s, 0.042, fl * 0.86)
 		else:
-			r.band("hand" + s, 0.044, RigGear.LEATHER, true)
+			r.cuff("wrist" + s, RigGear.LEATHER)
 		if picks.ankles == "cuffed":
-			r.band("foot" + s, 0.05, RigGear.LEATHER, true)
+			r.cuff("ankle" + s, RigGear.LEATHER)
 	var head := r.head_frame()
 	if picks.neck == "collar":
 		# Round the neck halfway up it, a little looser than the neck is thick.
@@ -1187,12 +1192,18 @@ func _finish(result: Dictionary) -> void:
 	if _cam:
 		_cam.queue_free()
 	_nim.set_physics_process(true)
+	var nm: Node = _nim.get(&"model")   # (held from _ready: a form turned down never got as far as _untie)
+	if nm and nm.has_method(&"hold") and bool(nm.get(&"held")):
+		nm.call(&"hold", false)
 	hud.kind = ""
 	hud.title = ""
 	hud.meters = []
 	Hud.show_world_ui(true)
 	if result.ok and not result.get("declined", false):
-		Game.earn_rose(&"hub", &"hub_08" if who in ["client", "smith", "pip"] else &"hub_09")
+		if who in ["client", "smith", "pip"]:
+			Game.earn_rose(&"hub", &"hub_08")
+		else:
+			Sisters.earn_rose(who)   # her Rose, the first good scene with her at home
 		Hud.note("THE CROSS\nRounds: %d\n%s" % [rounds,
 			"Stopped the moment it was asked. That counts most." if stopped else "A good scene, start to finish."], 6.0)
 	finished.emit(result)

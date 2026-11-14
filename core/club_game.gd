@@ -1,5 +1,5 @@
 extends Node
-## The sisters' scenes, in their own rooms (WO-014b, DESIGN.md "The Velvet Rope's house"; the owner: "allow yourself
+## The sisters' scenes, in their own rooms (WO-014b, DESIGN.md "The Velvet Claw's house"; the owner: "allow yourself
 ## to Switch... the option to Domme a sister too"). Content lines: suggestive, clothed (swimwear at most),
 ## consensual: each opens with a check-in in its conversation, "red" always ends it well, aftercare after.
 ##
@@ -50,6 +50,7 @@ var stage := "setup"
 var hud: SceneHud
 
 var _nim: Node3D
+var _held_here := false
 var _sis: Talker
 var _rig: RigGear        # the one tied or holding the posture
 var _cam: Camera3D
@@ -148,6 +149,11 @@ func _ready() -> void:
 	_nim = hub.get(&"nim")
 	_nim.set_physics_process(false)
 	_nim.set(&"velocity", Vector3.ZERO)
+	# (Not airborne: with her body stopped, her model played the fall until something posed her.)
+	var nm: Node = _nim.get(&"model")
+	if nm and not bool(nm.get(&"held")):
+		nm.call(&"hold", true)
+		_held_here = true
 	_sis = hub.get_node_or_null(NodePath(sister.capitalize())) as Talker
 	hud = SceneHud.new()
 	add_child(hud)
@@ -1047,7 +1053,8 @@ func _strap_for(i: int) -> Node3D:
 		return null
 	if _strap_i != i:
 		var role: String = BUCKLES[i][0]
-		_strap = _rig.band(role, 0.05 if role.begins_with("foot") else 0.044, RigGear.LEATHER, true)
+		# ("footL" is an ankle, "handR" a wrist: on the shin's or forearm's end, fitted to the limb.)
+		_strap = _rig.cuff(("ankle" if role.begins_with("foot") else "wrist") + role.right(1), RigGear.LEATHER)
 		_strap_i = i
 	return _strap
 
@@ -1056,7 +1063,7 @@ func _strap_for(i: int) -> Node3D:
 func _fit_strap(i: int, fit: float) -> void:
 	var s := _strap_for(i)
 	if s:
-		var k := lerpf(1.75, 0.82, clampf(fit, 0.0, 1.0))
+		var k := lerpf(1.75, 1.0, clampf(fit, 0.0, 1.0))   # (pulled tight: the cuff's fitted size, on the skin)
 		s.scale = Vector3(k, 1.0, k)
 
 
@@ -1245,7 +1252,7 @@ func _after() -> void:
 		_cam.global_transform = _cam_home
 	await hud.fade(false)
 	if _result.ok:
-		Game.earn_rose(&"hub", &"hub_09")
+		Sisters.earn_rose(sister)   # her Rose, the first good scene with her at home
 	var label := "%s_%s_%s" % [sister, mode, "red" if _result.stopped else "after"]
 	await Dialogue.run("res://data/dialogue/hub/sessions.dialogue", label)
 	_name_tags(true)
@@ -1253,6 +1260,9 @@ func _after() -> void:
 		_was_cam.make_current()
 	if _cam:
 		_cam.queue_free()
+	var nm: Node = _nim.get(&"model")
+	if _held_here and nm and bool(nm.get(&"held")):
+		nm.call(&"hold", false)
 	_nim.set_physics_process(true)
 	Hud.show_world_ui(true)
 	finished.emit(_result)   # (club_life walks her back to her place)

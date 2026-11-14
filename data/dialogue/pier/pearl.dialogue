@@ -1,6 +1,6 @@
 # Madame Pearl, the fortune teller (worlds/01_PIER.md, Key 5). She sells Swyne's toys under the table. In the suit,
 # Nim poses as a buyer for a club and has to stay in character: each "slip" flag costs Composure, and two slips or
-# naming the Rope lose the sale and blow her cover (levels/pier/keys/pearl.gd). Pearl's reading is right about the
+# naming the Claw lose the sale and blow her cover (levels/pier/keys/pearl.gd). Pearl's reading is right about the
 # ledger and wrong about everything else.
 
 ~ start
@@ -34,7 +34,7 @@ set pier/pearl_slip3
 ~ crate
 Pearl: A club, is it. And which club would that be?
 - The kind you don't ask about. => sold
-- The Velvet Rope. => refused
+- The Velvet Claw. => refused
 
 ~ refused
 Pearl [cold]: Oh, I don't think you're buying anything, dear. I think you're looking. HELP! THIEVES!

@@ -251,7 +251,7 @@ func _physics_process(delta: float) -> void:
 
 func _board() -> void:
 	phase = Phase.RUNNING
-	Hud.caption("Courier", "The Rope?! You can't have the ledger! It's Mr. Laffer's ledger!", 3.0)
+	Hud.caption("Courier", "The Claw?! You can't have the ledger! It's Mr. Laffer's ledger!", 3.0)
 	courier.reparent(car)
 	courier.position = Vector3(0, 0.35, -0.2)
 	courier.rotation = Vector3.ZERO

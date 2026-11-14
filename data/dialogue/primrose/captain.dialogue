@@ -1,6 +1,6 @@
 # OWNER REVIEW
 # The Neighbourhood Watch's captain, by his hut, with the logbook (Key 7; levels/primrose/keys/logbook.gd). In the
-# suit, Nim passes for head office: each "slip" flag costs Composure, and two slips or naming the Rope and he blows
+# suit, Nim passes for head office: each "slip" flag costs Composure, and two slips or naming the Claw and he blows
 # his whistle. The logbook records every visit to every party, and eleven visits to the Watch hut by his wife.
 
 ~ start
@@ -19,7 +19,7 @@ set primrose/log_slip1
 Captain: Head office? Nobody told me about head office.
 - Nobody tells you anything, Captain. That's what I'm here to fix. => two
 - Sorry! Shall I come back with a letter? => two_soft
-- The Velvet Rope sent me. => refused
+- The Velvet Claw sent me. => refused
 
 ~ two_soft
 [if primrose/log_slip1] => refused

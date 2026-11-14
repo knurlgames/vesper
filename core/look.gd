@@ -9,7 +9,7 @@ const OUTLINE := preload("res://shaders/outline.gdshader")
 ## Painted patterns (shaders/painted.gdshader).
 enum Pattern { PLASTER, BRICK, COBBLES, FLAGSTONES, SLATE, PLANKS }
 
-## The palette (ART_DIRECTION.md "Colour"). The Velvet Rope's red belongs to the sisters, the club and their marks.
+## The palette (ART_DIRECTION.md "Colour"). The Velvet Claw's red belongs to the sisters, the club and their marks.
 const VELVET := Color("7a1428")
 const SODIUM := Color("ffa04a")
 const MOON := Color("aab8ff")

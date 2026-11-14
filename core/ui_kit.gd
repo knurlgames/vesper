@@ -5,7 +5,7 @@ extends RefCounted
 ##
 ##   - **Fonts** (assets/ui/fonts, SIL Open Font License, the licences beside them): Lilita One for headings, titles
 ##     and numbers (chunky and cheerful); Nunito for everything read (round, clear at small sizes on the Deck).
-##   - **The palette:** velvet plum panels, gold trim, cream text, the Rope's rose for warnings.
+##   - **The palette:** velvet plum panels, gold trim, cream text, the Claw's rose for warnings.
 ##   - **The Theme** (`apply`, from the Controls autoload): every Button, toggle, slider, panel and label in the game
 ##     takes it, so a menu built anywhere looks the same. Focus is a thick gold ring with a glow: on a pad, where you
 ##     are is never in doubt.

@@ -1,0 +1,13 @@
+{
+  "_": "Meeting Mrs Gander in her garden, the first time through her back door (levels/primrose/keys/gander.gd _begin): the door locks, the garden opens out, Mrs Gander at her conservatory says her piece, and her entranced guests drift out across the lawns. Live.",
+  "live": true,
+  "steps": [
+    {"shot": {"start_from": [0, 2.2, -137.4], "start_look": [0, 1.2, -150], "from": [0, 3.8, -138.6], "look_at": [0, 0.8, -165], "secs": 3.0}},
+    {"caption": "Mrs Gander's garden. Prize-winning, every year."},
+    {"shot": {"node": "GanderBoss", "start_from": [1.8, 1.7, -3.6], "from": [1.1, 1.55, -2.6], "look_at": [0, 1.3, 0], "secs": 2.0}},
+    {"caption": ""},
+    {"say": {"file": "res://data/dialogue/primrose/gander.dialogue", "label": "intro"}},
+    {"shot": {"from": [13, 8, -139], "look_at": [0, 0.5, -158], "secs": 2.5}},
+    {"wait": 0.5}
+  ]
+}

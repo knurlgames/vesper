@@ -3,9 +3,9 @@
 
 ~ intro
 Laffer [laugh]: Ha ha ha! Roll up, roll up! Welcome to the Prize Hall, where everybody's a winner!
-Laffer: And what's this? The Rope's little climber, with my ledger. Ha ha. That's not funny. Ha ha ha!
+Laffer: And what's this? The Claw's little climber, with my ledger. Ha ha. That's not funny. Ha ha ha!
 Nim: It's very funny. You're going to prison.
-Laffer: Step right up! We'll play Lucky Dip. You're the prize! Ha ha ha ha!
+Laffer: Step right up to my Cackling Crane! We'll play Lucky Dip, and you're the prize! Ha ha ha ha!
 
 ~ chute
 Laffer [laugh]: Ha! Rigged! It's all rigged! Everything in here's rigged, sweetheart!
@@ -24,3 +24,16 @@ Laffer: Ha ha! Right! Throw the prizes at her! Everybody's a winner!
 Laffer [laugh]: Ha! Ha ha! Look at me! The grand prize!
 Nim: The police will be along to collect it.
 Laffer: Ha ha ha ha! ...Ha. Ha ha. Somebody stop me laughing. Ha ha ha!
+
+# The second half of his finish (owner, 2026-11-14): his last word, Nim's retort, the tape (laffer.gd tape_gag), and
+# him "properly gagged", on his gagged portrait (speakers.json LafferGagged).
+~ tape
+Laffer [laugh]: Ha! You can't stop me! Nobody can stop Lucky Lou Laffer laugh-
+Nim: Everybody's a winner. Here's your consolation prize.
+
+~ gagged
+LafferGagged: Mmmph! Mmph-mmph-mmph! Mmmmph!
+[narrator] He's still laughing. You can tell from his shoulders.
+# Dash's job is done: she's home at the Velvet Claw from now on (core/sisters.gd).
+[narrator] Somewhere down the pier, someone whoops. Then Dash's voice, already halfway to the gate.
+Dash: Job done! Race you home! ...I'm already winning!

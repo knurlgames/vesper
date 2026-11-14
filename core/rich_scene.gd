@@ -1031,7 +1031,7 @@ func _after() -> void:
 		_sis.dress("suit")
 	await hud.fade(false)
 	if _result.ok and not _result.get("declined", false):
-		Game.earn_rose(&"hub", &"hub_09")
+		Sisters.earn_rose(sister)   # her Rose, the first good scene with her at home
 		Game.set_flag("bond/%s" % sister, int(Game.get_flag("bond/%s" % sister, 0)) + 1)
 	if not _result.get("declined", false):
 		var label := "%s_%s_%s" % [sister, mode, "red" if _result.stopped else "after"]

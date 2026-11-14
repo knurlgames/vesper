@@ -3,8 +3,18 @@
 Decisions are the owner's unless marked **proposal**. The research behind the structure is in [STUDY.md](STUDY.md).
 
 ## Premise
-- **The Purrlands.** A secret order of feline Dommes, **the Velvet Rope**, fights crime. They're all women, a
+- **The Purrlands.** A secret order of feline Dommes, **the Velvet Claw**, fights crime. They're all women, a
   sisterhood like the Amazons, and they run a club with a working dungeon as their front.
+  - **The name** (owner, 2026-11-14): the Velvet Claw ("the Claw" for short), after "lose rope, single in on
+    felines". It was the Velvet Rope. The square outside is Velvet Square. Literal rope keeps its name: Nim's rope,
+    the Rope Room, the binds. Laffer's claw machine is his "Cackling Crane", so "the Claw" only ever means the crew.
+  - **The emblem: the Clawed Rose** (owner, 2026-11-14): a crimson rose seen from above, its five outer petals ending
+    in brass claws (`assets/ui/emblems/clawed_rose.png`). It hangs over the club's door and the vaults' fireplace,
+    and Nim wears it where the knot was: on a brass plate on her muzzle's grille, and on the leather disc at the middle
+    of her chest harness.
+  - **The calling card: Three Marks** (owner, 2026-11-14): three crimson claw slashes, a rosebud blooming from the
+    middle one (`three_marks.png`), scored into the ground in front of every goon they tie up. The papers and Swyne's
+    WANTED posters know the Claw by the marks, never by a face.
 - **Mistress Vesper** (bobcat) leads them. She's the mentor, not the player, and she dies at the end, on her own terms.
 - **Councillor Swyne** (boar), the villain, is a hypocrite: by day, the Purrlands' loudest decency campaigner, out to
   shut "those clubs". By night, he floods them with contraband, mainly hypnotic sex toys, to take the Purrlands over.
@@ -13,20 +23,20 @@ Decisions are the owner's unless marked **proposal**. The research behind the st
 ## The hero
 - **Nimbus** ("Nim" to the crew), a clouded leopard, a woman.
 - **Her velvet muzzle** (owner, 2026-11-11): a rigid, sculpted leather mask shaped to her snout and wrapped in
-  black velvet with velvet-red piping, and a brass breathing grille that has the Rope's knot worked into it. Straps run behind her ears to a
+  black velvet with velvet-red piping, and a brass breathing grille that has the Claw's knot worked into it. Straps run behind her ears to a
   back buckle, with a quick-release catch. She wears it with the eye mask.
   - It reads as protective, dominant gear (respirator or fencing-mask energy), **never a gag:** nothing holds her
     mouth open, and nothing locks.
   - **Rivet built it.** It scrambles Nim's voice, and it filters the trance at the Retreat and in the broadcast.
   - **On with the garb, dialogue and cutscenes included** (owner, Deck review 3, 2026-11-13; it was off for dialogue). It clicks on and off with an animation (WO-011's
     clips).
-- **Proposal:** one of Swyne's first test subjects. The Rope pulled her out of a trance, and she asked to join. The
+- **Proposal:** one of Swyne's first test subjects. The Claw pulled her out of a trance, and she asked to join. The
   toys no longer work on her. She's the best climber in the house.
 
 ## The crew
 **Owner, 2026-11-11:** the whole cast is drawn in a soft-sculpt cartoon style, about 4.5–5 heads tall and
 unmistakably adult (ART_DIRECTION.md §1).
-All grown women and well endowed: curvy, full figures, large breasts (owner, 2026-11-11: every member of the Rope;
+All grown women and well endowed: curvy, full figures, large breasts (owner, 2026-11-11: every member of the Claw;
 the rest of the cast are more endowed than Nim, with exposed cleavage, especially in their Domme suits),
 everyone fully covered. Each has **a Domme suit for the
 dungeon** and **night garb for the work**.
@@ -41,9 +51,29 @@ dungeon** and **night garb for the work**.
 | **Grizelda**, Pallas's cat | tiny, round, fifties | brat-taming | grumpy, terrifying |
 | **Bastion**, jaguar | all shoulders | bodyguard | filler: the door, the muscle, Vesper's shadow |
 
+### The sisters are away (decided, owner, 2026-11-13; built)
+"The sisters should all be away on missions and only come back after you complete their story"; "it gives us a Rose
+that can be earned with each Sister and it is like the 'Grunty switch' in Banjo changing the World".
+- **Each sister is out on her own world's job** (her world's host) and comes home to the Velvet Claw when Nim
+  finishes it: Dash (Pier), Grizelda (Primrose Close), Silke (Docks), Lull (Retreat), Rivet (Press), Augusta (Ball).
+  `core/sisters.gd` holds the table.
+- **The club fills up as you play.** An away sister's room is dark, with "OUT ON BUSINESS" under its plaque; her
+  clients don't come. The cross, the waiting clients and the Quiet Room's aftercare run from the start.
+- **The story beats:** Vesper names where everyone is at the end of the prologue (`# OWNER REVIEW`); each world ends
+  with the sister heading home (built: Dash after Laffer, Grizelda after Gander); the Backroom board says who's away
+  and who's home; the first talk at home is her homecoming (`<who>_home` in club.dialogue), and the guide points to
+  it.
+- **A Rose for each sister:** her first good scene at home (either way round, or the cross). hub_09 is Dash's (it
+  was "any first sister scene"), hub_11 to hub_15 the others. The hub has 15 Roses now (it was 10); 75 in all.
+- **Rivet's drop box** (decided): while she's at the Press, a box in her dark workshop takes the contraband; her
+  courier collects overnight and the gear is waiting the next time Nim comes back to the club. At home she takes it
+  by hand, and her homecoming brings one free upgrade.
+- **For the unbuilt worlds' briefs:** each needs its "heading home" line at the end (Silke, Lull, Rivet, Augusta),
+  and the sister has to be there, on the job, for the whole world. Their briefs already put her there.
+
 ## The masks (owner, 2026-11-11)
 Each sister works in her own mask: the order shares a style, but every mask is personal. Rivet built them all.
-They come off for every conversation (look: ART_DIRECTION §1, "The Rope's masks").
+They come off for every conversation (look: ART_DIRECTION §1, "The Claw's masks").
 - **The city knows the masks, not the women.** Goons have nicknames for each one, and the papers and Swyne's
   posters use them. **Proposals:**
   - Augusta is "the Duchess";
@@ -62,7 +92,7 @@ They come off for every conversation (look: ART_DIRECTION §1, "The Rope's masks
 - **Wanted posters:** Swyne's Coalition pastes up posters of the masks, a drawing of each one, never a face,
   with a reward. They're props in every world, torn down and pasted back as the story goes. A new mask joins
   the wall when Nim earns hers.
-- **Vesper has no mask.** She's the Rope's open face, the one the Coalition can name but never prove anything
+- **Vesper has no mask.** She's the Claw's open face, the one the Coalition can name but never prove anything
   against. At City Hall she stands unmasked in front of the whole Purrlands for the broadcast: the one face they
   all know, and the reason the masks behind her can stay masks.
 
@@ -79,9 +109,9 @@ They come off for every conversation (look: ART_DIRECTION §1, "The Rope's masks
 Nim follows the contraband up the chain, from where it's sold to where it's made to Swyne himself. Each world is one
 link in it, hosted by one sister, who gives that world's gear.
 
-**The hub: the Velvet Rope**, a members' club in the Old Quarter with the dungeon underneath. Bastion keeps the door.
+**The hub: the Velvet Claw**, a members' club in the Old Quarter with the dungeon underneath. Bastion keeps the door.
 The Old Quarter's streets open around it world by world, each area with a wardrobe and fast travel. The hub changes as
-the story goes: the toys turn up in the Rope's own dungeon at the start, Swyne's posters go up, and the club is raided
+the story goes: the toys turn up in the Claw's own dungeon at the start, Swyne's posters go up, and the club is raided
 before the finale.
 
 **Sizing (owner, 2026-11-12: "remember the sizing principles from Banjo").** From STUDY.md §1–4, applied to the hub and
@@ -89,7 +119,7 @@ to every area added later:
 - **Mid-sized, grown by area.** One square, and one short street per world, opened as its world is. Tooie's areas, with
   Kazooie's sense of a path: each street leads to one door, never a web.
 - **Small enough to hold in your head.** Tooie's own designers said "all the levels were so big".
-  - Rope Square is 40 m across (6 s at a run), and the club on its north side is the landmark from everywhere.
+  - Velvet Square is 40 m across (6 s at a run), and the club on its north side is the landmark from everywhere.
   - Each world's door stands at the end of a street you can see down.
 - **Short walks between the things that matter.** The club's door to the Pier's gate is about 70 m (12 s, checked by
   `hub_probe`). A later street should keep its world's door within about 15 s of the club.
@@ -117,20 +147,21 @@ councillors included. They vote him emergency powers, and the clubs close for go
 4. The Retreat: the hypnosis waits for a signal. Nim finds her own patient file.
 5. The Decency Press: the broadcast schedule, and gift bags for the Ball. Vesper is called before the Council's
    Decency Committee and named in public.
-6. The Decency Ball: the gift bags are swapped, but Swyne knows who the Rope are now. That night the club is raided.
+6. The Decency Ball: the gift bags are swapped, but Swyne knows who the Claw are now. That night the club is raided.
 ★ City Hall: Vesper's final exam in the raided club, then midnight.
 
 **The economy:**
 - **Velvet Roses** (owner, 2026-11-12, in place of "Keys": "a Black or Velvet Rose, awarded for her improved
-  performance in the Velvet Rope"): 10 per world and 10 in the hub. The Rope gives a rose for good work. Ranks in the
+  performance in the Velvet Claw"): 10 per world and 10 in the hub. The Claw gives a rose for good work. Ranks in the
   order are counted in roses, never spent, and each rank opens the next world's gate in the Old Quarter.
   - Vesper gives Nim her first in the prologue and says what they are.
   - The code and the older docs still say "Key" (`Game.keys()`, `RANK_KEYS`, kind `key`, the world briefs' Key
     tables); everything the player reads says Roses.
-  - **Velvet, crimson**, not black (the Rope's own colour, by the velvet-red rule). Black is a quick swap if the
+  - **Velvet, crimson**, not black (the Claw's own colour, by the velvet-red rule). Black is a quick swap if the
     owner prefers.
 - **Contraband:** 100 seized per world. **Rivet turns it into gear** (owner, 2026-11-12): hand it in by talking to
-  her at the club.
+  her at the club, or, while she's away at the Press, leave it in her drop box (the gear comes by courier: see "The
+  sisters are away").
   - Every 25 is a lure (a gutted toy that buzzes where it lands).
   - Every 100 (a world's worth) is an upgrade, alternating one more health pip and a steadier Composure (slips cost
     a quarter less).
@@ -138,8 +169,8 @@ councillors included. They vote him emergency powers, and the clubs close for go
 - **Five people in trances per world.** Freeing all five pays a Key.
 - **Vesper:** she teaches a move in each of worlds 1 to 4. She shows her full strength once, at the Retreat.
 
-## The Velvet Rope's house (proposal, 2026-11-12)
-**Owner, 2026-11-12:** "the Velvet Rope needs a much larger interior. There should be the usual dungeon/kink rooms and
+## The Velvet Claw's house (proposal, 2026-11-12)
+**Owner, 2026-11-12:** "the Velvet Claw needs a much larger interior. There should be the usual dungeon/kink rooms and
 then a separate backroom where the covert ops planning takes place... I want you to be able to wander and see the
 other members working with clients, having a client as a mini game, and even allowing yourself to Switch and be
 dominated by one of your sisters."
@@ -151,7 +182,7 @@ dominated by one of your sisters."
   - **Downstairs:** clients and Nim wear swimwear-level coverage: a full-coverage bikini for women, shorts for men.
     Nothing sheer, and nothing that reads as coming off.
   - **Clients change at the door:** robes hang on hooks by Bastion, so upstairs they're in robes.
-  - **Nim's set:** a black two-piece with the Rope's velvet-red piping. She keeps her muzzle and eye mask: her
+  - **Nim's set:** a black two-piece with the Claw's velvet-red piping. She keeps her muzzle and eye mask: her
     identity, and Rivet's filter.
   - **The sisters: always in their Domme suits in the club** (owner, Deck review 3, 2026-11-13; it was swimwear
     downstairs). A sister changes into her two-piece (`<who>_swim.glb`) only when she's the sub: on the cross, and
@@ -416,10 +447,10 @@ finished by world 4 of 6, so worlds 5 and 6 test mastery. Combat is built first.
 - **Pounce:** a lunge that closes a gap and staggers on contact.
 - **Bind:** Vesper's own lesson. A staggered or unaware goon is tied where he stands and stays tied (bound goons
   persist, left with a note for the police).
-  - **The Rope's knot** (owner, 2026-11-11): every bound goon is tied off with the Velvet Rope's signature knot. It's
+  - **The Claw's knot** (owner, 2026-11-11): every bound goon is tied off with the Velvet Claw's signature knot. It's
     their calling card: the police, the papers and Swyne all know whose work it is.
-  - The knot is also the Rope's emblem: embossed tone on tone on the harness buckle and the half mask
-    (ART_DIRECTION §1, "The Rope's night uniform").
+  - The knot is also the Claw's emblem: embossed tone on tone on the harness buckle and the half mask
+    (ART_DIRECTION §1, "The Claw's night uniform").
   - **Proposal, its shape:** a figure-eight with a closed loop through its middle, readable as one bold mark at
     emblem size.
 - **Command: Kneel.** In the suit, a goon or a member of staff kneels and stays out of her way.

@@ -11,7 +11,7 @@ wikis refused automated fetches. Numbers marked (unverified) come from memory, n
 - **3D**, with a **Banjo-style hub** and gated worlds. Conker is the reference for tone and action.
 - **Set while Vesper is alive.** She runs a vigilante crew.
 - **Vesper is the mentor, not the player.** Think Kakashi, Gojo, All Might. The player is a new character.
-- **The Velvet Rope:** a secret society of Dommes who fight crime, **all women, all felines** (like the Amazons),
+- **The Velvet Claw:** a secret society of Dommes who fight crime, **all women, all felines** (like the Amazons),
   Vesper at its head. Diverse in species, build and age, all clearly adult. The hero is a member, so she's a woman too.
 - **The villain is a hypocrite boar:** the Land's loudest decency campaigner by day, flooding the clubs with
   contraband (mainly hypnotic sex toys) by night, to take over the Land (name pending).

@@ -1,5 +1,5 @@
 extends SceneTree
-## Out of bounds in the Velvet Rope (owner, Deck review 4: "clip out of bounds jumping up in the Velvet Rope": a jump
+## Out of bounds in the Velvet Claw (owner, Deck review 4: "clip out of bounds jumping up in the Velvet Claw": a jump
 ## by the lounge's wall caught the ceiling's top as a ledge and pulled her up onto it). With real input, Nim jumps at
 ## every wall of the lounge, the dungeon and the vaults, every few metres, and off the furniture, pushing on into the
 ## wall the whole time (the grab, the pull-up). She must end every try under the ceiling she started under.

@@ -12,7 +12,7 @@ covers Nim, Vesper, the crew, Swyne, the goons and the bosses. §1 and the chara
   seven-head comic style). The WO-002 *props* and the world look stand.
 - **What stays from velvet noir:** everything that isn't a character's form.
   - **The night palette** (§3).
-  - **The velvet-red rule:** only the Rope, the club and their marks wear crimson.
+  - **The velvet-red rule:** only the Claw, the club and their marks wear crimson.
   - **Ink outlines** (§4): the rounder forms take an inverted hull even better.
   - **The toon ramp and the night lighting:** sodium lamps, neon, moonlight, wet streets, fog and rain.
   - **The painted world, and the shader kit.**
@@ -21,7 +21,7 @@ covers Nim, Vesper, the crew, Swyne, the goons and the bosses. §1 and the chara
 
 ## The one-liner
 **Velvet noir.** A painted, inked comic-book night city with anthropomorphic adults: rain on the cobbles, sodium
-lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it.
+lamps and neon, deep indigo shadow, and the Velvet Claw's red cutting through it.
 - **References for the feel (never for content):**
   - *Blacksad*, the anthro noir comics: watercolour light, adult animal characters, posture as character;
   - *Arcane*: painted textures on 3D forms;
@@ -70,7 +70,7 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
   - **The test:** from behind, or in shadow, Nim must read as a big cat, never as a house cat.
 - **Gear is simplified:** a few big shapes over many small ones. Two pouches, not eight. One strap, not five. A
   costume reads from its silhouette and two or three colour blocks.
-- **The Velvet Rope's women are well endowed:** curvy, full figures, shaped by corsetry, latex and tailoring.
+- **The Velvet Claw's women are well endowed:** curvy, full figures, shaped by corsetry, latex and tailoring.
   Everyone fully covered. Curves stay in the cartoon proportions.
   - **Owner, 2026-11-11: a Domme suit may show cleavage** (Nim's has an open, plunging neckline). That's still
     suggestive, never nudity. "Fully covered" means no nudity; night garb stays closed.
@@ -79,8 +79,8 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
     necklines, as on Nim's suit). Every concept prompt for them says both.
     - **Still no nudity:** cleavage, never nipples or anything below the neckline. Night garb may stay closed.
     - Their builds still separate them (the silhouette table above).
-  - **Owner, 2026-11-11: every member of the Velvet Rope has large breasts:** Vesper, Nim and all seven sisters.
-    Every concept prompt for a Rope member says so. Their builds still differ (Augusta broad, Lull leggy, Grizelda
+  - **Owner, 2026-11-11: every member of the Velvet Claw has large breasts:** Vesper, Nim and all seven sisters.
+    Every concept prompt for a Claw member says so. Their builds still differ (Augusta broad, Lull leggy, Grizelda
     round), so the silhouettes still separate them.
 - **Heights in heads set the pecking order** (one head = the character's own head, crown to chin):
   - Vesper is tallest, about 5.5 heads ("tall, calm"), and she still has a big expressive head;
@@ -94,14 +94,14 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
   - night garb for the work: matte, dark, practical.
   - **The two outfits must differ in silhouette, not just colour** (owner, 2026-11-11). The garb carries one or two
     practical shapes the suit never has: knee pads, a rope coil at the hip, a hood, a satchel.
-    - **Nim's garb:** knee pads, plus the Rope's night uniform (below).
+    - **Nim's garb:** knee pads, plus the Claw's night uniform (below).
     - The suit keeps its corset, its heels and the open neckline.
-- **The Rope's night uniform** (owner, 2026-11-11: "the Velvet Rope's calling card while staying covert"). Every
+- **The Claw's night uniform** (owner, 2026-11-11: "the Velvet Claw's calling card while staying covert"). Every
   sister's night garb carries the same three pieces, varied per sister:
   - **A chest-and-hip harness with rings,** readable as both a climbing harness and a Domme's.
   - **A half mask,** black outside with a velvet-red lining.
   - **Black cord in a red velvet wrap,** coiled at the hip. It replaces a plain rope coil.
-  - **The Rope's knot** (DESIGN.md, Bind) is their emblem, embossed tone on tone on the harness buckle and the mask.
+  - **The Claw's knot** (DESIGN.md, Bind) is their emblem, embossed tone on tone on the harness buckle and the mask.
     - It's never printed in a contrasting colour: it's seen up close, never from across a street.
   - **Red only inside or as accents:** the mask's lining, the cord's wrap, maybe a ring or a stitch. Every outer
     surface stays matte black and charcoal. The garb is covert; the red is for whoever gets close enough to see it.
@@ -115,7 +115,7 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
     - Grizelda's harness is short and stout;
     - Bastion's harness spans her shoulders.
   - Vesper's night garb sets the pattern (WO-012).
-- **The Rope's masks** (owner, 2026-11-11; lore in DESIGN.md, "The masks"). Like an order's members, the sisters
+- **The Claw's masks** (owner, 2026-11-11; lore in DESIGN.md, "The masks"). Like an order's members, the sisters
   share one style, but every mask is personal. **Each sister is identifiable by her mask alone,** the way the
   silhouette rule works for her body.
   - **All share:** a black base, velvet-red piping, the brass knot somewhere on it, and Rivet's build.
@@ -135,14 +135,14 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
     | Lull | lower face only, eyes always bare, with a spiral grille. The spiral is brass and still, never glowing: hers, not Swyne's cold blue glow |
     | Grizelda | a flared brass speaking-trumpet grille (the Scold's amplifier) |
     | Bastion | a plain armoured half mask |
-    | Vesper | **no mask:** she's the Rope's open face |
+    | Vesper | **no mask:** she's the Claw's open face |
 
   - **Concepts:** one lineup of the seven masked heads comes first (owner), before any individual turnaround.
   - **Build:** like Nim's, each mask is its own mesh on the head bone, a Meshy mask-only model fitted in
     Blender (`nim_build.py`'s `fit_meshy_mask` is the template).
 - **Nim's velvet muzzle** (owner, 2026-11-11; lore in DESIGN.md): hers alone, worn with the half mask.
   - **The shape:** a rigid, sculpted leather mask shaped to her snout, with a brass breathing grille at the front
-    that has the Rope's knot worked into it. Straps run behind her ears to a back buckle, with a quick-release
+    that has the Claw's knot worked into it. Straps run behind her ears to a back buckle, with a quick-release
     catch.
   - **It must read as protective gear** (respirator, fencing mask), never as a gag. Her mouth sits closed inside it,
     nothing holds it open, and there are no locks or padlocks.
@@ -193,7 +193,7 @@ lamps and neon, deep indigo shadow, and the Velvet Rope's red cutting through it
 
 ## 3. Colour
 - **The night palette:** indigo and teal shadows, warm sodium orange lamps, cold moonlight from above.
-- **The Velvet Rope is red:** a deep velvet crimson. Only the sisters, the club and their marks wear it. Swyne's
+- **The Velvet Claw is red:** a deep velvet crimson. Only the sisters, the club and their marks wear it. Swyne's
   people never do.
 - **Swyne is cream and gilt:** clean, respectable, "decent". The Coalition's posters are cream and navy.
 - **Nim:** a smoky grey-brown coat with dark cloud markings, and pale green eyes. The player must read against every
@@ -406,4 +406,4 @@ will cost, and wait for the owner's yes. Rough costs from Nine Lives:
 - Realistic fur, skin or photo textures.
 - Plastic-toy shine on characters.
 - A grimdark palette: it's noir with jokes, not horror.
-- Cheesecake posing in gameplay. The Rope's women are confident, not posed for the camera.
+- Cheesecake posing in gameplay. The Claw's women are confident, not posed for the camera.

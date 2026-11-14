@@ -30,15 +30,16 @@ const VERSION := 2
 const SLOTS := 3
 
 const WORLDS: Array[StringName] = [&"hub", &"pier", &"primrose", &"docks", &"retreat", &"press", &"ball", &"city_hall"]
-const NAMES := {&"hub": "The Velvet Rope", &"pier": "The Pier", &"primrose": "Primrose Close", &"docks": "The Docks",
+const NAMES := {&"hub": "The Velvet Claw", &"pier": "The Pier", &"primrose": "Primrose Close", &"docks": "The Docks",
 	&"retreat": "The Retreat", &"press": "The Decency Press", &"ball": "The Decency Ball", &"city_hall": "City Hall",
 	&"test": "The test course", &"probe": "The probe world", &"cast": "The cast stage"}
-## Where each world's scene is, once it exists. The hub is the Old Quarter round the Velvet Rope (WO-014 step 5).
+## Where each world's scene is, once it exists. The hub is the Old Quarter round the Velvet Claw (WO-014 step 5).
 const SCENES := {&"hub": "res://levels/hub/hub.tscn", &"test": "res://levels/test_course/course.tscn",
 	&"pier": "res://levels/pier/pier.tscn", &"primrose": "res://levels/primrose/primrose.tscn"}
 ## The hub's one sleeper is the prologue's guest; waking him pays the hub's Key 10 (hub_10), her first Key.
 const TOTALS := {
-	&"hub": {&"key": 10, &"contraband": 0, &"freed": 1, &"tin": 0},
+	# 15: the six tins, the rooftops, a client, the prologue, and a Rose for each sister when she's home (Sisters).
+	&"hub": {&"key": 15, &"contraband": 0, &"freed": 1, &"tin": 0},
 	&"city_hall": {&"key": 0, &"contraband": 0, &"freed": 0, &"tin": 0},
 }
 const WORLD_TOTALS := {&"key": 10, &"contraband": 100, &"freed": 5, &"tin": 1}
@@ -53,7 +54,7 @@ const CAST_STAGE := "res://levels/cast_stage/cast_stage.tscn"
 const SETTING_DEFAULTS := {
 	"cam_speed": 1.0, "invert_x": false, "invert_y": false,
 	"subtitles": true, "text_size": 1, "reduce_motion": false, "reduce_flashing": false,
-	"volume": 1.0, "fullscreen": false, "show_fps": false, "bindings": {},
+	"volume": 1.0, "fullscreen": false, "show_fps": false, "bindings": {}, "show_guide": true, "text_blips": true, "text_speed": 1,
 }
 
 var flags := {}

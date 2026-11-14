@@ -1,7 +1,7 @@
 extends "res://levels/primrose/keys/primrose_key.gd"
 ## Key 7: the Neighbourhood Watch's logbook (worlds/02_PRIMROSE_CLOSE.md). The Watch captain sits in a deckchair by
 ## the hut with the logbook on his knee: every visit to every party is in it. In the suit, pass for the Coalition's
-## lady from head office: each slip costs Composure ("log_slipN"); two slips, or naming the Rope, and he blows his
+## lady from head office: each slip costs Composure ("log_slipN"); two slips, or naming the Claw, and he blows his
 ## whistle (blown cover). Given it: the logbook also records eleven visits to the Watch hut by the captain's wife.
 
 const CAPTAIN_AT := Vector3(12.8, 0.12, 1.2)

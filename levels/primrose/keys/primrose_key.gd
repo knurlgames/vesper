@@ -96,11 +96,12 @@ func fetch_box(node_name: String, id: StringName, at: Vector3, size: Vector3, co
 
 
 ## A Door (core/door.gd) staff can Open, `w` wide and `h` tall, its front (where they stand) toward `front`.
-func door(node_name: String, at: Vector3, front: Vector3, w := 1.6, h := 2.6) -> Door:
+func door(node_name: String, at: Vector3, front: Vector3, w := 1.6, h := 2.6, colour := Color("3a2420")) -> Door:
 	var d := Door.new()
 	d.name = node_name
 	d.width = w
 	d.height = h
+	d.colour = colour
 	d.position = at
 	var f := front - at
 	d.rotation.y = atan2(f.x, f.z) + PI   # its -Z (where it's opened from) toward `front`

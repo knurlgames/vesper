@@ -1256,7 +1256,7 @@ def fingers(outfits=None):
 
 # --- the velvet muzzle: its own mesh on the head bone (owner, 2026-11-11; DESIGN.md "Her velvet muzzle") ------------
 ## Black velvet shell (snout plus the eye band, eye openings cut), red piping on every edge, a brass grille with the
-## Rope's knot, straps round the head to a brass back buckle. Built from her face, so it fits; never part of the body.
+## Claw's knot, straps round the head to a brass back buckle. Built from her face, so it fits; never part of the body.
 MASK_LIFT = 0.004        # how far the shell stands off her fur
 MASK_THICK = 0.004
 PIPING_R = 0.0025

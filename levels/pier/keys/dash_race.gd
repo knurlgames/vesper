@@ -155,7 +155,10 @@ func _on_talked(_which: String) -> void:
 func _physics_process(delta: float) -> void:
 	match phase:
 		Phase.TO_START:
-			if near(NIM_START, 3.0) and not dash.walking:
+			# Beside her: her left (NIM_START) or anywhere close to her. Only the marked spot used to count, and
+			# a player who walked up to Dash herself was a few metres off it, and she kept saying "The gate, Nim"
+			# (owner, Deck clip _20261114_020400).
+			if (near(NIM_START, 3.0) or near(START, 4.5)) and not dash.walking:
 				phase = Phase.COUNT
 				_t = 0.0
 				_count = 0

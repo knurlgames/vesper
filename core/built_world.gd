@@ -10,6 +10,8 @@ extends World
 
 
 const PROP_PATH := "res://assets/props/%s.glb"
+const TOON_HOLED := preload("res://shaders/toon_holed.gdshader")
+const OUTLINE_HOLED := preload("res://shaders/outline_holed.gdshader")
 
 ## tools/zfight_check.gd sets this before a level loads: every axis-aligned box drawn is kept in `boxes` ([centre,
 ## size, material]) so coplanar faces can be found.
@@ -42,7 +44,7 @@ func _unlit(c: Color) -> StandardMaterial3D:
 	return m
 
 
-func _light(at: Vector3, colour: Color, energy := 3.0, reach := 10.0) -> void:
+func _light(at: Vector3, colour: Color, energy := 3.0, reach := 10.0) -> OmniLight3D:
 	var l := OmniLight3D.new()
 	l.light_color = colour
 	l.light_energy = energy
@@ -50,6 +52,7 @@ func _light(at: Vector3, colour: Color, energy := 3.0, reach := 10.0) -> void:
 	l.omni_attenuation = 1.2
 	l.position = at
 	add_child(l)
+	return l
 
 
 func _rain() -> void:
@@ -217,7 +220,9 @@ func _sign(text: String, at: Vector3, yaw: float, colour: Color, size := 48, glo
 ## row of them costs one draw. Each item is [at (the bottom centre), yaw] or [at, yaw, size]: a size stretches the prop
 ## to fill that box in its own axes, so it can stand exactly where a box stood. `is_solid` adds the box's collision on
 ## the shared layer-1 body (props never use mesh collision). Returns false when the prop isn't there: keep the boxes.
-func props(prop_name: String, items: Array, is_solid := true, outline := 0.012, glow := 0.0) -> bool:
+## `holes`: a box (world space, AABB; the first of them) where nothing of the prop is drawn, outline included (door
+## audit, 2026-11-14: the Prize Hall's Meshy front kept its back face across its doorway, hiding the doors behind it).
+func props(prop_name: String, items: Array, is_solid := true, outline := 0.012, glow := 0.0, holes: Array = []) -> bool:
 	var path := PROP_PATH % prop_name
 	if not ResourceLoader.exists(path):
 		return false
@@ -257,6 +262,15 @@ func props(prop_name: String, items: Array, is_solid := true, outline := 0.012, 
 	mmi.material_override = m
 	if outline > 0.0:
 		mmi.material_overlay = Look.outline(aabb, outline)
+	if not holes.is_empty():
+		var hole: AABB = holes[0]
+		var mats: Array = [m, mmi.material_overlay] if mmi.material_overlay else [m]
+		m.shader = TOON_HOLED
+		if mmi.material_overlay:
+			(mmi.material_overlay as ShaderMaterial).shader = OUTLINE_HOLED
+		for mat: ShaderMaterial in mats:
+			mat.set_shader_parameter(&"hole_min", hole.position)
+			mat.set_shader_parameter(&"hole_max", hole.end)
 	add_child(mmi)
 	return true
 

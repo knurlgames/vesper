@@ -7,7 +7,7 @@ The first world. It teaches both ways to play, and it's where Nim earns her firs
 - **Target length:** 60–80 minutes on a first visit.
 
 ## The story
-- **Coming in (the prologue, in the hub):** the toys turn up in the Velvet Rope's own dungeon. A member's guest walks
+- **Coming in (the prologue, in the hub):** the toys turn up in the Velvet Claw's own dungeon. A member's guest walks
   in glassy-eyed, holding a prize-stall plush that hums. Vesper reads the tag: *Laffer's Fun Palace, the Pier*.
 - **The Pier at night:** neon, candyfloss, rain on the boards. A banner over the gate reads **COUNCILLOR SWYNE: A
   CLEAN SEAFRONT FOR DECENT FAMILIES**, while his crates come in under the boards below it.
@@ -80,7 +80,7 @@ A courier (a stoat) runs off with Laffer's ledger and jumps a coaster car as it 
 ## The boss: Lucky Lou Laffer
 A hyena, a carnival barker in a straw boater, who never stops laughing, even when it isn't funny.
 The Prize Hall is a showroom under a giant claw crane, with prize mountains of boxed toys.
-1. **The Claw.** He runs the crane from a booth up in the roof. The claw drops to grab Nim, and she dodges. After a
+1. **The Cackling Crane.** He runs the crane from a booth up in the roof. The claw drops to grab Nim, and she dodges. After a
    drop it sticks for a moment, so she climbs its cable to the booth. He flees down a chute.
 2. **Whack-a-goon.** The floor's a field of hatches. He and his goons pop up and down. Goons get struck and bound.
    He gets cropped while he's up. Gull lookouts call where he'll come up next, for anyone listening.

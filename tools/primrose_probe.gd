@@ -76,7 +76,7 @@ func _placed() -> void:
 	d.check(_all("TravelPoint").size() == 2, "two fast travel points (%d)" % _all("TravelPoint").size())
 	d.check(_all("Enemy").size() >= 10 and _all("Lookout").size() >= 6,
 		"bulldogs (%d) and the Watch (%d) on duty" % [_all("Enemy").size(), _all("Lookout").size()])
-	d.check(level.get_node_or_null("GardenDoor") != null, "the Show Home's back door to the garden is locked")
+	d.check(level.get_node("GardenDoor").call(&"is_locked"), "the Show Home's back door to the garden is locked")
 	d.check(level.get_node_or_null("Gate_hub") != null, "the OLD QUARTER arch takes her home")
 	d.check((level.get(&"curtains") as Array).size() >= 20, "lit net curtains, for the twitchers (%d)" % (level.get(&"curtains") as Array).size())
 

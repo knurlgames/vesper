@@ -170,7 +170,7 @@ func _build() -> void:
 		return
 	match kind:
 		&"key":
-			# A Velvet Rose (owner, 2026-11-12: the Rope's rose for good work; "key" stays the code's word for it).
+			# A Velvet Rose (owner, 2026-11-12: the Claw's rose for good work; "key" stays the code's word for it).
 			# A dark stem with two leaves, a crimson velvet bloom (a cup, a bud, curled petals), velvet rim light.
 			var stem_mat := Look.toon(Color("1e3a24"))
 			var velvet := Look.toon(Look.VELVET.lightened(0.08), 0.0, 0.6)

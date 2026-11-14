@@ -1,0 +1,13 @@
+{
+  "_": "Meeting Lucky Lou Laffer, the first time into the Prize Hall (levels/pier/keys/laffer.gd _begin): the hall and its prize mountain, then up to Laffer at his desk on the gallery, where he says his piece; the claw hangs ready. Live.",
+  "live": true,
+  "steps": [
+    {"shot": {"start_from": [0, 2.2, -260.5], "start_look": [0, 4, -290], "from": [0, 4.5, -266], "look_at": [0, 7, -294], "secs": 3.0}},
+    {"caption": "The Prize Hall. Everybody's a winner."},
+    {"shot": {"start_from": [14.5, 15.6, -274.5], "start_look": [20.6, 14.9, -279.0], "from": [17.0, 15.1, -276.8], "look_at": [20.6, 14.9, -279.0], "secs": 2.4}},
+    {"caption": ""},
+    {"say": {"file": "res://data/dialogue/pier/laffer.dialogue", "label": "intro"}},
+    {"shot": {"from": [-6, 9, -268], "look_at": [0, 6, -282], "secs": 1.6}},
+    {"wait": 0.3}
+  ]
+}

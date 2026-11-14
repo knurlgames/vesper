@@ -1,0 +1,20 @@
+{
+  "_": "The game's opening, before the prologue's first line (levels/hub/prologue.gd): rain over the Old Quarter, the Velvet Claw's front, Bastion on the door, then down the ramp into the dungeon where Vesper waits for Nim. Live: the rain falls, people idle.",
+  "live": true,
+  "steps": [
+    {"fade": {"to": 1.0, "secs": 0}},
+    {"shot": {"from": [9, 11, 16], "look_at": [0, 3, -15]}},
+    {"fade": {"to": 0.0, "secs": 1.4}},
+    {"caption": "The Old Quarter. Members' night at the Velvet Claw."},
+    {"shot": {"from": [3.5, 4.2, -3.0], "look_at": [0, 2.6, -16], "secs": 5.5}},
+    {"caption": ""},
+    {"shot": {"node": "Bastion", "start_from": [-1.4, 1.5, 2.9], "from": [-0.6, 1.75, 2.2], "look_at": [0, 1.55, 0], "secs": 3.0}},
+    {"fade": {"to": 1.0, "secs": 0.5}},
+    {"shot": {"from": [6.4, 0.5, -31.0], "look_at": [-0.7, -0.5, -35.0]}},
+    {"fade": {"to": 0.0, "secs": 0.6}},
+    {"caption": "Downstairs, the dungeon. Quiet, for now."},
+    {"shot": {"from": [-0.7, 0.2, -30.9], "look_at": [-0.7, -0.6, -35.3], "secs": 4.5}},
+    {"caption": ""},
+    {"wait": 0.4}
+  ]
+}

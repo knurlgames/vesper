@@ -1,0 +1,521 @@
+{
+  "_doc": "Requests for tools/audio/stable_audio.py (WO-022): music, ambience and sound effects made locally by Stable Audio 3 Medium (text-to-audio), three prompts each from a different angle, `takes` per prompt, auditioned on .audio/audition.html. `pick` trims, fades and normalises a take into assets/audio/<section>/<name>.wav (looping ones get their seam crossfaded). The palette (WO-022): noir jazz at the base, a double bass, a brushed kit and a smoky horn, and each world adds its colour; the Pier its organ, the suburbs their easy listening. Never name an artist, a band or another game in a prompt.",
+  "defaults": {
+    "takes": 3,
+    "negative_prompt": "music, melody, speech, words, singing, voice, long reverb tail, background noise, hum"
+  },
+  "sections": {
+    "music": {
+      "title": "Music",
+      "about": "Loops for each place and moment, under everything. Noir jazz at the base; each world adds its colour.",
+      "defaults": {"duration": 75, "loop": true, "negative_prompt": "vocals, singing, speech, lyrics, rap, sound effects, crowd noise, applause, distortion, lo-fi hiss"}
+    },
+    "ambience": {
+      "title": "Ambience",
+      "about": "Beds that sit under the music in each place (looped, quiet).",
+      "defaults": {"duration": 40, "loop": true, "negative_prompt": "music, melody, instruments, speech, words, singing"}
+    },
+    "sfx": {
+      "title": "Sound effects",
+      "about": "One-shots, grouped by what makes them.",
+      "defaults": {"loop": false}
+    }
+  },
+  "sounds": {
+    "title": {
+      "section": "music", "group": "Menus", "duration": 60,
+      "notes": "The title screen and the save rooms: the first thing anyone hears. Seductive, confident, a little dangerous.",
+      "variants": [
+        "slow sultry noir jazz, a smoky tenor saxophone melody over a walking upright double bass and brushed snare, late night city, elegant and seductive, 70 bpm",
+        "dark cabaret jazz theme, muted trumpet lead, plucked double bass, soft piano chords, brushes on a snare, mysterious velvet nightclub, 76 bpm",
+        "elegant spy noir jazz, low clarinet and vibraphone melody, walking bass, finger snaps, rainy night intrigue, seductive and playful, 84 bpm"
+      ]
+    },
+    "old_quarter": {
+      "section": "music", "group": "The hub",
+      "notes": "Out on the streets of the Old Quarter at night, rain on the cobbles, between jobs. Walking music: moody, unhurried.",
+      "variants": [
+        "moody noir jazz walking theme, upright double bass walking line, brushed drum kit, a lonely muted trumpet, rainy night streets, unhurried, 92 bpm",
+        "late night detective jazz, soft electric piano, double bass, brushes, a smoky saxophone answering phrases, wet streets and neon, relaxed, 88 bpm",
+        "minimal noir jazz trio, piano, upright bass and brushed snare, sparse and atmospheric, a city asleep in the rain, gentle swing, 96 bpm"
+      ]
+    },
+    "club_lounge": {
+      "section": "music", "group": "The hub",
+      "notes": "Inside the Velvet Claw: the lounge, members' night. Warm, plush, intimate; the room is theirs.",
+      "variants": [
+        "warm intimate lounge jazz, velvety tenor saxophone, soft piano comping, upright bass, brushes, a plush members' club at midnight, sensual and relaxed, 80 bpm",
+        "smooth cabaret lounge music, muted trumpet with harmon mute, vibraphone, walking bass, soft swing, candlelit velvet room, 86 bpm",
+        "slow burlesque jazz groove, sultry clarinet melody, plucked bass, rimshot and brushes, a teasing sway, elegant and naughty, 72 bpm"
+      ]
+    },
+    "vaults": {
+      "section": "music", "group": "The hub",
+      "notes": "Down in the vaults: the sisters' rooms, the dungeon, the hall with the fireplace. Low, warm, a heartbeat of tension; safe but charged.",
+      "variants": [
+        "dark slow ambient jazz, low bowed double bass drones, soft brushed snare like a heartbeat, distant muted horn, candlelit stone cellar, intimate tension, 60 bpm",
+        "sensual downtempo noir, deep bass pulse, soft rhodes chords, slow brushes, breathy low flute, a warm dim room, hypnotic and close, 66 bpm",
+        "minimal dark lounge, plucked double bass ostinato, soft vibraphone notes, quiet finger snaps, red lit basement, slow and charged, 64 bpm"
+      ]
+    },
+    "pier": {
+      "section": "music", "group": "The Pier",
+      "notes": "Out on the Pier: noir jazz with the fairground's organ in it. Seaside fun with something rotten underneath.",
+      "variants": [
+        "noir jazz with a wheezy fairground organ melody, walking upright bass, brushed drums, seaside amusement pier at night, playful but sinister, 104 bpm",
+        "carnival swing, calliope organ and muted trumpet trading the tune, tuba bass, brushed snare, a creepy seaside funfair, bouncy and crooked, 112 bpm",
+        "dark vaudeville jazz, honky tonk piano, fairground organ stabs, double bass, shuffling drums, neon pier over black water, mischievous, 100 bpm"
+      ]
+    },
+    "pier_under": {
+      "section": "music", "group": "The Pier",
+      "notes": "Under the pier, on the beach among the pilings, and sneaking (covert areas). Quieter, sneakier.",
+      "variants": [
+        "sneaky noir jazz, pizzicato double bass tiptoeing line, soft brushes, quiet muted trumpet stabs, stealth under a pier at night, 90 bpm",
+        "creeping stealth jazz, low clarinet, plucked bass, soft rimshots, a distant detuned organ note, damp shadows and waves, tense and playful, 84 bpm",
+        "minimal spy jazz, vibraphone motif, walking bass, closed hi hat ticking, sneaking through the dark, sly, 96 bpm"
+      ]
+    },
+    "laffer_fight": {
+      "section": "music", "group": "The Pier",
+      "notes": "Lucky Lou Laffer's boss fight in the Prize Hall: the Cackling Crane, whack-a-goon, the prize mountain. Frantic, rigged, carnival chaos.",
+      "variants": [
+        "frantic carnival boss fight music, fast fairground organ, brass stabs, galloping tuba bass, crashing drums, a rigged game show gone mad, 150 bpm",
+        "manic circus swing, screaming clarinet and trumpet, oompah bass, rapid snare rolls, a crazed carnival barker's showdown, chaotic and comic, 160 bpm",
+        "aggressive big band boss battle, punchy brass hits, honky tonk piano, driving swing drums, fairground organ glissandos, high energy, 144 bpm"
+      ]
+    },
+    "primrose": {
+      "section": "music", "group": "Primrose Close",
+      "notes": "Primrose Close, the decent suburb: easy listening on top, noir underneath. Twitching curtains, tea parties, the stock under the marrows.",
+      "variants": [
+        "cheerful suburban easy listening with a noir undertone, light bossa guitar, soft flute melody, upright bass, brushes, a prim cul-de-sac hiding secrets, 100 bpm",
+        "polite tea party lounge music, harpsichord and vibraphone, walking bass, brushed snare, prim and proper with a sly wink, 108 bpm",
+        "sweet easy listening jazz waltz, celeste and muted trumpet, soft strings, double bass, suspiciously tidy suburban gardens, 3/4, 96 bpm"
+      ]
+    },
+    "gander_fight": {
+      "section": "music", "group": "Primrose Close",
+      "notes": "Mrs Gander's garden-party fight: the flooded lawn, the sprinklers, the topiary. A tea party turned vicious.",
+      "variants": [
+        "vicious tea party boss fight, fast harpsichord and string quartet stabs, pounding timpani, jazz drums, a genteel garden party gone savage, 140 bpm",
+        "furious waltz turned battle, sawing strings, brass hits, rapid snare, a pompous lady's garden war, comic and intense, 3/4, 168 bpm",
+        "aggressive swing boss music, honking baritone saxophone, frantic piano, driving brushes and kick, chaos on a manicured lawn, 150 bpm"
+      ]
+    },
+    "swyne": {
+      "section": "music", "group": "Cutaways",
+      "notes": "Councillor Swyne's office at City Hall, after hours: his cutaways. Pompous, villainous, a hypocrite's march.",
+      "variants": [
+        "pompous villain theme, low tuba and bassoon march, solemn church organ chords, timpani, a self important politician scheming, comic menace, 80 bpm",
+        "dark ceremonial march, brass choir, snare drum, slow and grand, a hypocrite in his wood panelled office at night, sinister and smug, 72 bpm",
+        "sly villain jazz, bass clarinet melody, plucked double bass, muted trombone slides, a scheming councillor, sneering and comic, 84 bpm"
+      ]
+    },
+    "rose_sting": {
+      "section": "music", "group": "Stings", "duration": 4, "loop": false,
+      "notes": "A Velvet Rose earned: the reward jingle (Banjo's Jiggy moment, our own). Short, bright, elegant.",
+      "variants": [
+        "short elegant jazz reward fanfare, a bright muted trumpet flourish and a vibraphone sparkle, resolves on a major chord, 3 seconds",
+        "short triumphant cabaret sting, saxophone run up to a held note, piano chord, cymbal swell, 3 seconds",
+        "short magical jazz chime, celeste and harp arpeggio rising, soft brass chord ending, sparkling, 3 seconds"
+      ]
+    },
+    "world_done": {
+      "section": "music", "group": "Stings", "duration": 10, "loop": false,
+      "notes": "A world finished (the boss bound): the bigger fanfare under the paper.",
+      "variants": [
+        "triumphant big band jazz finale, brass section fanfare, swinging drums, ends on a big held chord, 8 seconds",
+        "victorious noir jazz ending, saxophone melody climbing, walking bass, cymbal crash and final stab, 8 seconds",
+        "grand cabaret curtain call, full band flourish, trumpet high note, drum roll and final hit, 8 seconds"
+      ]
+    },
+    "rain": {
+      "section": "ambience", "group": "The hub",
+      "notes": "Rain on the Old Quarter's cobbles and rooftops (it rains in the hub).",
+      "variants": [
+        "steady rain falling on cobblestone street and rooftops at night, gutters dripping, calm and wet",
+        "light city rain at night, drops pattering on stone and puddles, distant gentle traffic hiss",
+        "rain on old tiled roofs and an iron gutter, soft and constant, night time"
+      ]
+    },
+    "club_murmur": {
+      "section": "ambience", "group": "The hub",
+      "notes": "The lounge on members' night: people, glasses, quiet laughter (under the club music).",
+      "variants": [
+        "quiet crowded cocktail lounge ambience, murmuring conversations, glasses clinking, soft laughter, no music",
+        "upscale private club at night, low indistinct chatter, ice in glasses, footsteps on carpet, no music",
+        "intimate bar ambience, a few people talking softly, a cocktail shaker, chairs creaking, no music"
+      ]
+    },
+    "vaults_room": {
+      "section": "ambience", "group": "The hub",
+      "notes": "The vaults: a stone cellar, the fire, distant drips.",
+      "variants": [
+        "cozy stone cellar room tone, a fireplace crackling softly, occasional water drip",
+        "quiet dungeon ambience, low room rumble, distant drips, faint chains clinking now and then",
+        "warm basement ambience, crackling fire, old pipes ticking, very quiet"
+      ]
+    },
+    "seaside": {
+      "section": "ambience", "group": "The Pier",
+      "notes": "The Pier at night: waves under the boards, gulls, the wind.",
+      "variants": [
+        "night seaside ambience, waves washing under a wooden pier, occasional seagull, gentle sea wind",
+        "ocean waves lapping against wooden pilings, creaking boards, distant gulls, night",
+        "breezy seafront at night, surf on the beach, flags flapping, a buoy bell far away"
+      ]
+    },
+    "funfair": {
+      "section": "ambience", "group": "The Pier",
+      "notes": "The Midway: crowds, rides, stalls (under the Pier's music).",
+      "variants": [
+        "amusement park crowd ambience at night, people chatting and laughing, distant ride rattling, game bells, no music",
+        "busy seaside funfair, arcade machines beeping, crowd murmur, a rollercoaster rumbling past, no music",
+        "carnival midway ambience, stall barkers indistinct in the distance, footsteps on boards, laughter, no music"
+      ]
+    },
+    "suburb": {
+      "section": "ambience", "group": "Primrose Close",
+      "notes": "Primrose Close by day: birds, a lawnmower somewhere, a church bell, net curtains.",
+      "variants": [
+        "quiet english suburb daytime ambience, birdsong, a distant lawnmower, a dog barking far away",
+        "peaceful cul de sac ambience, birds chirping, wind in hedges, distant church bell, a car passing slowly",
+        "suburban garden ambience, sprinkler ticking, blackbirds, neighbours chatting far off, indistinct"
+      ]
+    },
+    "step_stone": {
+      "section": "sfx", "group": "Nim", "duration": 0.6,
+      "notes": "Nim's footstep on cobbles and stone (one step; played alternately and pitch-varied).",
+      "variants": [
+        "a single soft footstep on wet cobblestone, a light boot",
+        "one quiet stealthy footstep on stone, soft leather sole",
+        "a single footstep on a stone floor, light and quick"
+      ]
+    },
+    "step_wood": {
+      "section": "sfx", "group": "Nim", "duration": 0.6,
+      "notes": "Nim's footstep on the Pier's boards and floors.",
+      "variants": [
+        "a single footstep on old wooden boardwalk planks, light boot, slight creak",
+        "one soft footstep on a wooden floor, hollow knock",
+        "a single quick step on creaky wooden pier boards"
+      ]
+    },
+    "step_heel": {
+      "section": "sfx", "group": "Nim", "duration": 0.6,
+      "notes": "Nim's footstep in the Domme suit: heels.",
+      "variants": [
+        "a single high heel footstep clicking on a hard floor, sharp and confident",
+        "one stiletto heel step on marble, crisp click",
+        "a single high heel step on wooden floorboards"
+      ]
+    },
+    "jump": {
+      "section": "sfx", "group": "Nim", "duration": 0.6,
+      "notes": "Nim jumps (a quick effort and the rush; no voice).",
+      "variants": [
+        "a quick light whoosh of a body leaping, cloth rustle, athletic",
+        "a short springy jump sound, leather and fabric swish",
+        "a fast agile leap, a soft swoosh"
+      ]
+    },
+    "land": {
+      "section": "sfx", "group": "Nim", "duration": 0.6,
+      "notes": "Nim lands from a jump or a drop.",
+      "variants": [
+        "a light agile landing on the ground, soft thud and cloth rustle",
+        "a cat-like soft landing on stone, quiet thump",
+        "a heavier landing from a height, boots hitting the floor"
+      ]
+    },
+    "strike": {
+      "section": "sfx", "group": "Nim", "duration": 0.5,
+      "notes": "Nim's claw strike landing on a goon (the three-hit combo).",
+      "variants": [
+        "a cartoon punch impact, a meaty thwack",
+        "a quick claw swipe whoosh and slash impact, sharp",
+        "a solid slap hit, comedic and punchy"
+      ]
+    },
+    "swipe": {
+      "section": "sfx", "group": "Nim", "duration": 0.4,
+      "notes": "A strike that misses: the air.",
+      "variants": [
+        "a fast swipe through the air, short whoosh",
+        "a quick claw swish, thin and sharp",
+        "a short punch whoosh, cartoon"
+      ]
+    },
+    "pounce": {
+      "section": "sfx", "group": "Nim", "duration": 0.8,
+      "notes": "Nim's pounce: the lunge and the tackle.",
+      "variants": [
+        "a fast lunge whoosh ending in a body tackle thump",
+        "a big cat pouncing, quick rush of air and an impact",
+        "a swift leap and a heavy collision, comedic"
+      ]
+    },
+    "crop": {
+      "section": "sfx", "group": "Gear", "duration": 0.7,
+      "notes": "Dash's riding crop cracking (the long-reach hit).",
+      "variants": [
+        "a riding crop snapping through the air with a sharp leather crack",
+        "a short whip crack, crisp and loud",
+        "a leather crop smacking a hard surface, sharp swish then snap"
+      ]
+    },
+    "rope_throw": {
+      "section": "sfx", "group": "Gear", "duration": 0.9,
+      "notes": "Silke's rope: thrown to bind a goon from a distance, or to swing from.",
+      "variants": [
+        "a rope being thrown, fast whipping whoosh and uncoiling",
+        "a lasso swinging through the air then landing, rope swish",
+        "a rope snapping taut with a thick thrum"
+      ]
+    },
+    "bind": {
+      "section": "sfx", "group": "Gear", "duration": 1.2,
+      "notes": "A goon tied up: rope wrapped and the Claw's knot pulled tight.",
+      "variants": [
+        "rope quickly wrapped around someone and a knot pulled tight, rope creak and cinch",
+        "fast rope tying, rustling rope and a firm tug, finished",
+        "a rope cinched tight around a body, a creak and a satisfying final pull"
+      ]
+    },
+    "scold": {
+      "section": "sfx", "group": "Gear", "duration": 1.0,
+      "notes": "Grizelda's Scold: a sharp telling-off that freezes a goon in place.",
+      "variants": [
+        "a sharp stern finger snap echo and a short low gong, commanding",
+        "a short sharp magical freeze sound, a crisp ting and a stop",
+        "a stern ruler smacking a desk, then a ringing silence"
+      ]
+    },
+    "lure": {
+      "section": "sfx", "group": "Gear", "duration": 2.0,
+      "notes": "A lure (one of Swyne's seized toys, boxed) buzzing where it landed: goons go to look.",
+      "variants": [
+        "a small cardboard box buzzing and rattling on the floor, electric vibration",
+        "an insistent electric buzzing hum, comedic, rattling plastic",
+        "a toy motor whirring inside a box, buzzing and wobbling"
+      ]
+    },
+    "hurt": {
+      "section": "sfx", "group": "Nim", "duration": 0.5,
+      "notes": "Nim takes a hit (no voice).",
+      "variants": [
+        "a body getting hit, a dull thump",
+        "a cartoon bonk impact on a character",
+        "a punch landing on a body, muffled thud"
+      ]
+    },
+    "downed": {
+      "section": "sfx", "group": "Nim", "duration": 1.5,
+      "notes": "Nim's downed (back to the checkpoint): a soft fall and a descending fade.",
+      "variants": [
+        "a cartoon character fainting, a descending slide whistle and a soft flop",
+        "a body collapsing onto the floor, soft thud, then a low descending tone",
+        "a dizzy cartoon knock out, birdie tweets and a thump"
+      ]
+    },
+    "goon_alert": {
+      "section": "sfx", "group": "Goons", "duration": 1.0,
+      "notes": "A goon spots her (the '!' over his head). The stealth fail cue.",
+      "variants": [
+        "a sharp dramatic orchestral stab, sudden alert, short",
+        "a quick tense brass hit, alarmed, short sting",
+        "a sudden cartoon alert sound, a bright surprised zing"
+      ]
+    },
+    "goon_suspicious": {
+      "section": "sfx", "group": "Goons", "duration": 1.0,
+      "notes": "A goon grows suspicious (the '?').",
+      "variants": [
+        "a curious questioning musical sting, two plucked notes rising, short",
+        "a soft suspicious bassoon blip, comedic, short",
+        "a quiet tension pluck on a double bass, two notes, uncertain"
+      ]
+    },
+    "goon_down": {
+      "section": "sfx", "group": "Goons", "duration": 1.0,
+      "notes": "A goon knocked down.",
+      "variants": [
+        "a large body falling to the ground with a heavy thud, cartoon",
+        "a big man collapsing on wooden floorboards, a crash",
+        "a cartoon knockout fall, thud and a little bounce"
+      ]
+    },
+    "toy_hum": {
+      "section": "sfx", "group": "The trance", "duration": 3.0, "loop": true,
+      "notes": "Swyne's toys humming in a sleeper's hands: the hypnotic receiver hum (looped, quiet, unsettling).",
+      "variants": [
+        "a soft pulsing electronic hum, hypnotic and slightly warbling, unsettling",
+        "a low dreamy synth drone, slowly wobbling, hypnotic",
+        "a quiet electric buzzing hum with a slow tremolo, eerie"
+      ]
+    },
+    "trance_break": {
+      "section": "sfx", "group": "The trance", "duration": 1.5,
+      "notes": "The toy broken and the sleeper wakes: the spell snaps.",
+      "variants": [
+        "a plastic toy cracking and a hypnotic hum cutting off with a glassy shimmer",
+        "a spell breaking, a rising shimmer then a pop, magical",
+        "an electronic hum winding down abruptly, a small crunch, then a bright chime"
+      ]
+    },
+    "rose_pickup": {
+      "section": "sfx", "group": "Pickups", "duration": 1.5,
+      "notes": "Picking up a Velvet Rose (under the rose sting).",
+      "variants": [
+        "a soft magical sparkle chime, bright and elegant",
+        "a velvety whoosh and a glittering bell",
+        "a gentle harp glissando with a twinkle"
+      ]
+    },
+    "contraband_pickup": {
+      "section": "sfx", "group": "Pickups", "duration": 0.6,
+      "notes": "Seizing a piece of Swyne's contraband (frequent: light).",
+      "variants": [
+        "a short cardboard box pickup rustle and a soft pop",
+        "a quick bright pickup blip, cartoon",
+        "a small plastic toy being grabbed, rattle and a click"
+      ]
+    },
+    "tin_smash": {
+      "section": "sfx", "group": "Pickups", "duration": 1.2,
+      "notes": "Smashing a world's collection tin (a Rose falls out).",
+      "variants": [
+        "a tin money box being smashed open, coins spilling out",
+        "a metal tin crunching and coins jingling onto the floor",
+        "a cartoon piggy bank shatter, coins scattering"
+      ]
+    },
+    "gate_open": {
+      "section": "sfx", "group": "Doors and travel", "duration": 2.5,
+      "notes": "A world's wrought-iron gates unlocking and swinging open (the rank gate scene).",
+      "variants": [
+        "heavy wrought iron gates unlocking with a clank, then creaking slowly open",
+        "an old iron gate latch rattling, then two gates swinging open with a long creak",
+        "a heavy padlock clicking open and iron gates groaning apart"
+      ]
+    },
+    "door_open": {
+      "section": "sfx", "group": "Doors and travel", "duration": 1.2,
+      "notes": "A wooden door swinging open (the club's door, the hut, the shortcuts).",
+      "variants": [
+        "an old wooden door opening with a short creak",
+        "a heavy wooden door swinging open, smooth hinges",
+        "a door latch clicking and a door swinging open"
+      ]
+    },
+    "doors_slam": {
+      "section": "sfx", "group": "Doors and travel", "duration": 1.2,
+      "notes": "A boss's doors swinging shut behind her (the Prize Hall, the garden door).",
+      "variants": [
+        "heavy double doors slamming shut with a boom",
+        "two big wooden doors swinging closed and a lock clunking",
+        "a dramatic door slam with a short echo"
+      ]
+    },
+    "rose_cyclone": {
+      "section": "sfx", "group": "Doors and travel", "duration": 2.5,
+      "notes": "Fast travel: the cyclone of rose buds wrapping her up (then the sink at the other end).",
+      "variants": [
+        "a magical swirling whoosh rising in pitch, rustling petals, ending in a soft pop",
+        "a whirlwind of leaves spinning faster, a sparkling rush",
+        "a soft magical vortex, fluttering petals and a shimmering wind"
+      ]
+    },
+    "checkpoint": {
+      "section": "sfx", "group": "Doors and travel", "duration": 1.0,
+      "notes": "A travel post found (the petals glow).",
+      "variants": [
+        "a soft warm chime, a single bell note with sparkle",
+        "a gentle magical hum swelling and settling",
+        "a short twinkly arpeggio, quiet"
+      ]
+    },
+    "calling_card": {
+      "section": "sfx", "group": "The Claw", "duration": 1.0,
+      "notes": "The Three Marks scored by a bound goon: the Claw's calling card.",
+      "variants": [
+        "three fast claw scratches across wood, sharp",
+        "a big cat's claws raking a surface three times, quick",
+        "three quick knife scratches on a hard surface"
+      ]
+    },
+    "tape_rip": {
+      "section": "sfx", "group": "The Claw", "duration": 1.0,
+      "notes": "Duct tape torn off the roll and slapped on (the bosses' gags).",
+      "variants": [
+        "duct tape being ripped off a roll quickly, then a slap",
+        "a strip of tape pulled and torn, loud and sticky",
+        "packing tape screech pulled fast, then pressed down"
+      ]
+    },
+    "crane": {
+      "section": "sfx", "group": "The bosses", "duration": 2.5,
+      "notes": "Laffer's Cackling Crane: the claw machine's motor, the drop, the grab.",
+      "variants": [
+        "an arcade claw machine motor whirring, a metal claw dropping and clanking shut",
+        "a mechanical crane winch whining, chains rattling, a heavy clunk",
+        "a big toy grabber machine, electric motor buzz and a metal clamp snapping"
+      ]
+    },
+    "prize_avalanche": {
+      "section": "sfx", "group": "The bosses", "duration": 2.0,
+      "notes": "Prizes thrown and tumbling off the prize mountain.",
+      "variants": [
+        "a pile of plush toys and plastic prizes tumbling down, soft thuds and rattles",
+        "boxes and stuffed toys avalanche, comedic tumbling",
+        "a cascade of cardboard boxes falling and bouncing"
+      ]
+    },
+    "honk": {
+      "section": "sfx", "group": "The bosses", "duration": 1.0,
+      "notes": "Mrs Gander's honk (she's a goose).",
+      "variants": [
+        "a loud angry goose honk",
+        "a goose hissing then honking aggressively",
+        "two sharp indignant goose honks"
+      ]
+    },
+    "sprinkler": {
+      "section": "sfx", "group": "The bosses", "duration": 2.5,
+      "notes": "The sprinklers flooding her lawn (and the crop cracking a sprinkler head).",
+      "variants": [
+        "a garden sprinkler hissing and spraying water, tick tick tick",
+        "a pipe bursting and water gushing onto grass",
+        "a lawn sprinkler head snapping off and water spraying"
+      ]
+    },
+    "menu_move": {
+      "section": "sfx", "group": "Menus", "duration": 0.3,
+      "notes": "Moving between menu items (frequent: tiny).",
+      "variants": [
+        "a tiny soft click, ui, wooden",
+        "a short soft tick, like a velvet button",
+        "a subtle short piano key tap, single note"
+      ]
+    },
+    "menu_select": {
+      "section": "sfx", "group": "Menus", "duration": 0.6,
+      "notes": "Choosing something in a menu.",
+      "variants": [
+        "a short warm confirm chime, two notes up",
+        "a soft satisfying click and a little sparkle",
+        "a brief pluck of a double bass and a cymbal tap"
+      ]
+    },
+    "paper": {
+      "section": "sfx", "group": "Menus", "duration": 1.5,
+      "notes": "The newspaper card coming up (the next morning's paper).",
+      "variants": [
+        "a newspaper being snapped open and rustled",
+        "paper sheets flipping and rustling, newsprint",
+        "a folded newspaper unfolding with a crisp shake"
+      ]
+    }
+  }
+}

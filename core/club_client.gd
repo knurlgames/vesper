@@ -1,6 +1,6 @@
 class_name ClubClient
 extends CharacterBody3D
-## A client at the Velvet Rope (WO-014b, DESIGN.md "The Velvet Rope's house"): an adult guest who's asked to be here.
+## A client at the Velvet Claw (WO-014b, DESIGN.md "The Velvet Claw's house"): an adult guest who's asked to be here.
 ## levels/hub/club_life.gd moves them through the evening: in at the door in street clothes, changed at the screen
 ## (swimwear downstairs: the owner's dress code), down to the vaults' hall to wait, a session in a sister's room,
 ## aftercare in Lull's room, and out again. While they wait, they're Nim's for a session of her own (in the suit).

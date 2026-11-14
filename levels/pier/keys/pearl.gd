@@ -1,7 +1,7 @@
 extends "res://levels/pier/keys/pier_key.gd"
 ## Key 5: Madame Pearl, the fortune teller (worlds/01_PIER.md). She sells Swyne's toys under the table. In the suit,
 ## Nim poses as a buyer for a club and has to stay in character: every slip in the conversation costs Composure, and
-## two slips, or naming the Rope, lose the sale and blow her cover. She can try again once she's recovered. Pearl's
+## two slips, or naming the Claw, lose the sale and blow her cover. She can try again once she's recovered. Pearl's
 ## reading is right about the ledger and wrong about everything else.
 
 const PEARL := Vector3(-14.6, 0.0, -57.0)   # behind her table (x -14.2 to -12.8)

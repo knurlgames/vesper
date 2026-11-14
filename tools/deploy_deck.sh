@@ -41,6 +41,13 @@ if (( EXPORT )); then
 	fi
 fi
 [[ -s "$BUILD" ]] || { echo "No build at $BUILD; run without --no-export." >&2; exit 1; }
+# Never swap the build under a running game (owner's Deck, 2026-11-14: a push landed mid-session and the Pier's gate led
+# nowhere). Godot reopens its own file by name for every resource it loads, so a running game reads the new build
+# through the old one's index: "Parse error: res://levels/pier/pier.tscn.remap ... Unterminated string".
+if ssh "$DECK_HOST" "pgrep -x '$NAME' >/dev/null"; then   # (by name: -f would match this very command)
+	echo "Vesper is running on the Deck. Close it first, then push again (a running game can't have its file swapped)." >&2
+	exit 1
+fi
 # One connection: stream to a temp name, mark it executable, then swap it in so a dropped copy never leaves a half-written game.
 echo "Copying $(du -h "$BUILD" | cut -f1) to $DECK_HOST:~/$DECK_DIR/$NAME..."
 ssh "$DECK_HOST" "mkdir -p ~/'$DECK_DIR' && cat > ~/'$DECK_DIR/$NAME.part' && chmod +x ~/'$DECK_DIR/$NAME.part' && mv -f ~/'$DECK_DIR/$NAME.part' ~/'$DECK_DIR/$NAME'" < "$BUILD"
@@ -49,6 +56,13 @@ echo "Done. On the Deck: ~/$DECK_DIR/$NAME"
 # 2026-11-13: an export filter left out a texture Nim's rebuilt model needs, and the game crashed on launch.
 echo "Smoke test on the Deck (headless, 900 frames)..."
 SMOKE=$(ssh "$DECK_HOST" "cd ~/'$DECK_DIR' && timeout 90 ./'$NAME' --headless --quit-after 900 2>&1" || true)
+# Headless runs use the dummy renderer, which has no materials: asked for a material's instance parameters it logs
+# 'Parameter "material" is null' (servers/rendering/dummy). The real renderer doesn't (checked 2026-11-13), so drop
+# exactly that error and the "at:" line under it.
+SMOKE=$(awk '/Parameter "material" is null/ { held = $0; next }
+	held != "" { if ($0 !~ /rendering\/dummy/) print held; held = "" }
+	{ print }
+	END { if (held != "") print held }' <<< "$SMOKE")
 if grep -qE "ERROR|SCRIPT ERROR|Failed loading" <<< "$SMOKE"; then
 	grep -E "ERROR|SCRIPT ERROR|Failed loading" <<< "$SMOKE" | head -20
 	echo "Smoke test FAILED: the build on the Deck logs errors at startup." >&2

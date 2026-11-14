@@ -41,8 +41,10 @@ MESHY = {
     "toy_wand": dict(h=0.34, tex=512),
     "toy_egg": dict(l=0.24, tex=512),
     "toy_tickler": dict(h=0.42, tex=512),
-    # The Velvet Rope's vaults (WO-014b).
+    # The Velvet Claw's vaults (WO-014b).
     "club_throne": dict(h=1.9),
+    # Laffer's control desk on the Prize Hall's gallery (owner, 2026-11-14: "Fix the Laffer prop"; it was a red box).
+    "laffer_desk": dict(h=1.2),
     "rope_frame": dict(h=2.6),
     "punch_bag": dict(h=2.2),
     "workbench": dict(h=1.6),
@@ -56,7 +58,7 @@ MESHY = {
     "parlour_mirror": dict(h=1.85),
     "parlour_tea_table": dict(h=0.9, tex=1024),   # the pot's lid at 0.9: the tabletop lands near 0.68
     "parlour_lamp": dict(h=1.75, tex=1024),
-    # The Velvet Rope's lounge and front door (2026-11-13, owner: "the Velvet Rope also needs some art especially in
+    # The Velvet Claw's lounge and front door (2026-11-13, owner: "the Velvet Claw also needs some art especially in
     # the lobby where you enter").
     "lounge_bar": dict(l=3.0),
     "bar_backshelf": dict(h=2.6),
@@ -122,7 +124,7 @@ MESHY = {
     "pier_piling": dict(h=8.0, tex=512),
     # The Prize Hall's front over its front wall (44 x 16); its doorway (6 x 5) cut over the shutter.
     "prize_hall_front": dict(fit=(44.6, 19.0, 1.6), cut=[((0, 2.5, 0), (6.4, 5.1, 4.0))]),
-    # The Velvet Rope: the whole club as a shell round its walls (22 x 22, 13.6 up), its walls just outside the game's,
+    # The Velvet Claw: the whole club as a shell round its walls (22 x 22, 13.6 up), its walls just outside the game's,
     # the doorway (2 x 2.8) cut through. The game's walls stay, painted inside, hidden outside.
     "club_front": dict(fit=(23.0, 15.0, 23.0), walls=(11.08, 11.08), cut=[((0, 1.4, 11.08), (2.2, 2.85, 3.0))],
                        hollow=[((0, 7.0, 0), (21.6, 14.0, 21.6))]),   # nothing of it inside the game's walls

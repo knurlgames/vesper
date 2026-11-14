@@ -1,6 +1,6 @@
 class_name Hub
 extends BuiltWorld
-## The hub: the Old Quarter around the Velvet Rope (DESIGN.md "The worlds"; WO-014 step 5), at night in the rain.
+## The hub: the Old Quarter around the Velvet Claw (DESIGN.md "The worlds"; WO-014 step 5), at night in the rain.
 ##
 ## Sized to Banjo's lessons (docs/STUDY.md §4, and the owner's "remember the sizing principles from Banjo"):
 ##   - mid-sized and grown by area, Tooie-style, with Kazooie's sense of a path: one square, one short street per world;
@@ -10,8 +10,8 @@ extends BuiltWorld
 ##   - fast travel from the start (the club, the seafront), a teacher (Vesper, in the club);
 ##   - the gates are characters you can read: each street ends at a rank door showing its Key count.
 ##
-##   Rope Square      x -20..20, z -16..20      cobbles, the lamp cluster in the middle
-##   The Velvet Rope  x -11..11, z -38..-16     the door on the square (Bastion); inside, the lounge (z -16..-30, the
+##   Velvet Square      x -20..20, z -16..20      cobbles, the lamp cluster in the middle
+##   The Velvet Claw  x -11..11, z -38..-16     the door on the square (Bastion); inside, the lounge (z -16..-30, the
 ##                                              sisters, the bar, the members' wardrobe) and, down a ramp, the dungeon
 ##                                              (floor y -1.6, the prologue)
 ##   Seafront Road    x 20..80, z -2..12        east to the sea wall and the Pier's gate (rank 1); a marked alley wall
@@ -74,6 +74,8 @@ const STUBS := [
 
 var _m := {}
 var _rng := RandomNumberGenerator.new()
+## Sisters home but not yet welcomed back with their sting: who -> {room, lamp, colour, card} (_room, _sting).
+var _stings := {}
 ## Every house's box, and the lit windows waiting for them all (`_place_windows`).
 var _houses: Array[AABB] = []
 var _steps: Array[int] = []
@@ -106,6 +108,13 @@ func _ready() -> void:
 	_rain()
 	_place_windows()
 	_flush()
+	var office := Node3D.new()
+	office.set_script(load("res://levels/hub/swyne_office.gd"))
+	office.name = "SwyneOffice"
+	add_child(office)
+	_office = office
+	Game.ranked.connect(_on_ranked)
+	Game.flag_changed.connect(_on_flag)
 	arrival("club_door", CLUB_DOOR, 0.0)
 	arrival("start", CLUB_DOOR, 0.0)
 	arrival("seafront", SEAFRONT, -PI / 2.0)
@@ -114,6 +123,179 @@ func _ready() -> void:
 	var first := not Game.has_flag("hub/prologue_done")
 	spawn_player(PROLOGUE_AT if first else CLUB_DOOR, -PI / 2.0 if first else 0.0)
 	finish()
+	_welcome_home.call_deferred()
+
+
+## Coming back to the club: first a cut to Swyne reading about the job just done (swyne_office.gd, once a world),
+## then whoever's newly home from her job gets her homecoming sting (once, "back/<who>"; one after another if two came
+## home together), then Rivet's parcel, then any gate newly open (_gates_due).
+func _welcome_home() -> void:
+	for w: StringName in Game.RANK_WORLDS:
+		if _office and _office.call(&"due", w):
+			await _office.call(&"cutaway", w)
+			if not is_inside_tree():
+				return
+	for who: String in Sisters.WORLD:
+		if _stings.has(who):
+			await _sting(who)
+			if not is_inside_tree():
+				return
+		if Sisters.home(who):
+			Game.set_flag("back/%s" % who)
+	_parcel()
+	_welcomed = true
+	_gates_due()
+
+
+# --- the gates opening -----------------------------------------------------------------------------------------------
+
+## A world's gate opening for the first time (owner, 2026-11-14; Banjo shows you the door you just opened): when her
+## Roses first reach a gate's rank in the hub, or she's back with them, the camera cuts to it. Its door slides down,
+## light spills out of the street beyond, and a caption names the world. "gate/<world>" remembers it; a world she's
+## been to already opens quietly (saves from before this). After whatever's playing (the prologue, a talk, a sting).
+var _office: Node3D
+var _gate_doors := {}
+## Each gate's light, spilling out of the street beyond once it's open.
+var _gate_lights := {}
+var _welcomed := false
+var _gating := false
+
+
+func _on_ranked(_rank: int) -> void:
+	_gates_due.call_deferred()
+
+
+func _on_flag(key: StringName) -> void:
+	if key == &"hub/prologue_done":
+		_gates_due.call_deferred()
+
+
+func _gates_due() -> void:
+	if _gating or not _welcomed or not is_inside_tree() or not Game.has_flag("hub/prologue_done"):
+		return
+	_gating = true
+	for w: StringName in Game.RANK_WORLDS:
+		var d := _gate_doors.get(w) as RankDoor
+		if d == null or Game.has_flag("gate/%s" % w) or not Game.world_open(w):
+			continue
+		if Game.has_flag("visited/%s" % w):
+			Game.set_flag("gate/%s" % w)
+			d.open(0.0)
+			_gate_light(w).light_energy = 2.4
+			continue
+		# Wait for the floor: no talk, no scene, Nim free, for a whole second (talks come back to back).
+		var quiet := 0.0
+		while is_inside_tree() and quiet < 1.0:
+			await get_tree().create_timer(0.25).timeout
+			var free := not Dialogue.busy() and not get_tree().paused and (nim == null or nim.is_physics_processing())
+			quiet = quiet + 0.25 if free else 0.0
+		if not is_inside_tree():
+			return
+		await _gate_scene(w, d)
+	_gating = false
+
+
+func _gate_scene(w: StringName, d: RankDoor) -> void:
+	var front := -d.global_basis.z
+	var at := d.global_position
+	var up := Vector3.UP
+	var cam_a := at + front * 10.0 + up * 2.9
+	var cam_b := at + front * 5.0 + up * 2.0
+	var look_a := at + up * 2.6
+	var look_b := at - front * 6.0 + up * 1.4
+	var rank := Game.RANK_WORLDS.find(w) + 1
+	var steps := [
+		{"fade": {"to": 1.0, "secs": 0}},
+		{"shot": {"from": [cam_a.x, cam_a.y, cam_a.z], "look_at": [look_a.x, look_a.y, look_a.z]}},
+		{"fade": {"to": 0.0, "secs": 0.5}},
+		{"caption": "Rank %d. %d Velvet Rose%s." % [rank, Game.RANK_KEYS[rank - 1], "" if Game.RANK_KEYS[rank - 1] == 1 else "s"]},
+		{"wait": 0.6},
+		{"call": {"node": ".", "method": "_gate_open", "args": [w]}},
+		{"caption": "%s is open." % Game.NAMES[w]},
+		{"shot": {"from": [cam_b.x, cam_b.y, cam_b.z], "look_at": [look_b.x, look_b.y, look_b.z], "secs": 3.2}},
+		{"wait": 0.8},
+		{"caption": ""},
+		{"fade": {"to": 1.0, "secs": 0.4}},
+	]
+	await Dialogue.play_cutscene({"live": true, "steps": steps})
+	Game.set_flag("gate/%s" % w)
+
+
+## Its light, made when it's first wanted (seven dark lights would still cost the Deck).
+func _gate_light(w: StringName) -> OmniLight3D:
+	if not _gate_lights.has(w):
+		var d := _gate_doors[w] as RankDoor
+		_gate_lights[w] = _light(d.position + d.basis.z + Vector3(0, 2.2, 0), Color("ffc890"), 0.0, 9.0)
+	return _gate_lights[w]
+
+
+## The door going down, and the street's light spilling out past it. Awaitable; at once if the scene's skipped.
+func _gate_open(w: StringName) -> Signal:
+	var d := _gate_doors[w] as RankDoor
+	var spill := _gate_light(w)
+	var skip := bool(Dialogue.get(&"_skip"))
+	if skip:
+		spill.light_energy = 2.4
+	else:
+		create_tween().tween_property(spill, ^"light_energy", 2.4, 1.4).set_trans(Tween.TRANS_SINE)
+	return d.open(0.0 if skip else 1.8)
+
+
+## A sister's homecoming (owner, 2026-11-14: "the homecoming stings"; the Grunty switch: the club changing as Nim
+## plays): from the vaults' hall, past her at her doorway into her dark room; the lights flicker up, the card under
+## the plaque goes, she walks in to her place. A caption says who's home. About 7 s, skippable.
+func _sting(who: String) -> void:
+	var s: Dictionary = _stings[who]
+	var r: Dictionary = s.room
+	var at: Vector3 = r.at
+	var side := signf(at.x)
+	var spot := sister_spot(r)
+	var room := String(Sisters.ROOM[who])
+	var room_name := room.left(1).to_upper() + room.substr(1)
+	var inside := Vector3(side * 5.2, VAULT, at.z)
+	# From the room's corner by its door, across the room to where she'll stand: the whole room lights up in shot,
+	# and she comes in through the door at the side of it. (From the hall, through the doorway, it was mostly wall.)
+	var cam_a := Vector3(side * 6.2, VAULT + 2.3, at.z + 2.9)
+	var cam_b := Vector3(side * 6.6, VAULT + 1.9, at.z + 2.4)
+	var look := Vector3(spot.x - side * 0.6, VAULT + 0.95, spot.z + 0.3)
+	# The lights first (a beat in the dark, then the flicker), then she walks in while the camera eases after her.
+	var steps := [
+		{"fade": {"to": 1.0, "secs": 0}},
+		{"shot": {"from": [cam_a.x, cam_a.y, cam_a.z], "look_at": [look.x, look.y, look.z]}},
+		{"fade": {"to": 0.0, "secs": 0.5}},
+		{"caption": "%s is home." % String(r.sister)},
+		{"call": {"node": ".", "method": "_sting_lights", "args": [who]}},
+		{"caption": "%s is home. %s is lit again." % [String(r.sister), room_name]},
+		{"walk": {"node": String(r.sister), "to": [[inside.x, inside.y, inside.z], [spot.x, spot.y, spot.z]], "speed": 1.5}},
+		{"shot": {"from": [cam_b.x, cam_b.y, cam_b.z], "look_at": [look.x, look.y, look.z], "secs": 3.6}},
+		{"caption": ""},
+		{"wait": 0.4},
+	]
+	await Dialogue.play_cutscene({"live": true, "steps": steps})
+	_stings.erase(who)
+
+
+## Her room's lights coming up for her sting: a flicker, then on; the card under the plaque gone. Awaitable; at once
+## if the cutscene's being skipped.
+func _sting_lights(who: String) -> Signal:
+	var s: Dictionary = _stings.get(who, {})
+	var lamp := s.get("lamp") as OmniLight3D
+	var card := s.get("card") as Label3D
+	if card:
+		card.queue_free()
+	if lamp == null:
+		return get_tree().process_frame
+	var colour: Color = s.colour
+	if bool(Dialogue.get(&"_skip")):
+		lamp.light_color = colour
+		lamp.light_energy = 1.4
+		return get_tree().process_frame
+	lamp.light_color = colour
+	var tw := create_tween()
+	for e: float in [1.1, 0.2, 0.9, 0.3]:   # the old bulb catching
+		tw.tween_property(lamp, ^"light_energy", e, 0.08)
+	tw.tween_property(lamp, ^"light_energy", 1.4, 0.5).set_trans(Tween.TRANS_SINE)
+	return tw.finished
 
 
 # --- materials and light ---------------------------------------------------------------------------------------------
@@ -188,7 +370,7 @@ func _ground() -> void:
 	solid(Vector3(0, -0.5, -54), Vector3(4, 1, 12), _m.cobbles)
 
 
-# --- Rope Square -----------------------------------------------------------------------------------------------------
+# --- Velvet Square -----------------------------------------------------------------------------------------------------
 
 func _square() -> void:
 	# The lamp cluster in the middle: a plinth and four lamps, the square's own landmark.
@@ -215,7 +397,7 @@ func _square() -> void:
 		_house(e[0], e[1], e[2], e[3])
 
 
-# --- the Velvet Rope -------------------------------------------------------------------------------------------------
+# --- the Velvet Claw -------------------------------------------------------------------------------------------------
 
 func _club() -> void:
 	var h := 13.6
@@ -232,7 +414,7 @@ func _club() -> void:
 	# Inside: the ceiling, the roof and its cornice; windows on the square.
 	solid(Vector3(0, CEILING + 0.15, -27.0), Vector3(21.2, 0.3, 21.2), _m.club_in)
 	solid(Vector3(0, h - 0.2, -27.0), Vector3(21.2, 0.38, 21.2), _m.slate)   # inside the walls: flush, they fought
-	# The Velvet Rope's outside: the Meshy music hall (aubergine brick, stone trim, its arched windows lit) round the
+	# The Velvet Claw's outside: the Meshy music hall (aubergine brick, stone trim, its arched windows lit) round the
 	# walls, its doorway cut over the game's (props.py club_front). Without it, the cornice and the lit windows.
 	if ResourceLoader.exists(PROP_PATH % "club_front"):
 		props("club_front", [[Vector3(0, STREET, -27.0), 0.0]], false)   # (its built size: its walls are fitted to these)
@@ -260,15 +442,15 @@ func _club() -> void:
 	solid(Vector3(9.8, (CEILING + DUNGEON) / 2.0, -30.3), Vector3(1.6, CEILING - DUNGEON, 0.3), _m.club_in)
 	solid(Vector3(7.5, (2.4 + CEILING) / 2.0, -30.3), Vector3(3.0, CEILING - 2.4, 0.3), _m.club_in)
 	# The lounge: the bar down the west wall, bottles, sofas, low tables, velvet drapes; warm light. The Meshy
-	# furniture (owner, 2026-11-13: "the Velvet Rope also needs some art especially in the lobby where you enter")
+	# furniture (owner, 2026-11-13: "the Velvet Claw also needs some art especially in the lobby where you enter")
 	# keeps to the greybox's footprints: the guest's seat at the bar (prologue GUEST_SEAT, x -6.6), the way from the
 	# door to the ramp (x 6..9), the changing screen (club_life SCREEN) all stay clear.
 	_lounge()
 	for x: float in [-8.5, -3.0, 3.0, 8.5]:
 		deco(Vector3(x, 2.2, -16.65), Vector3(1.6, 4.4, 0.1), _m.velvet)
-	_sign("THE VELVET ROPE", Vector3(0, 3.6, -29.95), 0.0, Color(2.2, 0.5, 0.8), 40)
+	_sign("THE VELVET CLAW", Vector3(0, 3.6, -29.95), 0.0, Color(2.2, 0.5, 0.8), 40)
 	wardrobe(Vector3(10.2, STREET, -20.0), PI / 2.0, "Wardrobe_club")
-	# The dungeon: brick and stone, red light, the Rope's tools on the walls (suggestive, never explicit).
+	# The dungeon: brick and stone, red light, the Claw's tools on the walls (suggestive, never explicit).
 	for side: float in [-1.0, 1.0]:   # the brick facing, either side of the doorway to the vaults
 		deco(Vector3(side * 6.25, (CEILING + DUNGEON) / 2.0, -37.55), Vector3(9.4, CEILING - DUNGEON, 0.05), _m.dungeon)
 	# A padded bench (the Meshy leather one over its box's collision); coiled rope hung on brass hooks.
@@ -291,9 +473,21 @@ func _club() -> void:
 	for p: Vector3 in [Vector3(-5, DUNGEON + 3.5, -34), Vector3(4, DUNGEON + 3.5, -34)]:
 		_light(p, Color("ff4060"), 2.0, 8.0)
 	# The door outside: velvet in brass, a canopy, the name, the rope across on its posts, the plaque, red light.
-	deco(Vector3(0, 1.4, -15.96), Vector3(2.2, 2.9, 0.1), _m.brass)
+	# The door: a velvet leaf on brass hinges that swings in as she comes up (it was a painted panel: owner, "Front Door
+	# of Club doesn't open"), in a brass frame.
+	var door := SwingDoor.new()
+	door.name = "ClubDoor"
+	door.material = _m.velvet
+	door.width = 2.0
+	door.height = 2.8
+	door.position = Vector3(-1.0, STREET, -16.2)
+	add_child(door)
+	for x: float in [-1.08, 1.08]:
+		deco(Vector3(x, 1.45, -16.0), Vector3(0.14, 2.9, 0.5), _m.brass)
+	deco(Vector3(0, 2.86, -16.0), Vector3(2.3, 0.14, 0.5), _m.brass)
 	solid(Vector3(0, 3.25, -15.1), Vector3(3.6, 0.35, 1.8), _m.velvet)
-	_sign("THE VELVET ROPE", Vector3(0, 3.25, -14.18), 0.0, Color("f2c56a"), 30, false)
+	_sign("THE VELVET CLAW", Vector3(0, 3.25, -14.18), 0.0, Color("f2c56a"), 30, false)
+	_emblem(Vector3(0, 4.45, -15.95), 1.9)   # the Clawed Rose, standing on the canopy against the front
 	_sign("Members.\nAnd those who ask nicely.", Vector3(1.9, 1.7, -15.7), 0.0, Color("e8d7c0"), 16, false)   # OWNER REVIEW
 	# The Meshy posts carry their own rope, swagged toward +X: the left pair's ropes run outward from the door, the
 	# right pair turned round to match (the way in, between x -1.9 and 1.9, stays open).
@@ -372,7 +566,7 @@ func _lounge() -> void:
 			_light(p, Color("ff9070"), 2.2, 9.0)
 
 
-# --- the vaults (WO-014b, DESIGN.md "The Velvet Rope's house") -------------------------------------------------------
+# --- the vaults (WO-014b, DESIGN.md "The Velvet Claw's house") -------------------------------------------------------
 
 ## Down from the dungeon's north door: a stair annex (x -2..2, z -38..-48) to the vaults under the street behind the
 ## club. A hall (x -4..4) with three rooms each side (8 x 7 m), the fireplace at its end, and the Backroom behind,
@@ -426,16 +620,21 @@ func _vaults() -> void:
 	solid(Vector3(-1.4, (VAULT + VAULT_TOP) / 2.0, -69.75), Vector3(21.2, VAULT_TOP - VAULT, 0.3), vault)
 	solid(Vector3(11.3, (VAULT + VAULT_TOP) / 2.0, -69.75), Vector3(1.4, VAULT_TOP - VAULT, 0.3), vault)
 	solid(Vector3(9.9, (VAULT + 2.3 + VAULT_TOP) / 2.0, -69.75), Vector3(1.4, VAULT_TOP - VAULT - 2.3, 0.3), vault)
-	# The swung-open shelf: a bookcase turned on its hinge, into the Backroom.
+	# The swung-open shelf: a bookcase on its hinge at the gap's east edge, swung 80 degrees into the Backroom, solid
+	# (door audit, 2026-11-14: it turned on its own middle with no collision, into the wall and across the gap).
 	var shelf := Node3D.new()
+	shelf.position = Vector3(10.6, VAULT, -69.92)
+	shelf.rotation.y = deg_to_rad(-80.0)
 	add_child(shelf)
-	block(Vector3(10.6, VAULT + 1.15, -70.4), Vector3(1.4, 2.3, 0.35), _m.wood, shelf, false).rotation.y = deg_to_rad(70.0)
-	# The hall: a runner down the middle, sconces, the fireplace and the Rope's knot over it.
+	block(Vector3(-0.72, 1.15, -0.18), Vector3(1.4, 2.3, 0.35), _m.wood, shelf, true)
+	for k in 4:   # its shelves, on the face toward the gap
+		block(Vector3(-0.72, 0.35 + k * 0.55, 0.0), Vector3(1.3, 0.04, 0.04), _m.brass, shelf, false)
+	# The hall: a runner down the middle, sconces, the fireplace and the Clawed Rose over it.
 	deco(Vector3(0, VAULT + 0.01, -58.8), Vector3(2.4, 0.02, 20.6), _m.carpet)
 	deco(Vector3(0, VAULT + 0.7, -69.45), Vector3(3.0, 1.4, 0.3), _m.ink)
 	deco(Vector3(0, VAULT + 0.5, -69.25), Vector3(2.2, 0.9, 0.1), _unlit(Color(2.2, 0.9, 0.4)))
 	deco(Vector3(0, VAULT + 1.5, -69.4), Vector3(3.6, 0.2, 0.5), _m.wood)
-	_sign("THE VELVET ROPE", Vector3(0, VAULT + 2.6, -69.55), 0.0, Color(2.2, 0.5, 0.8), 30)
+	_emblem(Vector3(0, VAULT + 2.95, -69.5), 1.25)   # over the cross's head (it stands in front of the fire)
 	_light(Vector3(0, VAULT + 1.0, -68.4), Color("ff8040"), 2.4, 8.0)
 	for z: float in [-51.5, -58.5, -65.5]:   # low enough not to burn a spot on the ceiling
 		_light(Vector3(0, VAULT + 2.0, z), Color("ff5a70"), 1.1, 6.5)
@@ -463,7 +662,18 @@ func _room(r: Dictionary) -> void:
 	var at: Vector3 = r.at
 	var side := signf(at.x)
 	_sign(r.title, Vector3(side * 3.84, VAULT + 2.85, at.z), -side * PI / 2.0, Color("f2c56a"), 13, false)
-	_light(Vector3(at.x, VAULT + 2.1, at.z), r.light, 1.4, 7.0)
+	# Dark while she's away on her job, a card under the plaque; lit the day she's home (Sisters). The first time
+	# she's home it's still dark when Nim comes back, and her homecoming sting lights it (_sting).
+	var who := String(r.sister).to_lower()
+	var home := Sisters.home(who)
+	var sting := home and not Game.has_flag("back/%s" % who)
+	var card: Label3D = null
+	if not home or sting:
+		card = _sign("OUT ON BUSINESS", Vector3(side * 3.84, VAULT + 2.5, at.z), -side * PI / 2.0, Color("a09080"), 8, false)
+	var lit := home and not sting
+	var lamp := _light(Vector3(at.x, VAULT + 2.1, at.z), r.light if lit else r.light.darkened(0.6), 1.4 if lit else 0.35, 7.0)
+	if sting:
+		_stings[who] = {"room": r, "lamp": lamp, "colour": r.light, "card": card}
 	var back := Vector3(side * (float(r.get("far", 12.0)) - 1.0), VAULT, at.z)   # against its outer wall
 	var face := -side * PI / 2.0                    # facing the hall
 	match r.id:
@@ -658,20 +868,22 @@ func _seafront() -> void:
 	solid(Vector3(49, 0.06, 11.0), Vector3(58, 0.12, 2.0), _m.flags)
 	# The north row: four terraces with flat roofs (the rooftop route), alleys between; the south row, taller; and the
 	# blocks behind both, taller again, closing it in.
+	# Each block fronts the road straight across from its own middle (door audit, 2026-11-14: judged from the road's
+	# middle, the rows' end blocks turned their fronts, doors and all, sideways onto the alleys).
 	var north := [[20.0, 30.0, 8.5], [32.0, 44.0, 7.0], [46.0, 58.0, 7.5], [60.0, 72.0, 9.0]]
 	var walls := [_m.brick, _m.plaster, _m.plaster_blue, _m.brick]
 	for i in north.size():
 		var r: Array = north[i]
-		_house(Vector2(r[0], -10.0), Vector2(r[1], -2.0), r[2], walls[i], true, ROAD)
+		_house(Vector2(r[0], -10.0), Vector2(r[1], -2.0), r[2], walls[i], true, Vector3((r[0] + r[1]) / 2.0, 0, ROAD.z))
 		_shop(Vector3((r[0] + r[1]) / 2.0, 0, -2.0), 0.0, ["CHANDLER", "OYSTERS", "ROOMS", "SHIPWRIGHT"][i])
 	for r: Array in [[20.0, 34.0, 10.0], [36.0, 50.0, 9.0], [52.0, 64.0, 11.0], [66.0, 74.0, 8.0]]:
-		_house(Vector2(r[0], 12.0), Vector2(r[1], 20.0), r[2], _m.brick_dark, false, ROAD)
+		_house(Vector2(r[0], 12.0), Vector2(r[1], 20.0), r[2], _m.brick_dark, false, Vector3((r[0] + r[1]) / 2.0, 0, ROAD.z))
 	# The blocks behind face the rows' backs; seen over the rooftops, the near side is what matters.
 	_house(Vector2(28.0, -24.0), Vector2(80.0, -10.0), 13.0, _m.brick_dark, false, ROAD)
 	_house(Vector2(20.0, 20.0), Vector2(80.0, 30.0), 13.0, _m.brick_dark, false, ROAD)
 	for a: float in [30.0, 44.0, 58.0]:
 		solid(Vector3(a + 1.0, 6.0, -10.2), Vector3(2.0, 12.0, 0.4), _m.brick_dark)   # the alley's back
-	_house(Vector2(74.0, 12.0), Vector2(80.0, 20.0), 8.0, _m.brick_dark, false, ROAD)
+	_house(Vector2(74.0, 12.0), Vector2(80.0, 20.0), 8.0, _m.brick_dark, false, Vector3(77.0, 0, ROAD.z))
 	# Lamps down the road.
 	for x: float in [30.0, 46.0, 62.0]:
 		_lamp(Vector3(x, 0, 11.3))
@@ -761,6 +973,20 @@ func _stub(world: StringName, title: String, mouth: Vector3, dir: Vector3) -> vo
 	add_child(into)
 
 
+## The Claw's emblem, the Clawed Rose (owner, 2026-11-14: a crimson rose whose five outer petals end in brass claws;
+## assets/ui/emblems/clawed_rose.png), `size` m across, at `at` facing +Z.
+func _emblem(at: Vector3, size: float) -> Sprite3D:
+	var s := Sprite3D.new()
+	s.texture = load("res://assets/ui/emblems/clawed_rose.png")
+	s.pixel_size = size / float(s.texture.get_width())
+	s.position = at
+	s.shaded = true
+	s.double_sided = false
+	s.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	add_child(s)
+	return s
+
+
 ## A world's rank door across a street, its front toward the square (`yaw` turns its -Z front that way).
 func _gate(world: StringName, at: Vector3, yaw: float, width: float, height: float) -> RankDoor:
 	var d := RankDoor.new()
@@ -770,7 +996,11 @@ func _gate(world: StringName, at: Vector3, yaw: float, width: float, height: flo
 	d.name = "RankDoor_%s" % world
 	d.position = at
 	d.rotation.y = yaw
+	d.flag = "gate/%s" % world   # open for good once it's opened (built open from then on)
 	add_child(d)
+	_gate_doors[world] = d
+	if d.is_open:
+		_gate_light(world).light_energy = 2.4
 	return d
 
 
@@ -918,10 +1148,12 @@ func _people() -> void:
 	on_door.rotation.y = PI
 	add_child(on_door)
 	# The sisters, each in her room in the vaults (WO-014b; Vesper's place is the prologue's until it's done: see
-	# prologue.gd). Dash is at the Pier until it's done.
+	# prologue.gd). Each is away on her own world's job until Nim has finished it (Sisters; owner, 2026-11-13).
 	for r: Dictionary in ROOMS:
 		var who: String = String(r.sister).to_lower()
-		if who == "dash" and not Game.has_flag("done/pier"):
+		if not Sisters.home(who):
+			if who == "rivet":
+				_drop_box(r)
 			continue
 		var t := Talker.new()
 		t.name = r.sister
@@ -935,6 +1167,10 @@ func _people() -> void:
 		t.position = sister_spot(r)
 		var to: Vector3 = r.at - t.position
 		t.rotation.y = atan2(-to.x, -to.z)
+		if _stings.has(who):
+			# Just home: at her doorway in the hall, facing in, for her sting to walk her to her place.
+			t.position = Vector3(signf(float(r.at.x)) * 2.6, VAULT, float(r.at.z))
+			t.rotation.y = -signf(float(r.at.x)) * PI / 2.0
 		add_child(t)
 		if who == "rivet":
 			t.talked.connect(_hand_in)
@@ -995,16 +1231,83 @@ static func route(from: Vector3, to: Vector3) -> Array:
 ## ("upgrade/composure": slips cost a quarter less each). Counted on the running total ("rivet/handed"), so nothing's
 ## lost between visits.
 func _hand_in(_which: String) -> void:
+	# Her homecoming present, the first time she's home and greeted: one upgrade, for all the boxes Nim filled.
+	if Sisters.greeted("rivet") and not Game.has_flag("rivet/gift"):
+		Game.set_flag("rivet/gift")
+		Hud.note("RIVET'S WELCOME-HOME\n%s" % _upgrade(), 6.0)
 	var seized := Game.count(&"contraband")
 	var before := int(Game.get_flag("rivet/handed", 0))
 	if seized <= before:
 		if seized == 0:
 			Hud.caption("Rivet", "Bring me Swyne's toys when you seize them. Gutted, they're good for something.", 4.0)
 		return
-	Game.set_flag("rivet/handed", seized)
 	Hud.caption("Rivet", "%d of Swyne's toys. I'll have the receivers out of them by morning." % (seized - before), 4.0)
+	_convert(seized, "")
+
+
+## Rivet's drop box (owner, 2026-11-13: "go with the drop box"): while she's away at the Press, her workshop is dark
+## and a box by her bench takes the toys. Her courier collects overnight: the gear is waiting the next time Nim comes
+## back to the club (_parcel, on loading the hub). Counted in "rivet/left".
+func _drop_box(r: Dictionary) -> void:
+	var at: Vector3 = r.at
+	var side := signf(at.x)
+	var box_at := at + Vector3(side * 1.2, 0, 1.8)
+	solid(box_at + Vector3(0, 0.45, 0), Vector3(0.7, 0.9, 0.6), _m.wood)
+	deco(box_at + Vector3(0, 0.92, 0), Vector3(0.74, 0.04, 0.64), _m.leather)              # the lid
+	deco(box_at + Vector3(-side * 0.36, 0.7, 0), Vector3(0.02, 0.06, 0.34), _m.ink)        # the slot, facing the hall
+	_sign("RIVET'S BOX", box_at + Vector3(-side * 0.37, 0.4, 0), -side * PI / 2.0, Color("e0e0ff"), 9, false)
+	var t := Talker.new()
+	t.name = "DropBox"
+	t.greybox = false
+	t.file = "res://data/dialogue/hub/club.dialogue"
+	t.label = "rivet_box"
+	t.display_name = "Rivet's drop box"
+	t.reach = 1.8
+	t.position = box_at
+	add_child(t)
+	t.talked.connect(_drop_in)
+
+
+func _drop_in(_which: String) -> void:
+	var seized := Game.count(&"contraband")
+	var before := maxi(int(Game.get_flag("rivet/left", 0)), int(Game.get_flag("rivet/handed", 0)))
+	if seized <= before:
+		Hud.note("Nothing new to leave. Seize some of Swyne's toys first." if seized == 0 else
+			"The box has everything you've seized. Rivet's courier collects overnight.", 4.0)
+		return
+	Game.set_flag("rivet/left", seized)
+	Hud.note("Left %d of Swyne's toys in Rivet's box.\nHer courier collects overnight: the gear will be waiting next time you're back." % (seized - before), 6.0)
+
+
+## On coming back to the club: anything left in Rivet's box comes back as gear.
+func _parcel() -> void:
+	var left := int(Game.get_flag("rivet/left", 0))
+	if left > int(Game.get_flag("rivet/handed", 0)):
+		_convert(left, "RIVET'S PARCEL (from the Press, by courier)")
+
+
+## One upgrade, alternating a health pip and a steadier Composure. Returns its line.
+func _upgrade() -> String:
+	var health := int(Game.get_flag("upgrade/health", 0))
+	var steady := int(Game.get_flag("upgrade/composure", 0))
+	if health <= steady:
+		Game.set_flag("upgrade/health", health + 1)
+		if nim:
+			nim.combat.add_upgrade()
+		return "Upgrade: one more health pip."
+	Game.set_flag("upgrade/composure", steady + 1)
+	return "Upgrade: a steadier Composure. Every slip in the suit costs a quarter less."
+
+
+## Turns everything seized up to `seized` (and not yet turned) into lures and upgrades, and says so.
+func _convert(seized: int, header: String) -> void:
+	var before := int(Game.get_flag("rivet/handed", 0))
+	Game.set_flag("rivet/handed", seized)
+	Game.set_flag("rivet/left", maxi(int(Game.get_flag("rivet/left", 0)), seized))
 	var lures := seized / LURE_EVERY - before / LURE_EVERY
 	var lines: Array[String] = []
+	if header != "":
+		lines.append(header)
 	if lures > 0:
 		var total := int(Game.get_flag("gear/lures", 0)) + lures
 		Game.set_flag("gear/lures", total)
@@ -1012,16 +1315,7 @@ func _hand_in(_which: String) -> void:
 			nim.gear.lures = total
 		lines.append("Lures: +%d, %d in all (thrown toys that buzz; goons go to look)." % [lures, total])
 	for i in seized / UPGRADE_EVERY - before / UPGRADE_EVERY:
-		var health := int(Game.get_flag("upgrade/health", 0))
-		var steady := int(Game.get_flag("upgrade/composure", 0))
-		if health <= steady:
-			Game.set_flag("upgrade/health", health + 1)
-			if nim:
-				nim.combat.add_upgrade()
-			lines.append("Upgrade: one more health pip.")
-		else:
-			Game.set_flag("upgrade/composure", steady + 1)
-			lines.append("Upgrade: a steadier Composure. Every slip in the suit costs a quarter less.")
+		lines.append(_upgrade())
 	var next_lure := (seized / LURE_EVERY + 1) * LURE_EVERY
 	var next_up := (seized / UPGRADE_EVERY + 1) * UPGRADE_EVERY
 	lines.append("Seized in all: %d. Next lure at %d, next upgrade at %d." % [seized, next_lure, next_up])
@@ -1029,16 +1323,15 @@ func _hand_in(_which: String) -> void:
 
 
 func _places() -> void:
-	zone("Rope Square", Vector3(0, -0.2, 2), Vector3(40, 10, 36))
-	zone("The Velvet Rope", Vector3(0, -0.2, -23.3), Vector3(21, 4.6, 13.6))
+	zone("Velvet Square", Vector3(0, -0.2, 2), Vector3(40, 10, 36))
+	zone("The Velvet Claw", Vector3(0, -0.2, -23.3), Vector3(21, 4.6, 13.6))
 	zone("The Dungeon", Vector3(0, DUNGEON - 0.2, -34.0), Vector3(21, 5.6, 7.2))
 	zone("The Vaults", Vector3(0, VAULT - 0.2, -58.8), Vector3(24, 3.4, 21.6))
 	zone("The Backroom", Vector3(0, VAULT - 0.2, -74.7), Vector3(24, 3.4, 9.6))
 	zone("Seafront Road", Vector3(50, -0.2, 5), Vector3(60, 14, 14))
 	# None inside the club (owner, Deck review 3: the flags in the dungeon and the vaults "look odd and misplaced"):
-	# nothing in there can down her, and the door's is a short walk up.
-	checkpoint_at(CLUB_DOOR, 0.0)
-	checkpoint_at(Vector3(66, STREET, 5.0), -PI / 2.0)
-	# Beside the ways everyone walks (they're found within 3 m): just out of the club's door, and the road's sea end.
-	travel_point(&"club", "The Velvet Rope", Vector3(-2.4, STREET, -12.4))
-	travel_point(&"seafront", "Seafront Road", Vector3(68.0, STREET, 7.2))
+	# nothing in there can down her, and the door's is a short walk up. Beside the ways everyone walks (they're found
+	# within 3 m): just out of the club's door, and the road's sea end. Each travel post is the checkpoint there too
+	# (owner, Deck: two flags by the Pier's gate were confusing): one flag a place.
+	travel_point(&"club", "The Velvet Claw", Vector3(-2.4, STREET, -12.4))
+	travel_point(&"seafront", "Seafront Road", Vector3(68.0, STREET, 7.2), -PI / 2.0)

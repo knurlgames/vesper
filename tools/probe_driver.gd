@@ -14,6 +14,23 @@ func _init(t: SceneTree, n: Nim, c: Node3D) -> void:
 	tree = t
 	nim = n
 	cam = c
+	# Cutscenes skip straight to their end under a probe (tools/cutscene_shots.gd plays them for real).
+	# PROBE_CUTSCENES=1 plays them (run windowed with CUTSCENE_SHOTS=<dir> to film them as the probe plays).
+	var dialogue := t.root.get_node_or_null(^"/root/Dialogue")
+	if dialogue:
+		dialogue.set(&"skip_cutscenes", OS.get_environment("PROBE_CUTSCENES") == "")
+		var shots := OS.get_environment("CUTSCENE_SHOTS")
+		if shots != "" and not dialogue.is_connected(&"cutscene_step", _film):
+			DirAccess.make_dir_recursive_absolute(shots)
+			dialogue.connect(&"cutscene_step", _film)
+
+
+var _filmed := 0
+
+
+func _film(i: int) -> void:
+	_filmed += 1
+	tree.root.get_texture().get_image().save_png("%s/%03d_step%02d.png" % [OS.get_environment("CUTSCENE_SHOTS"), _filmed, i])
 
 
 ## Standing at `at`, facing (and the camera looking) `yaw`, every input let go, settled on the ground.

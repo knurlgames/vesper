@@ -60,7 +60,7 @@ var hits := 0
 var heads_out := 0
 var gander: Node3D
 var target: Target
-var _lock: StaticBody3D
+var _lock: LockDoor
 var _water: MeshInstance3D
 var _water_y := 0.0
 var _jets: Array = []          # [column, CropTarget]
@@ -82,19 +82,13 @@ var _rng := RandomNumberGenerator.new()
 func _setup() -> void:
 	_rng.seed = 22
 	_make_gander()
-	_lock = StaticBody3D.new()
-	_lock.name = "GardenLock"
-	_lock.collision_layer = 0
-	var shape := BoxShape3D.new()
-	shape.size = Vector3(2.4, 2.6, 0.4)
-	var col := CollisionShape3D.new()
-	col.shape = shape
-	_lock.add_child(col)
-	_lock.position = Vector3(0, 1.3, DOOR_Z)
-	add_child(_lock)
+	# Her back door (primrose.gd "GardenDoor", a LockDoor): shut behind Nim for the fight.
+	_lock = level.get_node_or_null(^"GardenDoor") as LockDoor
 	if flag("gander_bound"):
 		phase = Phase.DONE
 		_on_bench()
+		if flag("gander_gagged"):
+			_tape_on.call_deferred(false)
 		return
 	_make_garden()
 	if flag("party_done"):
@@ -112,6 +106,7 @@ func _make_gander() -> void:
 	if EnemyModel.exists("gander"):
 		var m := EnemyModel.new()
 		m.body = "gander"
+		m.no_mouth_tape = true   # (tied in the scuffle, beak free; Nim tapes her after her last word: tape_gag)
 		gander = m
 	else:
 		gander = Node3D.new()
@@ -243,11 +238,13 @@ func _face(p: Vector3) -> void:
 
 
 func _begin() -> void:
-	_lock.collision_layer = 1
+	if _lock:
+		_lock.lock()
 	phase = stage   # at once, so this can't run twice while the intro plays
 	if not flag("gander_met"):
 		set_flag("gander_met")
-		await talk("gander", "intro")
+		# Her entrance (owner, 2026-11-13: boss intros as cutscenes): the garden, her piece, the guests drifting out.
+		await Dialogue.play_cutscene("res://data/cutscenes/gander_intro.json")
 	else:
 		Hud.caption("Gander", "You AGAIN. HONK.", 2.0)
 	match stage:
@@ -639,17 +636,37 @@ func _caught() -> void:
 		if is_instance_valid(g[0]):
 			(g[0] as Node3D).queue_free()   # (her guests wander home, waking on the way)
 	_guests.clear()
-	await talk("gander", "bound")
-	set_flag("order_book")
-	_lock.collision_layer = 0
+	if _lock:
+		_lock.unlock()
+	# Grizelda and Vesper on the lawn (there first, so the cutscene's shot of them finds them).
 	var lawn := Vector3(BENCH.x, LAWN, BENCH.z)
 	talker("Grizelda_garden", "grizelda", "garden_after", lawn + Vector3(-2.6, 0, 3.5), PI * 0.85, "grizelda", "garb", "",
 		Color("b07060"))
 	talker("Vesper_garden", "vesper", "garden_after", lawn + Vector3(2.6, 0, 3.9), -PI * 0.85, "vesper", "garb", "",
 		Color("c0283e"))
-	await get_tree().create_timer(0.5).timeout
-	await talk("grizelda", "verdict_world")
+	# Her defeat as a cutscene (owner, 2026-11-13): her bench, her sign, the order book; the verdict, and the aside.
+	await Dialogue.play_cutscene("res://data/cutscenes/gander_defeat.json")
+	set_flag("order_book")
 	await level.complete(false)
+
+
+## The second half of her finish (owner, 2026-11-14: tied in the scuffle, her last lines, Nim's retort, then the tape
+## "properly gagged"): a strip of tape across her beak. Called from gander_defeat.json; awaitable.
+func tape_gag() -> Signal:
+	return _tape_on(true)
+
+
+var _tape_rig: RigGear
+
+
+func _tape_on(slap: bool) -> Signal:
+	set_flag("gander_gagged")
+	var sk: Skeleton3D = gander.call(&"skeleton") if gander.has_method(&"skeleton") else null
+	if sk == null or _tape_rig != null:
+		return get_tree().process_frame
+	_tape_rig = RigGear.new(sk, gander)
+	_tape_rig.tape_colour = RigGear.DUCT
+	return RigGear.slap_on(_tape_rig.gag("tape"), self) if slap else get_tree().process_frame
 
 
 ## Bound to her own bench, under the sign she made herself.

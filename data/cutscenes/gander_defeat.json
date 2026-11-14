@@ -1,0 +1,20 @@
+{
+  "_": "Mrs Gander beaten (levels/primrose/keys/gander.gd _caught), in two parts (owner, 2026-11-14): tied in the scuffle to her own bench under her own sign, her beak free; her lines and the order book, then her last word; Nim steps up with her retort; the tape (Nim's hold_room clip, her palm flat out at Mrs Gander's face height, gander.gd tape_gag, no scuffle cloud), her mmphing on her gagged portrait; then Grizelda and Vesper, the verdict and the aside. Live.",
+  "live": true,
+  "steps": [
+    {"shot": {"start_from": [0, 2.6, -164.5], "start_look": [0, 1.8, -173.5], "from": [0, 1.75, -168.8], "look_at": [0, 1.5, -173.5], "secs": 4.0}},
+    {"say": {"file": "res://data/dialogue/primrose/gander.dialogue", "label": "bound"}},
+    {"move": {"node": "Nim", "to": [0.35, 0.08, -172.3], "secs": 0.7}},
+    {"face": {"node": "Nim", "toward": [0, 0.08, -173.5]}},
+    {"shot": {"from": [2.3, 1.55, -170.4], "look_at": [0, 1.35, -173.2], "secs": 0}},
+    {"say": {"file": "res://data/dialogue/primrose/gander.dialogue", "label": "tape"}},
+    {"anim": {"node": "Nim", "clip": "hold_room"}},
+    {"wait": 0.45},
+    {"call": {"node": "Gander", "method": "tape_gag"}},
+    {"wait": 0.6},
+    {"say": {"file": "res://data/dialogue/primrose/gander.dialogue", "label": "gagged"}},
+    {"shot": {"from": [0, 1.6, -165.4], "look_at": [0, 1.25, -170.6], "secs": 0}},
+    {"say": {"file": "res://data/dialogue/primrose/grizelda.dialogue", "label": "verdict_world"}},
+    {"wait": 0.3}
+  ]
+}

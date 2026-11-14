@@ -44,6 +44,7 @@ func _initialize() -> void:
 	await _ramp_and_under()
 	await _stringer()
 	await _trapdoor()
+	await _curtain()
 	await _palace()
 	await _fire_door()
 	await _wheel()
@@ -155,6 +156,20 @@ func _trapdoor() -> void:
 	d.check(ok and sc.is_open, "and the hut's door, bolted inside, opens from there")
 	ok = await _walk_to(Vector3(8.0, 0, -59.0), 4.0)
 	d.check(ok, "and she walks out onto the Midway %s" % d.at())
+
+
+## Madame Pearl's curtain: shut from across the avenue; it parts as she walks in through it, and falls behind her.
+func _curtain() -> void:
+	var c := pier.get_node(^"PearlCurtain")
+	await d.place(Vector3(-4.0, 0.05, -57.0), PI / 2.0)
+	await d.secs(1.0)
+	var shut_far: bool = not c.call(&"is_open")
+	var ok := await _walk_to(Vector3(-11.5, 0, -57.0), 6.0)
+	var parted: bool = c.call(&"is_open")
+	await d.place(Vector3(-4.0, 0.05, -57.0), PI / 2.0)
+	await d.secs(1.5)
+	d.check(shut_far and ok and parted and not c.call(&"is_open"),
+		"Madame Pearl's curtain: shut, parts as she walks in through it, falls closed again (%s %s %s)" % [shut_far, ok, parted])
 
 
 func _palace() -> void:

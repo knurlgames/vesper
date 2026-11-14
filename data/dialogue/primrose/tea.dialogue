@@ -1,6 +1,6 @@
 # OWNER REVIEW
 # Tea with three Coalition ladies on the lawn of number 4: Grizelda's test (Key 1; levels/primrose/keys/grizelda_test.gd).
-# In the suit, Nim keeps her poise: each "slip" flag costs Composure, and two slips or naming the Rope and the ladies
+# In the suit, Nim keeps her poise: each "slip" flag costs Composure, and two slips or naming the Claw and the ladies
 # close ranks (blown cover). They had Grizelda to tea twelve years ago, and they still talk about it.
 
 ~ tea
@@ -30,7 +30,7 @@ set primrose/tea_slip2
 Ashby: And what does your husband do, dear?
 - I don't keep one. They're so much upkeep. => three
 - I don't, um. I mean. There isn't. Is that bad? => three_soft
-- I work at the Velvet Rope, actually. => refused
+- I work at the Velvet Claw, actually. => refused
 
 ~ three_soft
 [if primrose/tea_slip1 or primrose/tea_slip2] => refused

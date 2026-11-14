@@ -2,7 +2,7 @@ extends SceneTree
 ## The hub (WO-014 step 5), with real input, from a new game:
 ##   - The prologue in the club's dungeon: Vesper's welcome; the guest comes down the ramp; a strike at his humming toy
 ##     wakes him, and that's her first Key (hub_10: rank 1); Vesper reads the tag; she's in the lounge after.
-##   - Up the ramp, out of the club's door, across Rope Square and down Seafront Road to the Pier's gate: timed against
+##   - Up the ramp, out of the club's door, across Velvet Square and down Seafront Road to the Pier's gate: timed against
 ##     the sizing (club door to the gate in under 16 s at a run, docs/STUDY.md's Banjo lessons).
 ##   - The rooftop Key (hub_07): up the marked alley wall, over the roofs, along the wire to the harbour lamp.
 ##   - The later worlds' gates stay shut at rank 1; the Pier's opens; through it she's on the Pier, at the Old
@@ -38,6 +38,8 @@ func _initialize() -> void:
 	await _rivet()
 	await _to_the_pier()
 	await _and_back()
+	await _homecoming()
+	await _swyne_and_gates()
 	print("hub probe: %d failures" % d.fails)
 	quit(1 if d.fails else 0)
 
@@ -126,22 +128,116 @@ func _vaults() -> void:
 	d.check(ok, "through the shelf in Rivet's workshop to the Backroom %s" % d.at())
 
 
-## Rivet turns seized contraband into gear: 130 handed in is 5 lures and one upgrade (a health pip, the first).
+## The sisters are all away on their jobs at the start (core/sisters.gd), their rooms dark; Rivet's drop box takes
+## the toys instead, and her courier turns them into gear by the next time Nim's back: 130 left is 5 lures and one
+## upgrade (a health pip, the first).
 func _rivet() -> void:
+	var away: Array[String] = []
+	for who: String in ["Augusta", "Silke", "Grizelda", "Lull", "Dash", "Rivet"]:
+		if level.get_node_or_null(NodePath(who)) != null:
+			away.append(who)
+	d.check(away.is_empty(), "every sister is away on her job at the start (home: %s)" % [away])
+	d.check(level.get_node_or_null(^"DropBox") != null, "Rivet's drop box is in her dark workshop")
 	for i in 130:
 		game.call(&"collect", &"contraband", &"pier", StringName("probe_%d" % i))
-	# Rivet's in her workshop in the vaults now (WO-014b): Hub.sister_spot is (9.8, -5, -66.9).
-	await d.place(Vector3(8.8, -4.95, -65.9), atan2(-1.0, 1.0))
+	# The box is at the workshop's (8, -5, -65.5) + (1.2, 0, 1.8): from the hall side, facing it.
+	await d.place(Vector3(8.0, -4.95, -63.7), -PI / 2.0)
 	await d.tap(JOY_BUTTON_Y)
-	await _converse("Rivet: bring her the toys you seize")
+	await _converse("Rivet's drop box: the card on it")
 	await d.secs(0.3)
+	d.check(int(game.call(&"get_flag", "rivet/left", 0)) == 130 and d.nim.gear.lures == 0,
+		"130 toys left in the box, no gear yet (left %s, %d lures)" % [game.call(&"get_flag", "rivet/left", 0),
+			d.nim.gear.lures])
+	# Next time she's back in the club, the parcel (what Hub._welcome_home does on loading).
+	level.call(&"_parcel")
+	await d.secs(0.2)
 	d.check(int(game.call(&"get_flag", "rivet/handed", 0)) == 130 and d.nim.gear.lures == 5
 		and int(game.call(&"get_flag", "upgrade/health", 0)) == 1 and d.nim.combat.max_health == 6,
-		"130 toys handed to Rivet: 5 lures and a sixth health pip (%d lures, %d pips)" % [d.nim.gear.lures,
+		"Rivet's parcel: 5 lures and a sixth health pip (%d lures, %d pips)" % [d.nim.gear.lures,
 			d.nim.combat.max_health])
+	level.call(&"_parcel")
 	await d.tap(JOY_BUTTON_Y)
-	await _converse("and again, with nothing new: nothing more")
-	d.check(d.nim.gear.lures == 5 and d.nim.combat.max_health == 6, "a second visit pays nothing twice")
+	await _converse("the box again, with nothing new")
+	d.check(d.nim.gear.lures == 5 and d.nim.combat.max_health == 6, "nothing paid twice")
+
+
+## Back in the club with the Press done: Rivet's home, her workshop lit, and the guide says to welcome her. Her
+## homecoming (home/rivet) and her welcome-home present (one upgrade: Composure, the health pip being ahead).
+func _homecoming() -> void:
+	game.call(&"set_flag", "done/press")
+	if current_scene:
+		current_scene.queue_free()
+	await process_frame
+	level = load(HUB).instantiate()
+	root.add_child(level)
+	current_scene = level
+	await physics_frame
+	var fails_before := d.fails
+	d = Driver.new(self, level.get(&"nim"), level.get(&"cam"))
+	d.fails = fails_before
+	await d.secs(0.5)
+	var rivet := level.get_node_or_null(^"Rivet") as Node3D
+	d.check(rivet != null and level.get_node_or_null(^"Silke") == null and level.get_node_or_null(^"DropBox") == null,
+		"the Press done: Rivet's home, the others still away, no drop box")
+	# Her homecoming sting (skipped under a probe, so it runs to its end at once): she's walked in to her place, her
+	# workshop's lit, and it's said once (back/rivet).
+	await d.until(func() -> bool: return (level.get(&"_stings") as Dictionary).is_empty(), 5.0)
+	# (Her place: the workshop's (8, -5, -65.5) + (1.8, 0, -1.4), Hub.sister_spot; a probe can't name Hub.)
+	d.check(rivet != null and Vector2(rivet.global_position.x - 9.8, rivet.global_position.z + 66.9).length() < 0.3
+		and game.call(&"has_flag", "back/rivet"),
+		"her homecoming sting: she's walked in to her place (%s), and it's played once" % (rivet.global_position if rivet else Vector3.ZERO))
+	d.check(String(root.get_node("/root/Hud").call(&"goal_text")).begins_with("Rivet is home"), "the guide: welcome her back (%s)" % root.get_node("/root/Hud").call(&"goal_text"))
+	if rivet == null:
+		return
+	await d.place(rivet.global_position + Vector3(-1.2, 0.05, 0.4), -PI / 2.0)
+	await d.tap(JOY_BUTTON_Y)
+	await _converse("Rivet's homecoming")
+	await d.secs(0.3)
+	d.check(bool(game.call(&"has_flag", "home/rivet")) and int(game.call(&"get_flag", "upgrade/composure", 0)) == 1,
+		"welcomed home (home/rivet), and her present: a steadier Composure (%s)" % game.call(&"get_flag", "upgrade/composure", 0))
+
+
+
+## Back from the Pier: Swyne's cutaway (swyne_office.gd; skipped under a probe, so it runs to its end at once) has
+## played once, his board has the Pier crossed off, and the Pier's gate, its rank reached, has had its opening scene.
+func _swyne_and_gates() -> void:
+	game.call(&"set_flag", "done/pier")
+	game.call(&"set_flag", "back/dash")
+	game.call(&"clear_flag", "gate/pier")
+	game.call(&"clear_flag", "visited/pier")
+	if current_scene:
+		current_scene.queue_free()
+	await process_frame
+	level = load(HUB).instantiate()
+	root.add_child(level)
+	current_scene = level
+	await physics_frame
+	var fails_before := d.fails
+	d = Driver.new(self, level.get(&"nim"), level.get(&"cam"))
+	d.fails = fails_before
+	await d.until(func() -> bool: return game.call(&"has_flag", "swyne/pier"), 5.0)
+	var office := level.get_node_or_null(^"SwyneOffice")
+	var crossed: Node3D = (office.get(&"_crosses") as Dictionary).get(&"pier") if office else null
+	d.check(game.call(&"has_flag", "swyne/pier") and not game.call(&"has_flag", "swyne/press") and office != null
+		and not office.visible and crossed != null and crossed.visible,
+		"Swyne's cutaway for the Pier, once (none for a world with no lines yet), the Pier crossed off his board")
+	var gate := level.get_node(^"RankDoor_pier")
+	await d.until(func() -> bool: return game.call(&"has_flag", "gate/pier"), 6.0)
+	d.check(game.call(&"has_flag", "gate/pier") and gate.get(&"is_open"),
+		"the Pier's gate: its opening scene played once its rank was reached, and it's open (%s)" % gate.get(&"is_open"))
+	# Back another day: it's built open, wherever she is (it used to shut on every visit and drop again as she came).
+	current_scene.queue_free()
+	await process_frame
+	level = load(HUB).instantiate()
+	root.add_child(level)
+	current_scene = level
+	await physics_frame
+	var again := level.get_node(^"RankDoor_pier")
+	d = Driver.new(self, level.get(&"nim"), level.get(&"cam"))
+	d.fails = fails_before
+	d.check(again.get(&"is_open") and d.nim.global_position.distance_to(again.global_position) > 20.0
+		and not (level.get_node(^"RankDoor_primrose")).get(&"is_open"),
+		"the next visit, the Pier's gate is already open, from across the Old Quarter; Primrose Lane's still shut")
 
 
 func _rooftops() -> void:
@@ -202,6 +298,17 @@ func _to_the_pier() -> void:
 	d.check(shut and pier_gate.is_open, "the Pier's gate opens at rank 1; the six later ones stay shut")
 	for tp: String in ["Travel_club", "Travel_seafront"]:
 		d.check((level.get_node(tp) as TravelPoint).found, "%s found on the way" % tp)
+	# One flag a place (owner, Deck: a checkpoint's flag two metres from the travel post by the Pier's gate): the post
+	# is the checkpoint, and no Checkpoint stands near any travel post.
+	var post := level.get_node("Travel_seafront") as Node3D
+	var spawn: Vector3 = level.get(&"spawn_at")
+	var crowded := []
+	for c: Node3D in level.find_children("*", "Checkpoint", true, false):
+		for t: Node3D in level.find_children("*", "TravelPoint", true, false):
+			if c.global_position.distance_to(t.global_position) < 8.0:
+				crowded.append(c.global_position)
+	d.check(spawn.distance_to(post.global_position) < 1.5 and crowded.is_empty(),
+		"the Seafront Road post is her checkpoint too, and no flag stands beside a travel post (%s, %s)" % [spawn, crowded])
 	# Through it: the Pier.
 	d.steer(Vector3.RIGHT)
 	var there := await d.until(func() -> bool:

@@ -970,16 +970,120 @@ func _living_room(x0: float, x1: float, z0: float, z1: float, t: float) -> void:
 			deco(Vector3(x, 4.9, z0 + 0.24), Vector3(1.4, 1.2, 0.06), _m.net)
 	_sign("THE SHOW HOME\nby appointment", Vector3(0, 4.0, z0 + 0.75), 0.0, Color(2.2, 1.9, 0.9), 34)
 	_lawn_sign(Vector3(6.0, LAWN, -114.0), Vector3(0, 0, 1))
-	# The back door to the conservatory: locked until the party's done (WO-015 step 3 sets primrose/party_done).
-	if not Game.has_flag("primrose/party_done"):
-		var lock := block(Vector3(0, 1.2, z1), Vector3(2.0, 2.4, t), _m.door, self, true)
-		lock.name = "GardenDoor"
+	# The back door to the conservatory: locked until the party's done (WO-015 step 3 sets primrose/party_done), and
+	# shut behind her for her fight (gander.gd). A real pair that swings out into the conservatory (door audit,
+	# 2026-11-14: a block that vanished, then an invisible wall in the fight).
+	var back := LockDoor.new()
+	back.name = "GardenDoor"
+	back.width = 2.0
+	back.height = 2.4
+	back.colour = Color("2e4a3a")
+	back.locked = not Game.has_flag("primrose/party_done")
+	back.position = Vector3(0, 0, z1)
+	back.rotation.y = PI   # in from the house (+Z): they swing open into the conservatory
+	add_child(back)
 
 
 # --- the Conservatory and Garden -------------------------------------------------------------------------------------
 
 ## Behind the Show Home: her topiary garden in high hedges, the glass conservatory, the sprinklers' heads, her bench and
 ## the sign (the boss, step 4). Only through her back door.
+## Mrs Gander's conservatory, its middle at z `cz` against the house's back: 15.8 wide (x), 7.8 deep, eaves at 3.6,
+## the ridge (along x) at 5.1.
+func _conservatory(cz: float) -> void:
+	var hx := 7.9
+	var hz := 3.9
+	var eave := 3.6
+	var ridge := 5.1
+	var bar := 0.09
+	var iron := Look.toon(Color("2a2a32"), 0.5)
+	# The dwarf wall, white, knee high, round the three garden sides, and the glass walls above it: the front and both
+	# ends (the back's against the house), panes as one sheet a side. The front's door, between the swans, is a
+	# glass door that swings open as she comes (x -1..1, under the transom). All of it solid (door audit, 2026-11-14:
+	# the glass and the knee wall had no collision, and she walked through them anywhere).
+	var door := 1.0
+	var side_w := hx - door
+	for s: float in [-1.0, 1.0]:
+		var mx := s * (door + side_w / 2.0)
+		deco(Vector3(mx, 0.3, cz - hz), Vector3(side_w, 0.6, 0.18), _m.white)
+		deco(Vector3(mx, 0.6 + (eave - 0.61) / 2.0, cz - hz), Vector3(side_w, eave - 0.61, 0.04), _m.conservatory)   # (a cm under the posts' tops)
+		_col(Vector3(mx, eave / 2.0, cz - hz), Vector3(side_w, eave, 0.2), 1)
+		deco(Vector3(s * hx, 0.3, cz), Vector3(0.18, 0.6, hz * 2.0), _m.white)
+		deco(Vector3(s * hx, 0.6 + (eave - 0.61) / 2.0, cz), Vector3(0.04, eave - 0.61, hz * 2.0), _m.conservatory)
+		_col(Vector3(s * hx, eave / 2.0, cz), Vector3(0.2, eave, hz * 2.0), 1)
+	deco(Vector3(0, (2.3 + eave) / 2.0, cz - hz), Vector3(door * 2.0, eave - 2.3, 0.04), _m.conservatory)   # over the door
+	var glass_door := SwingDoor.new()
+	glass_door.name = "ConservatoryDoor"
+	glass_door.width = door * 2.0
+	glass_door.height = 2.3
+	glass_door.material = _m.conservatory
+	glass_door.position = Vector3(-door, 0.0, cz - hz)   # its hinge; it swings out to the garden (-Z)
+	add_child(glass_door)
+	# Mullions: every 1.58 m along the front (but the doorway), every 1.56 m down the ends; a transom rail at door
+	# height; the eaves.
+	for i in 11:
+		var x := -hx + i * (hx * 2.0 / 10.0)
+		if absf(x) < door:
+			continue
+		_strut(Vector3(x, 0.6, cz - hz), Vector3(x, eave, cz - hz), bar, _m.white, false)
+	for x: float in [-door, door]:   # the door's posts
+		_strut(Vector3(x, 0.0, cz - hz), Vector3(x, 2.3, cz - hz), bar, _m.white, false)
+	for s: float in [-1.0, 1.0]:
+		for i in 6:
+			var z := cz - hz + i * (hz * 2.0 / 5.0)
+			_strut(Vector3(s * hx, 0.6, z), Vector3(s * hx, eave, z), bar, _m.white, false)
+	for y: float in [2.3, eave]:
+		_strut(Vector3(-hx, y, cz - hz), Vector3(hx, y, cz - hz), bar * 1.4, _m.white, false)
+		for s: float in [-1.0, 1.0]:
+			_strut(Vector3(s * hx, y, cz - hz), Vector3(s * hx, y, cz + hz), bar * 1.4, _m.white, false)
+	_strut(Vector3(-hx, eave, cz + hz), Vector3(hx, eave, cz + hz), bar * 1.4, _m.white, false)
+	# The corner posts, solid (as the old frame's were).
+	for x: float in [-hx, hx]:
+		for z: float in [cz - hz, cz + hz]:
+			solid(Vector3(x, eave / 2.0, z), Vector3(0.2, eave, 0.2), _m.white)
+	# The roof: two glass slopes up to the ridge, a gable of glass at each end.
+	var rise := ridge - eave
+	var run := hz
+	var slope := sqrt(rise * rise + run * run)
+	var ang := atan2(rise, run)
+	for s: float in [-1.0, 1.0]:   # s -1: the garden side (z less than cz); 1: the house side
+		var mid := Vector3(0, eave + rise / 2.0, cz + s * run / 2.0)
+		var basis := Basis(Vector3.RIGHT, s * ang)   # (+ tips +Z down: the house side falls away from the ridge)
+		_batches.get_or_add(_m.conservatory, []).append(Transform3D(basis * Basis.from_scale(Vector3(hx * 2.0, 0.04, slope)), mid))
+		# Rafters down each slope, in line with the mullions.
+		for i in 11:
+			var x := -hx + i * (hx * 2.0 / 10.0)
+			_strut(Vector3(x, eave, cz + s * run), Vector3(x, ridge, cz), bar, _m.white, false)
+	for s: float in [-1.0, 1.0]:
+		var gable := MeshInstance3D.new()
+		var pm := PrismMesh.new()
+		pm.size = Vector3(hz * 2.0, rise, 0.04)
+		gable.mesh = pm
+		gable.material_override = _m.conservatory
+		gable.position = Vector3(s * hx, eave + rise / 2.0, cz)
+		gable.rotation.y = PI / 2.0
+		add_child(gable)
+		_strut(Vector3(s * hx, eave, cz - hz), Vector3(s * hx, ridge, cz), bar * 1.2, _m.white, false)
+		_strut(Vector3(s * hx, eave, cz + hz), Vector3(s * hx, ridge, cz), bar * 1.2, _m.white, false)
+	# The ridge: a white beam, black iron cresting along it (little fleurs), a finial at each end.
+	_strut(Vector3(-hx - 0.1, ridge, cz), Vector3(hx + 0.1, ridge, cz), 0.14, _m.white, false)
+	var n := 20
+	for i in n + 1:
+		var x := -hx + i * (hx * 2.0 / n)
+		_strut(Vector3(x, ridge, cz), Vector3(x, ridge + (0.32 if i % 2 == 0 else 0.2), cz), 0.035, iron, false)
+	_strut(Vector3(-hx, ridge + 0.14, cz), Vector3(hx, ridge + 0.14, cz), 0.03, iron, false)
+	for s: float in [-1.0, 1.0]:
+		_strut(Vector3(s * (hx + 0.1), ridge, cz), Vector3(s * (hx + 0.1), ridge + 0.55, cz), 0.06, iron, false)
+		var ball := MeshInstance3D.new()
+		var sm := SphereMesh.new()
+		sm.radius = 0.1
+		sm.height = 0.2
+		ball.mesh = sm
+		ball.material_override = iron
+		ball.position = Vector3(s * (hx + 0.1), ridge + 0.62, cz)
+		add_child(ball)
+
+
 func _garden() -> void:
 	solid(Vector3(0, LAWN / 2.0, -156.0), Vector3(44.0, LAWN, 40.0), _m.lawn)     # x -22..22, z -136..-176
 	solid(Vector3(-22.5, 1.75, -156.0), Vector3(1.0, 3.5, 41.0), _m.hedge)
@@ -987,13 +1091,11 @@ func _garden() -> void:
 	solid(Vector3(0, 1.75, -176.5), Vector3(46.0, 3.5, 1.0), _m.hedge)
 	for s: float in [-1.0, 1.0]:
 		solid(Vector3(s * 17.15, 1.75, -136.35), Vector3(9.5, 3.5, 0.6), _m.hedge)   # from the house's corners to the side hedges
-	# The conservatory: glass on a white frame (its posts solid), against the house's back.
-	var cz := -142.0
-	deco(Vector3(0, 1.8, cz), Vector3(15.8, 3.6, 7.8), _m.conservatory)
-	for x: float in [-8.0, 8.0]:
-		for z: float in [-138.2, -145.9]:
-			solid(Vector3(x, 1.9, z), Vector3(0.2, 3.8, 0.2), _m.white)
-	deco(Vector3(0, 3.9, cz), Vector3(16.4, 0.2, 8.4), _m.white)
+	# The conservatory, Victorian (owner, 2026-11-14: "Gander's roof... seemed plain"; it was a flat white slab): a
+	# white dwarf wall, glass bays between white mullions, a pitched glass roof on white rafters, a ridge with iron
+	# cresting and a finial at each end. All glass stays see-through (the tantrum's fought inside it, seen from out);
+	# only the corner posts are solid, as before.
+	_conservatory(-142.0)
 	# Topiary: cones and balls in rows, tall enough to climb onto (step 4: out of the water).
 	for row in 3:
 		for col in 4:
@@ -1201,12 +1303,11 @@ func _places() -> void:
 	zone("The Allotments", Vector3(-72.0, -0.2, -58.0), Vector3(48, 10, 126))
 	zone("The Show Home", Vector3(0, -0.2, -126.0), Vector3(24, 10, 20))
 	zone("The Conservatory and Garden", Vector3(0, -0.2, -156.0), Vector3(44, 12, 40))
-	checkpoint_at(Vector3(0, 0, 2.0), 0.0)
 	checkpoint_at(Vector3(0, 0, -100.0), 0.0)
 	checkpoint_at(Vector3(49.0, LAWN, -49.0), PI / 2.0)
 	checkpoint_at(Vector3(-56.0, 0, 0.0), PI / 2.0)
 	checkpoint_at(Vector3(-35.0, LAWN, -28.0), 0.0)
 	checkpoint_at(Vector3(35.0, LAWN, -60.0), 0.0)
 	checkpoint_at(Vector3(0, 0, -138.5), PI)   # just inside the garden's door (step 4's fight)
-	travel_point(&"close", "The Close", Vector3(-6.5, PAVE, -2.0))
+	travel_point(&"close", "The Close", Vector3(-6.5, PAVE, -2.0))   # (the Close's checkpoint too: one flag a place)
 	travel_point(&"church", "St. Prudence's", Vector3(50.5, LAWN, -38.0))

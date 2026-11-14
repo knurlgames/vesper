@@ -47,6 +47,12 @@ var _contraband := 0
 ## The audit's Meshy buildings (2026-11-13): [prop -> items], placed at the end of _ready. Each stands over the
 ## greybox's own collision; `_have` says whether its GLB is built (else the greybox is drawn as before).
 var _dressing := {}
+## The building fronts' doorways, kept clear of their Meshy shells (door audit, 2026-11-14: the Prize Hall's front kept a
+## face across its doorway that hid its doors): prop -> boxes in world space.
+const DOORWAYS := {
+	"prize_hall_front": [AABB(Vector3(-3.1, 0.0, -258.2), Vector3(6.2, 5.0, 2.2))],
+	"funhouse_front": [AABB(Vector3(-1.5, 0.0, -112.1), Vector3(3.0, 3.2, 1.6))],
+}
 
 
 func _have(prop: String) -> bool:
@@ -59,6 +65,9 @@ func _dress(prop: String, item: Array) -> void:
 
 func _ready() -> void:
 	world_id = &"pier"
+	# The first time in: the promenade, the pier out to the Fun Palace, Dash, Vesper and the ramp down to her (owner's
+	# playtest: she never found Dash, and missed Vesper's lesson by not going down).
+	intro_cutscene = "res://data/cutscenes/pier_arrival.json"
 	load_data()
 	_materials()
 	_environment()
@@ -75,7 +84,7 @@ func _ready() -> void:
 	_keys()
 	_rain()
 	for p: String in _dressing:   # the Meshy buildings and railings, a MultiMesh each (the shells have no collision)
-		props(p, _dressing[p], false)
+		props(p, _dressing[p], false, 0.012, 0.0, DOORWAYS.get(p, []))
 	_flush()
 	arrival("start", SPAWN, 0.0)
 	arrival("hub", Vector3(-64.0, 0.05, 17.0), -PI / 2.0)   # in from the Old Quarter's arch, facing the pier
@@ -392,6 +401,15 @@ func _tent(at: Vector3) -> void:
 	solid(at + Vector3(3.2, 1.6, 2.4), Vector3(0.2, 3.2, 3.2), cloth)
 	solid(at + Vector3(3.2, 1.6, -2.4), Vector3(0.2, 3.2, 3.2), cloth)
 	solid(at + Vector3(3.2, 2.9, 0.0), Vector3(0.2, 0.6, 1.6), cloth)
+	# The curtain in the doorway (east wall, 1.6 x 2.6), parting as she comes (door audit, 2026-11-14: there was none).
+	var curtain := Curtain.new()
+	curtain.name = "PearlCurtain"
+	curtain.width = 1.6
+	curtain.height = 2.6
+	curtain.colour = Color("7a3a9a")
+	curtain.position = at + Vector3(3.2, 0, 0)
+	curtain.rotation.y = PI / 2.0   # its drapes hang across the doorway, along Z
+	add_child(curtain)
 	deco(at + Vector3(0, 3.5, 0), Vector3(7.0, 0.6, 8.4), gold)
 	deco(at + Vector3(0, 4.1, 0), Vector3(4.0, 0.6, 5.0), cloth)
 	# Inside: a round table with a crystal ball.
@@ -573,6 +591,11 @@ func _palace_body(h: float) -> void:
 		for p: Array in front:
 			_col(p[0], p[1], 1)
 		_dress("funhouse_front", [Vector3(0, DECK, -111.3), 0.0, Vector3(36.4, 13.0, 1.4)])
+		# The jester's relief stands 1.4 m proud of the wall: solid too, either side of his mouth and over it (door
+		# audit, 2026-11-14: she walked into his face and teeth).
+		for x: float in [-9.85, 9.85]:
+			_col(Vector3(x, h / 2.0, -111.3), Vector3(16.7, h, 1.4), 1)
+		_col(Vector3(0, (3.2 + h) / 2.0, -111.3), Vector3(3.0, h - 3.2, 1.4), 1)
 		for seg: Array in [[-9.75, 16.5, 0.0, h], [9.75, 16.5, 0.0, h], [0.0, 3.0, 3.2, h - 3.2]]:   # its inside face
 			var q := MeshInstance3D.new()
 			var qm := QuadMesh.new()
@@ -744,13 +767,25 @@ func _hall() -> void:
 	solid(Vector3(21.7, h / 2.0, -278.0), Vector3(0.6, h, 40.0), _m.hall)
 	solid(Vector3(0, h / 2.0, -297.7), Vector3(44.0, h, 0.6), _m.hall)
 	solid(Vector3(0, h + 0.2, -278.0), Vector3(44.0, 0.4, 40.0), _m.roof)
-	# Shut until Laffer's fight (WO-014 step 4).
-	var shutter := block(Vector3(0, 2.5, -258.0), Vector3(6.0, 5.0, 0.3), Look.toon(Color("6a6a74"), 0.4))
-	shutter.name = "HallShutter"
-	_sign("CLOSED FOR STOCKTAKING", Vector3(0, 2.6, -257.8), 0.0, Look.DECENCY_CREAM, 28, false).name = "ShutterSign"
+	# Its doors: shut until Laffer's fight (WO-014 step 4), and shut behind her during it (laffer.gd). A real pair
+	# that swings in (door audit, 2026-11-14: a grey slab that vanished, then an invisible wall in the fight).
+	var doors := LockDoor.new()
+	doors.name = "HallDoors"
+	doors.width = 6.0
+	doors.height = 5.0
+	doors.colour = Color("b0343e")
+	doors.position = Vector3(0, 0, -258.3)
+	doors.rotation.y = PI   # in from the pier (+Z): they swing open into the hall
+	add_child(doors)
+	_sign("CLOSED FOR STOCKTAKING", Vector3(0, 2.6, -258.05), 0.0, Look.DECENCY_CREAM, 28, false).name = "ShutterSign"
+	_light(Vector3(0, 4.4, -256.2), Color("ffc880"), 2.2, 7.0)   # over the doorway: the doors read, shut or open
 	if _have("prize_hall_front"):
-		# The Edwardian front (sunburst gable, bulbs), over the front wall; its doorway cut over the shutter's.
+		# The Edwardian front (sunburst gable, bulbs), over the front wall; its doorway cut over the doors'. Its
+		# relief stands 1.6 m proud of the wall: solid too, either side of the doorway and over it (door audit).
 		_dress("prize_hall_front", [Vector3(0, DECK, -257.2), 0.0, Vector3(44.6, 19.0, 1.6)])
+		for x: float in [-12.65, 12.65]:
+			_col(Vector3(x, h / 2.0, -257.2), Vector3(19.3, h, 1.6), 1)
+		_col(Vector3(0, (5.0 + h) / 2.0, -257.2), Vector3(6.0, h - 5.0, 1.6), 1)
 		_sign("PRIZE HALL", Vector3(0, 9.0, -256.2), 0.0, Color(2.4, 1.9, 0.6), 96)
 	else:
 		_sign("PRIZE HALL", Vector3(0, 9.0, -257.95), 0.0, Color(2.4, 1.9, 0.6), 96)
@@ -965,14 +1000,13 @@ func _places() -> void:
 	zone("Laffer's Fun Palace", Vector3(0, -0.2, -132), Vector3(40, 12, 40))
 	zone("The Big Dipper", Vector3(0, -0.2, -205), Vector3(80, 34, 106))
 	zone("The Prize Hall", Vector3(0, -0.2, -278), Vector3(52, 20, 40))
-	checkpoint_at(Vector3(0, DECK, 20), 0.0)
 	checkpoint_at(Vector3(0, DECK, -2), 0.0)
 	checkpoint_at(Vector3(-56, SAND, 1.5), PI / 2.0)
 	checkpoint_at(Vector3(-9, SAND, -21), 0.0)
 	checkpoint_at(Vector3(0, DECK, -60), 0.0)
-	checkpoint_at(Vector3(4, DECK, -106), 0.0)
 	checkpoint_at(Vector3(0, DECK, -160), 0.0)
 	checkpoint_at(Vector3(0, DECK, -252), 0.0)
+	# (The promenade's and the Fun Palace's travel posts are their checkpoints too: one flag a place.)
 	travel_point(&"promenade", "The Promenade", Vector3(-4, DECK, 24))
 	travel_point(&"midway", "The Midway", Vector3(-6, DECK, -46))
 	travel_point(&"palace", "The Fun Palace", Vector3(8, DECK, -106))

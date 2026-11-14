@@ -3,7 +3,7 @@ extends Level
 ## Meshy props and the greybox Nim. It's for the owner to judge the look ("velvet noir", ART_DIRECTION.md), not a
 ## level: nothing here is final layout.
 ##
-## A crossroads at the origin, roads 10 m wide. NE: the Velvet Rope, red door and canopy on the corner. NW: two
+## A crossroads at the origin, roads 10 m wide. NE: the Velvet Claw, red door and canopy on the corner. NW: two
 ## townhouses, a Coalition poster. SE: a lower block. SW: a little square with the advertising column, the bench and
 ## Nim. Lamps on every corner. Front of a Meshy prop is its +Z.
 
@@ -48,7 +48,7 @@ func _ready() -> void:
 	_props()
 	_rain()
 	_flush()
-	# The hub's stand-in until the Old Quarter is built: "Return to the club" arrives at the Velvet Rope's door.
+	# The hub's stand-in until the Old Quarter is built: "Return to the club" arrives at the Velvet Claw's door.
 	world_id = &"hub"
 	arrival("club_door", Vector3(ROAD + 5.5, KERB + 0.05, -ROAD - 0.8), PI)
 	spawn_player(SPAWN, -PI / 4.0)
@@ -217,7 +217,7 @@ func _window(at: Vector3, u: Vector3, n: Vector3, w: float, h: float, lit: bool)
 	_deco(at + n * 0.1 - Vector3.UP * (h / 2.0 + 0.08), au * (w + 0.3) + Vector3.UP * 0.1 + an * 0.2, _m_sill)
 
 
-# --- the Velvet Rope -------------------------------------------------------------------------------------------------
+# --- the Velvet Claw -------------------------------------------------------------------------------------------------
 
 func _club() -> void:
 	var p := ROAD + 2.2
@@ -236,7 +236,7 @@ func _club() -> void:
 	block(Vector3(dx, 3.25, face_z + 0.9), Vector3(3.6, 0.35, 1.8), _m_velvet, self, false)
 	_deco(Vector3(dx, 3.05, face_z + 1.82), Vector3(3.64, 0.08, 0.06), _m_brass)
 	var name_sign := Label3D.new()
-	name_sign.text = "THE VELVET ROPE"
+	name_sign.text = "THE VELVET CLAW"
 	name_sign.font_size = 72
 	name_sign.pixel_size = 0.0035
 	name_sign.outline_size = 10

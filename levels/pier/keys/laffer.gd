@@ -1,7 +1,7 @@
 extends "res://levels/pier/keys/pier_key.gd"
 ## The boss: Lucky Lou Laffer, in the Prize Hall (worlds/01_PIER.md, "The boss"). The hall opens once Nim has the
 ## courier's ledger (flag pier/ledger, Key 9). Walk in and the door locks behind her.
-##   1. The Claw. He works an overhead crane from a gallery high on the east wall. The claw tracks her, shakes, and
+##   1. The Cackling Crane. He works an overhead crane from a gallery high on the east wall. The claw tracks her, shakes, and
 ##      drops; dodge it. After a drop it sticks, and its cable is marked: climb it onto the crane's bridge and walk the
 ##      bridge to his gallery. He flees down a chute.
 ##   2. Whack-a-goon. The floor's a field of hatches. He pops up and down; hit him while he's up (claws or crop), three
@@ -72,7 +72,7 @@ var cable: AnimatableBody3D
 var _cable_shape: BoxShape3D
 var _cable_mesh: MeshInstance3D
 var _claw: Node3D
-var _door: StaticBody3D
+var _door: LockDoor
 var _bridge_z := -278.0
 var _trolley_x := 0.0
 var _claw_y := CLAW_UP
@@ -109,7 +109,9 @@ func _build() -> void:
 	for x: float in [-21.2, 21.2]:
 		pier.call(&"deco", Vector3(x, GALLERY_TOP + 0.6, -279.0), Vector3(0.3, 0.3, 35.0), brass)
 	# Laffer's control desk, and the chute down from the gallery's north end.
-	pier.call(&"deco", LAFFER_DESK + Vector3(-0.7, 0.5, 0), Vector3(0.6, 1.0, 1.6), Look.toon(Color("c83a4a"), 0.4))
+	# (owner, 2026-11-14: "Fix the Laffer prop": a Meshy showman's desk, levers and bulbs, its front to the hall, -X)
+	if not pier.call(&"props", "laffer_desk", [[LAFFER_DESK + Vector3(-0.75, 0, 0), -PI / 2.0]], false):
+		pier.call(&"deco", LAFFER_DESK + Vector3(-0.7, 0.5, 0), Vector3(0.6, 1.0, 1.6), Look.toon(Color("c83a4a"), 0.4))
 	pier.call(&"_strut", CHUTE_TOP + Vector3(0, 0.2, 0), CHUTE_FOOT + Vector3(0, 0.3, 0), 1.0,
 		Look.toon(Color("e8c860"), 0.5), false)
 	# The hatches: lids flush with the floor.
@@ -130,17 +132,8 @@ func _build() -> void:
 	# Light: the hall's been dark for stocktaking.
 	for p: Vector3 in [Vector3(-10, 10, -270), Vector3(10, 10, -270), Vector3(0, 11, -288)]:
 		pier.call(&"_light", p, Color("ffc870"), 3.0, 18.0)
-	# The door's lock: on during the fight.
-	_door = StaticBody3D.new()
-	_door.name = "HallLock"
-	_door.collision_layer = 0
-	var shape := BoxShape3D.new()
-	shape.size = Vector3(6.0, 5.0, 0.6)
-	var col := CollisionShape3D.new()
-	col.shape = shape
-	_door.add_child(col)
-	_door.position = Vector3(0, 2.5, -258.3)
-	add_child(_door)
+	# The hall's doors (pier.gd "HallDoors", a LockDoor): shut behind her during the fight, open between.
+	_door = pier.get_node_or_null(^"HallDoors") as LockDoor
 
 
 func _setup() -> void:
@@ -152,21 +145,25 @@ func _setup() -> void:
 		phase = Phase.DONE
 		laffer.global_position = LAFFER_TOP
 		_laffer_state(Enemy.State.BOUND)
+		if flag("laffer_gagged"):
+			_tape_on.call_deferred(false)
 		return
 	if flag("ledger"):
 		_open_hall()
 		phase = Phase.READY
 	Game.flag_changed.connect(func(key: StringName) -> void:
 		if key == &"pier/ledger" and phase == Phase.LOCKED:
-			_open_hall()
+			_open_hall(true)
 			phase = Phase.READY)
 
 
-func _open_hall() -> void:
-	for n: String in ["HallShutter", "ShutterSign"]:
-		var node := pier.get_node_or_null(n)
-		if node:
-			node.queue_free()
+## Open for business: the sign's down and the doors swing in (at once on loading a game where it's open).
+func _open_hall(animate := false) -> void:
+	var sign := pier.get_node_or_null(^"ShutterSign")
+	if sign:
+		sign.queue_free()
+	if _door:
+		_door.unlock(animate)
 
 
 func _make_crane() -> void:
@@ -241,6 +238,7 @@ func _make_laffer() -> void:
 	if EnemyModel.exists("laffer"):
 		var m := EnemyModel.new()
 		m.body = "laffer"
+		m.no_mouth_tape = true   # (tied in the scuffle, mouth free; Nim tapes him after his last word: tape_gag)
 		laffer = m
 	else:
 		laffer = Node3D.new()
@@ -299,15 +297,17 @@ func _physics_process(delta: float) -> void:
 
 
 func _begin() -> void:
-	_door.collision_layer = 1
+	if _door:
+		_door.lock()
 	phase = stage   # at once, so this can't run twice while the intro plays
 	if stage == Phase.CLAW:
 		claw_state = Claw.PARKED
 		if flag("laffer_met"):
-			Hud.caption("Laffer", "Back again! Ha ha! Lucky Dip!", 2.0)
+			Hud.caption("Laffer", "Back again! Ha ha! Another go on the Cackling Crane!", 2.0)
 		else:
 			set_flag("laffer_met")
-			await talk("laffer", "intro")
+			# His entrance (owner, 2026-11-13: boss intros as cutscenes): the hall, then him at his desk, his piece.
+			await Dialogue.play_cutscene("res://data/cutscenes/laffer_intro.json")
 		_start_claw()
 	elif stage == Phase.WHACK:
 		Hud.caption("Laffer", "Back for more? Ha ha! Whack-a-goon, boys!", 2.5)
@@ -319,7 +319,8 @@ func _begin() -> void:
 
 ## Downed, she's back at the checkpoint outside: the door opens, and this phase starts over when she comes back in.
 func _reset() -> void:
-	_door.collision_layer = 0
+	if _door:
+		_door.unlock()
 	phase = Phase.READY
 	for b in _boxes:
 		b.queue_free()
@@ -333,7 +334,7 @@ func _reset() -> void:
 		laffer.visible = true
 
 
-# --- 1. the Claw -----------------------------------------------------------------------------------------------------
+# --- 1. the Cackling Crane (his claw machine: never "the Claw", the crew's name) ---------------------------------
 
 func _start_claw() -> void:
 	phase = Phase.CLAW
@@ -595,13 +596,32 @@ func _caught() -> void:
 	cloud.poof()
 	_laffer_state(Enemy.State.BOUND)
 	set_flag("laffer_bound")
-	await talk("laffer", "rosette")
-	_door.collision_layer = 0
-	# Vesper, at the door, for the walk back.
+	if _door:
+		_door.unlock()
+	# Vesper, at the door, for the walk back (there first, so the cutscene can find her).
 	talker("Vesper_hall", "vesper", "hall_after", Vector3(1.5, 0.0, -261.0), 0.0, "vesper", "garb", "Vesper", Color("c0283e"))
-	await get_tree().create_timer(0.5).timeout
-	await talk("vesper", "adequate")
+	# His defeat as a cutscene (owner, 2026-11-13): the rosette, Dash's whoop, Vesper's "Adequate."
+	await Dialogue.play_cutscene("res://data/cutscenes/laffer_defeat.json")
 	await pier.complete(false)
+
+
+## The second half of his finish (owner, 2026-11-14: tied in the scuffle, his last lines, Nim's retort, then the tape
+## "properly gagged"): a strip of tape over his grin. Called from laffer_defeat.json; awaitable.
+func tape_gag() -> Signal:
+	return _tape_on(true)
+
+
+var _tape_rig: RigGear
+
+
+func _tape_on(slap: bool) -> Signal:
+	set_flag("laffer_gagged")
+	var sk: Skeleton3D = laffer.call(&"skeleton") if laffer.has_method(&"skeleton") else null
+	if sk == null or _tape_rig != null:
+		return get_tree().process_frame
+	_tape_rig = RigGear.new(sk, laffer)
+	_tape_rig.tape_colour = RigGear.DUCT
+	return RigGear.slap_on(_tape_rig.gag("tape"), self) if slap else get_tree().process_frame
 
 
 # --- Laffer as a target ----------------------------------------------------------------------------------------------

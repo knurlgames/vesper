@@ -1,6 +1,6 @@
 # OWNER REVIEW
-# The prologue, in the Velvet Rope's dungeon (worlds/01_PIER.md "Coming in"; levels/hub/prologue.gd): Nim's first
-# night as one of the Rope; a member's guest comes down the ramp with a humming prize plush; Vesper reads the tag.
+# The prologue, in the Velvet Claw's dungeon (worlds/01_PIER.md "Coming in"; levels/hub/prologue.gd): Nim's first
+# night as one of the Claw; a member's guest comes down the ramp with a humming prize plush; Vesper reads the tag.
 
 ~ welcome
 Vesper [calm]: Your first night as one of us, Nim. Not a guest any more. Not a project.
@@ -20,7 +20,7 @@ Vesper: Then you know what to do. The toy, not him. Gently.
 Guest: ...Where am I? Why is everything so... velvet?
 Vesper [warm]: You're safe. Sit down. Someone will bring you tea.
 [narrator] Vesper unpins a velvet rose from her lapel and holds it out to Nim.
-Vesper [warm]: The Rope gives a rose for good work. That was good work.
+Vesper [warm]: The Claw gives a rose for good work. That was good work.
 Nim: It's just a rose.
 Vesper [calm]: It's a record. Keep every one you're given. Nobody can take them back.
 Vesper: Every street out of our square ends at a gate, and the gate knows how many you hold.
@@ -30,4 +30,7 @@ Vesper [calm]: "Prize. Laffer's Fun Palace. The Pier."
 Vesper: Swyne's toys, handed out as prizes, three streets from our door.
 Vesper: Dash is at the Pier already. Seafront Road, east across the square. Go and help her.
 Nim: Help her, or race her?
-Vesper [warm]: She'll race you either way. Go.
+Vesper [warm]: She'll race you either way.
+# The sisters, away on their jobs (core/sisters.gd; owner, 2026-11-13). The board in the Backroom says who's where.
+Nim: Where is everyone? The rooms downstairs are all dark.
+Vesper [calm]: Out on Swyne's trail. You will be meeting up with them later.

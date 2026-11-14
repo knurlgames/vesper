@@ -35,5 +35,17 @@ func _initialize() -> void:
 	for f in 20:
 		await process_frame
 	root.get_texture().get_image().save_png(dir.path_join("newspaper.png"))
+	for f in 30:   # the card closes with A; skip it here
+		await process_frame
+	(dialogue.get(&"_card") as Control).visible = false
+	# The Banjo box both ways round: Vesper on the left (warm, brows up), then Nim answering on the right.
+	dialogue.call(&"run", "res://data/dialogue/hub/prologue.dialogue", "welcome")
+	for f in 150:
+		await process_frame
+	root.get_texture().get_image().save_png(dir.path_join("dialogue_vesper.png"))
+	dialogue.call(&"_advance")
+	for f in 150:
+		await process_frame
+	root.get_texture().get_image().save_png(dir.path_join("dialogue_nim.png"))
 	print("dialogue shots in ", dir)
 	quit()
